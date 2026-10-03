@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400"><rect width="300" height="400" fill="#cfe0d8"/>
+<path d="M30 400 C40 300 90 270 150 268 C210 270 260 300 270 400Z" fill="#2f5d50"/>
+<rect x="128" y="215" width="44" height="60" rx="18" fill="#b9825f" opacity=".88"/>
+<ellipse cx="150" cy="160" rx="62" ry="78" fill="#b9825f"/><circle cx="150" cy="72" r="28" fill="#1f1a17"/><path d="M88 150 C86 96 118 80 152 80 C188 80 216 100 213 150 C204 122 188 108 150 108 C112 108 96 124 88 150Z" fill="#1f1a17"/>
+<ellipse cx="127" cy="165" rx="7" ry="5" fill="#2b2420"/><ellipse cx="173" cy="165" rx="7" ry="5" fill="#2b2420"/>
+<path d="M132 205 Q150 214 168 205" stroke="#7a4a35" stroke-width="4" fill="none" stroke-linecap="round"/>
+<text x="150" y="388" font-family="sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity=".85">SAMPLE</text></svg>

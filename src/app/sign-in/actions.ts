@@ -12,7 +12,8 @@ export type SignInState = {
 };
 
 const Email = z.string().trim().toLowerCase().pipe(z.email());
-const Code = z.string().trim().regex(/^\d{6}$/);
+// Supabase is set to 6 digits; 6–10 are accepted so a length change in its settings can't lock everyone out.
+const Code = z.string().transform((s) => s.replace(/\s/g, "")).pipe(z.string().regex(/^\d{6,10}$/));
 
 /** Step 1: send a 6-digit code, but only to invited admin and gate-device emails. */
 export async function sendCode(_prev: SignInState, form: FormData): Promise<SignInState> {
@@ -24,7 +25,7 @@ export async function sendCode(_prev: SignInState, form: FormData): Promise<Sign
   const { data: allowed, error: checkError } = await supabase.rpc("can_sign_in", { p_email: email });
   if (checkError) return { step: "email", email, error: "Couldn't reach the server. Check the connection and try again." };
   // Same message whether or not the email is invited, so the page doesn't reveal who has access.
-  const notice = `If ${email} is set up for My Alumnus, a 6-digit code is on its way. It expires in 1 hour.`;
+  const notice = `If ${email} is set up for My Alumnus, a 6-digit code is on its way. It works once.`;
   if (!allowed) return { step: "code", email, notice };
 
   const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
@@ -39,7 +40,7 @@ export async function sendCode(_prev: SignInState, form: FormData): Promise<Sign
 export async function verifyCode(_prev: SignInState, form: FormData): Promise<SignInState> {
   const email = String(form.get("email") ?? "");
   const code = Code.safeParse(form.get("code"));
-  if (!code.success) return { step: "code", email, error: "Enter the 6 digits from the email." };
+  if (!code.success) return { step: "code", email, error: "Enter the code from the email: digits only." };
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({ email, token: code.data, type: "email" });
   if (error) return { step: "code", email, error: "That code didn't work. It may have expired: check the latest email, or send a new code." };

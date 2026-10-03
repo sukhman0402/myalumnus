@@ -41,7 +41,7 @@ export function SignInForm() {
       <div className={`ma-field${state.error ? " is-error" : ""}`}>
         <label className="ma-field__label" htmlFor="code">6-digit code</label>
         <div className="ma-field__box">
-          <input ref={codeRef} id="code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6}
+          <input ref={codeRef} id="code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6,10}" maxLength={10}
             aria-invalid={checked.error ? true : undefined} aria-describedby="code-h" required />
         </div>
         <p className="ma-field__help" id="code-h">

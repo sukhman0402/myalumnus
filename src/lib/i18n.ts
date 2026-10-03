@@ -1,0 +1,263 @@
+// Guard-console words in English and Hindi (planning/02 D12). Most strings come from the prototype that
+// was usability-tested (research/63, 64). Lines marked "new" were written for the real app and still need a
+// native Hindi review, like the rest of the Hindi (research/64).
+export type Lang = "en" | "hi";
+export const LANGS: Lang[] = ["en", "hi"];
+export const LANG_COOKIE = "ma-lang";
+
+const en = {
+  "lang.switch": "हिन्दी", "lang.label": "Language",
+  "title.search": "Search", "title.duty": "Who's on duty?",
+  "nav.search": "Search", "nav.expected": "Expected today", "nav.inside": "Inside now",
+  "soon": "Coming in a later build",
+  "duty.title": "Tap your name to start your shift", // new
+  "duty.note": "Every entry you make is recorded under your name until the next guard taps theirs.", // new
+  "duty.none.t": "No guards on this gate's list", "duty.none.d": "Ask an admin to add guards for {g}.", // new
+  "duty.change": "Change guard", "duty.shift": "Shift {s}", // new
+  "search.label": "Search alumnus, faculty or placement visitor", "search.ph": "Type a name…",
+  "search.clear": "Clear search", // new
+  "search.help.idle": "Type a name to begin. Results appear after 3 letters.",
+  "search.help.short": "Keep typing. Results appear after 3 letters.",
+  "search.help.busy": "Searching…", "search.help.count": "{n} results. Open the one the visitor names.",
+  "search.help.one": "1 result. Open it if it is the visitor's name.", "search.help.none": "No results.",
+  "search.help.error": "Couldn't search. Check the connection, then type again.", // new
+  "search.results": "{n} results for “{q}”", "search.result1": "1 result for “{q}”",
+  "search.more": "Showing the first 25. Type more of the name to narrow it down.", // new
+  "nomatch.title": "No match for “{q}”", "nomatch.sub": "Not in the alumni list or today's visitor list.",
+  "nomatch.1": "Check the spelling with the visitor, then search again.",
+  "nomatch.2": "Try the first name only, or the surname only.",
+  "nomatch.3": "Still not found: hold them at the gate for admin.",
+  "family.register": "Register a student-family visit",
+  "kind.alumnus": "Alumnus", "kind.faculty": "Visiting faculty", "kind.placement": "Placement visitor", "kind.student": "Current student",
+  "batch": "Batch {y}", "nophoto": "no photo",
+  "photo.added": "Photo added {d}", "photo.enlarge": "Enlarge photo of {n}", "photo.alt": "Photo of {n}",
+  "photo.none.t": "No photo on file", "photo.none.d": "Check batch year and department with the visitor, or Flag & Hold.",
+  "close": "Close", "cancel": "Cancel",
+  "back.results": "Search results",
+  "purpose": "Purpose of visit", "purpose.ph": "e.g. Meeting Prof. Rao, Mechanical",
+  "purpose.help.expected": "From today's expected list. Change it if the visitor says otherwise.",
+  "purpose.help.walkin": "Ask where they're going. It's used to find them if they overstay.",
+  "chip.expected": "Expected {t}", "chip.now": "Now {t}", "chip.inside": "Inside since {t}", // inside: new
+  "hours.locked": "Outside visiting hours ({open}–{close}). Approve is unavailable: Deny, or Flag & Hold for admin.",
+  "inside.locked": "Already inside since {t} ({g}). Approve is unavailable: check the visitor's photo again, then Deny, or Flag & Hold for admin.", // new
+  "dec.group": "Decision", "dec.approve": "Approve", "dec.deny": "Deny", "dec.hold": "Flag & Hold",
+  "hold.soon": "Flag & Hold arrives in the next build. Until then, call the admin office.", // new
+  "deny.title": "Deny entry to {n}?", "deny.reason": "Reason for denying", "deny.ph": "e.g. Photo doesn't match",
+  "deny.help": "Saved to the visit's audit trail.", "deny.err": "Add a reason before denying.",
+  "res.approved.b": "Approved · {n} · {t}.", "res.approved": "Entry logged. They now appear in Inside now.",
+  "res.denied.b": "Denied · {n} · {t}.", "res.denied": "Reason: {r}. Saved to the audit trail.",
+  "dup.title": "{c} people named {n}", "dup.prompt.sub": "Ask the visitor's batch year or department before opening a record.",
+  "dup.ask.small": "Ask the visitor first. Don't read the options out.", "dup.ask": "Which batch year and department were you in?",
+  "dup.tap": "Tap the one that matches their answer. Only that record opens, with its photo.",
+  "dup.neither": "Answer matches neither?",
+  "today": "Today", "tile.expected": "Expected today", "tile.inside": "Inside now", "tile.flagged": "Flagged & hold", "tile.visits": "Today's visits",
+  "err.no_shift": "No guard is on duty. Tap your name to start your shift, then try again.", // new
+  "err.outside_hours": "Visiting hours have just ended. Approve is unavailable: Deny, or Flag & Hold for admin.", // new
+  "err.already_inside": "This person was just let in at another gate. Check the photo again before doing anything else.", // new
+  "err.not_found": "This record is no longer available. Search again.", // new
+  "err.generic": "Couldn't save. Check the connection, then try again. Nothing was recorded.", // new
+  "skip.main": "Skip to content",
+  // ---- slices 2–3 (escalation, inside, expected, family); from the prototype unless marked new ----
+  "title.flag": "Flag & Hold", "title.expected": "Expected today", "title.inside": "Inside now", "title.family": "Family visit",
+  "title.cases": "Flagged & hold", // new
+  "back.search": "Back to search", "back.inside": "Inside now",
+  "fh.title": "Hold the visitor for admin",
+  "fh.sub": "Admin gets this now. If admin doesn't reply in {m} minutes, you'll call the host.",
+  "fh.name": "Name the visitor gave", "fh.says": "What they say they are", "fh.says.help": "Batch and department, in their words.",
+  "fh.why": "Why are you holding them?",
+  "fh.why.1": "Name not found", "fh.why.2": "Photo doesn't match", "fh.why.3": "No photo, details don't match",
+  "fh.why.4": "Outside visiting hours", "fh.why.5": "Something else",
+  "fh.host": "Who are they here to see?", "fh.host.help": "You'll call this person if admin doesn't reply.",
+  "fh.hostphone": "Host's phone", "fh.hostphone.help": "Ask the visitor if it isn't filled in.",
+  "fh.visitorphone": "Visitor's phone (optional)", "fh.visitorphone.help": "Used only if they are still inside after visiting hours.", // new
+  "fh.err.name": "Enter the name the visitor gave.", "fh.err.host": "Enter who they came to see, so you can call them if needed.",
+  "fh.err.phone": "Check the number: digits, spaces and + only.", // new
+  "case.back": "Search another visitor · this case stays open",
+  "case.withadmin": "With admin · {timer}",
+  "case.step1": "Admin decides", "case.step1.sub": "{n} and {k} other admins notified at {t}", "case.step1.sub1": "{n} notified at {t}", // sub/sub1: new wording
+  "case.step2": "You call the host", "case.step2.sub": "{h}, if no reply by {t}",
+  "case.tell": "Tell the visitor", "case.tell.admin": "Your visit is with the admin. If they don't reply by {t}, I'll call {h}.",
+  "case.host.banner.a": "No reply from admin in {m} minutes.", "case.host.banner.b": "Call the host now.",
+  "case.host.call": "Call {h}", "case.after": "After the call",
+  "case.after.text": "Host confirms: Approve. Host says no, or can't be reached: Deny with the reason “Unverified, host unreachable” and ask the visitor to contact the host directly.",
+  "case.unreachable": "Unverified, host unreachable",
+  "case.admin.can": "Admin can still reply; their decision would appear here.",
+  "case.approved.admin.b": "Approved by admin ({a}) · {t}.", "case.approved.admin": "Let {n} in. Entry logged.",
+  "case.denied.admin.b": "Denied by admin ({a}) · {t}.", "case.denied.admin": "Reason: {r}.",
+  "case.approved.host.b": "Approved after host call · {t}.", "case.approved.host": "Let {n} in. Entry logged.",
+  "case.denied.host.b": "Denied · {r} · {t}.", "case.denied.host": "Saved to the audit trail.",
+  "case.tell.denied": "I couldn't confirm your visit. Please contact {h} directly; once they confirm, come back to the gate.",
+  "case.waiting": "Waiting for admin", "case.withhost": "Call the host", // new
+  "cases.none": "No visitors are on hold", "cases.none.sub": "Flag & Hold a visitor from their record or from a search with no match.", // new
+  "kv.visitor": "Visitor", "kv.says": "Says", "kv.why": "Why held", "kv.purpose": "Purpose", "kv.host": "Host", "kv.asgiven": "(name as given)",
+  "exp.title": "{n} expected today", "exp.sub": "Added by admin. Open a row when the visitor arrives; walk-ins are searched as usual.",
+  "exp.none": "No visits expected today", "exp.none.sub": "Admin hasn't added anyone for today. Walk-in visitors are searched as usual.",
+  "exp.meta": "{k} · {t} · Host: {h}", "chip.arrived": "Arrived {t}",
+  "in.title": "{n} people inside", "in.title1": "1 person inside", // title1: new
+  "in.sub": "Mark the exit when they leave the gate. Anyone still inside after visiting hours end is flagged.", // reworded for Q4
+  "in.none": "No one is inside right now", "in.none.sub": "Visitors appear here once they are approved at the gate.",
+  "in.since": "{k} · in since {t} · Purpose: {p}", "in.family": "{g} guests · host: {s} (student) · in since {t}",
+  "in.exit": "Mark exit", "in.follow": "Follow up", "in.close": "Close visit",
+  "in.overstay": "1 overstay", "in.overstays": "{n} overstays", "chip.overstay": "Overstay · {m} min",
+  "exit.title": "Mark exit for {n}?", "exit.body": "The visit closes at {t}. They leave the Inside now list.",
+  "exit.done.b": "Exit marked · {n} · {t}.", "exit.done": "Visit closed after {d}.",
+  "ov.title": "Follow up, in this order", "ov.1": "Call {n} on the number above.",
+  "ov.1.nophone": "No phone number on record: go to the purpose's location first.", // new
+  "ov.2": "No answer: check the purpose ({p}) for where they are likely to be.", "ov.3": "Still not found: go there, or call that building's desk.",
+  "ov.call": "Call {n}", "kv.insince": "In since", "kv.phone": "Phone",
+  "kv.insince.v": "{t} (visiting hours ended {u})", // new (Q4)
+  "purpose.none": "not recorded", "walkin.norecord": "Walk-in · no record",
+  "fam.title": "Register a student-family visit",
+  "fam.sub": "The student must be at the gate. Find them in the student list first; their family is their responsibility until it leaves.",
+  "fam.search": "Student's name or roll number", "fam.found": "{n} student found. Check the photo against the student at the gate.",
+  "fam.found.n": "{n} students found. Check the photo against the student at the gate.", // new
+  "fam.none": "No current student matches “{q}”",
+  "fam.none.sub": "Check the spelling, or search by roll number from the student's ID card. A family visit can't be registered without a current student.",
+  "fam.guests": "Number of guests", "fam.guests.help": "Headcount only. Guests aren't named.",
+  "fam.less": "One fewer guest", "fam.more": "One more guest", "fam.purpose": "Purpose",
+  "fam.read.small": "Read this to the student before the family enters", "fam.read": "You're responsible for your guests until they leave.",
+  "fam.log": "Log family visit", "fam.lookup": "Student lookup", "kv.roll": "Roll {r}",
+  "fam.saved.b": "Family visit logged · {g} guests with {s} · {t}.", "fam.saved": "They appear in Inside now until you close the visit.",
+  "fam.close.title": "Family of {s}", "fam.close.sub": "Close the visit when the whole group has left. {s}'s responsibility ends when you close it.",
+  "fam.close": "Close the family visit",
+  "fam.closed.b": "Family visit closed · {s} · {t}.", "fam.closed": "{g} guests left. {s} is no longer responsible.",
+  "kv.guests": "Guests", "kv.hoststudent": "Host student",
+  "err.name_required": "Enter the name the visitor gave.", "err.host_required": "Enter who they came to see, so you can call them if needed.", // new
+  "err.reason_required": "Add a reason before denying.", "err.student_required": "That student isn't on the current student list.", // new
+  "err.not_allowed": "This can't be done from this gate right now. Refresh the screen.", // new
+};
+type Key = keyof typeof en;
+
+const hi: Record<Key, string> = {
+  "lang.switch": "English", "lang.label": "भाषा",
+  "title.search": "खोजें", "title.duty": "अभी ड्यूटी पर कौन है?",
+  "nav.search": "खोजें", "nav.expected": "आज आने वाले", "nav.inside": "अभी अंदर",
+  "soon": "बाद के बिल्ड में आएगा",
+  "duty.title": "शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें",
+  "duty.note": "अगले गार्ड के नाम टैप करने तक आपकी हर एंट्री आपके नाम से दर्ज होगी।",
+  "duty.none.t": "इस गेट की सूची में कोई गार्ड नहीं", "duty.none.d": "{g} के लिए गार्ड जोड़ने को एडमिन से कहें।",
+  "duty.change": "गार्ड बदलें", "duty.shift": "शिफ़्ट {s}",
+  "search.label": "पूर्व छात्र, फ़ैकल्टी या प्लेसमेंट विज़िटर खोजें", "search.ph": "नाम लिखें…",
+  "search.clear": "खोज साफ़ करें",
+  "search.help.idle": "शुरू करने के लिए नाम लिखें। 3 अक्षरों के बाद नतीजे दिखेंगे।",
+  "search.help.short": "लिखते रहें। 3 अक्षरों के बाद नतीजे दिखेंगे।",
+  "search.help.busy": "खोज रहे हैं…", "search.help.count": "{n} नतीजे। विज़िटर जो नाम बताए, वही खोलें।",
+  "search.help.one": "1 नतीजा। अगर यही विज़िटर का नाम है तो खोलें।", "search.help.none": "कोई नतीजा नहीं।",
+  "search.help.error": "खोज नहीं हो पाई। कनेक्शन जाँचें, फिर दोबारा लिखें।",
+  "search.results": "“{q}” के {n} नतीजे", "search.result1": "“{q}” का 1 नतीजा",
+  "search.more": "पहले 25 नतीजे दिख रहे हैं। छाँटने के लिए नाम का और हिस्सा लिखें।",
+  "nomatch.title": "“{q}” का कोई मेल नहीं", "nomatch.sub": "पूर्व छात्रों की सूची या आज की विज़िटर सूची में नहीं है।",
+  "nomatch.1": "विज़िटर से स्पेलिंग जाँचें, फिर दोबारा खोजें।",
+  "nomatch.2": "सिर्फ़ पहला नाम या सिर्फ़ उपनाम लिखकर देखें।",
+  "nomatch.3": "फिर भी न मिले: एडमिन के लिए गेट पर रोकें।",
+  "family.register": "छात्र के परिवार की विज़िट दर्ज करें",
+  "kind.alumnus": "पूर्व छात्र", "kind.faculty": "विज़िटिंग फ़ैकल्टी", "kind.placement": "प्लेसमेंट विज़िटर", "kind.student": "वर्तमान छात्र",
+  "batch": "बैच {y}", "nophoto": "फ़ोटो नहीं",
+  "photo.added": "फ़ोटो {d} में जोड़ी गई", "photo.enlarge": "{n} की फ़ोटो बड़ी करें", "photo.alt": "{n} की फ़ोटो",
+  "photo.none.t": "फ़ोटो उपलब्ध नहीं", "photo.none.d": "विज़िटर से बैच वर्ष और विभाग पूछें, या रोकें और सूचित करें।",
+  "close": "बंद करें", "cancel": "रद्द करें",
+  "back.results": "खोज के नतीजे",
+  "purpose": "आने का कारण", "purpose.ph": "जैसे: प्रो. राव से मिलना, मैकेनिकल",
+  "purpose.help.expected": "आज की सूची से भरा गया है। विज़िटर कुछ और बताए तो बदलें।",
+  "purpose.help.walkin": "पूछें कि वे कहाँ जा रहे हैं। समय से ज़्यादा रुकने पर उन्हें ढूँढने में काम आएगा।",
+  "chip.expected": "{t} बजे आने वाले", "chip.now": "अभी {t}", "chip.inside": "{t} से अंदर",
+  "hours.locked": "विज़िटिंग समय ({open}–{close}) के बाहर। अनुमति नहीं दी जा सकती: मना करें, या एडमिन के लिए रोकें।",
+  "inside.locked": "{t} से पहले ही अंदर हैं ({g})। अनुमति नहीं दी जा सकती: विज़िटर की फ़ोटो फिर से जाँचें, फिर मना करें, या एडमिन के लिए रोकें।",
+  "dec.group": "निर्णय", "dec.approve": "अनुमति दें", "dec.deny": "मना करें", "dec.hold": "रोकें और सूचित करें",
+  "hold.soon": "“रोकें और सूचित करें” अगले बिल्ड में आएगा। तब तक एडमिन ऑफ़िस को कॉल करें।",
+  "deny.title": "{n} को प्रवेश से मना करें?", "deny.reason": "मना करने का कारण", "deny.ph": "जैसे: फ़ोटो मेल नहीं खाती",
+  "deny.help": "विज़िट के ऑडिट रिकॉर्ड में सेव होगा।", "deny.err": "मना करने से पहले कारण लिखें।",
+  "res.approved.b": "अनुमति दी · {n} · {t}।", "res.approved": "एंट्री दर्ज हुई। अब वे “अभी अंदर” में दिखेंगे।",
+  "res.denied.b": "मना किया · {n} · {t}।", "res.denied": "कारण: {r}। ऑडिट रिकॉर्ड में सेव हुआ।",
+  "dup.title": "{n} नाम के {c} लोग", "dup.prompt.sub": "रिकॉर्ड खोलने से पहले विज़िटर से बैच वर्ष या विभाग पूछें।",
+  "dup.ask.small": "पहले विज़िटर से पूछें। विकल्प पढ़कर न सुनाएँ।", "dup.ask": "आप किस बैच वर्ष और विभाग में थे?",
+  "dup.tap": "उनके जवाब से मेल खाने वाले पर टैप करें। सिर्फ़ वही रिकॉर्ड फ़ोटो के साथ खुलेगा।",
+  "dup.neither": "जवाब किसी से मेल नहीं खाता?",
+  "today": "आज", "tile.expected": "आज आने वाले", "tile.inside": "अभी अंदर", "tile.flagged": "रोके गए", "tile.visits": "आज की विज़िट",
+  "err.no_shift": "कोई गार्ड ड्यूटी पर नहीं है। शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें, फिर दोबारा कोशिश करें।",
+  "err.outside_hours": "विज़िटिंग समय अभी खत्म हुआ है। अनुमति नहीं दी जा सकती: मना करें, या एडमिन के लिए रोकें।",
+  "err.already_inside": "इन्हें अभी दूसरे गेट से अंदर जाने दिया गया है। कुछ भी करने से पहले फ़ोटो फिर से जाँचें।",
+  "err.not_found": "यह रिकॉर्ड अब उपलब्ध नहीं है। दोबारा खोजें।",
+  "err.generic": "सेव नहीं हो पाया। कनेक्शन जाँचें, फिर दोबारा कोशिश करें। कुछ भी दर्ज नहीं हुआ।",
+  "skip.main": "मुख्य हिस्से पर जाएँ",
+  "title.flag": "रोकें और सूचित करें", "title.expected": "आज आने वाले", "title.inside": "अभी अंदर", "title.family": "परिवार की विज़िट",
+  "title.cases": "रोके गए",
+  "back.search": "खोज पर वापस", "back.inside": "अभी अंदर",
+  "fh.title": "विज़िटर को एडमिन के लिए रोकें",
+  "fh.sub": "एडमिन को अभी सूचना जाएगी। {m} मिनट में जवाब न आए तो आप होस्ट को कॉल करेंगे।",
+  "fh.name": "विज़िटर ने जो नाम बताया", "fh.says": "वे खुद को क्या बताते हैं", "fh.says.help": "बैच और विभाग, उनके अपने शब्दों में।",
+  "fh.why": "आप उन्हें क्यों रोक रहे हैं?",
+  "fh.why.1": "नाम नहीं मिला", "fh.why.2": "फ़ोटो मेल नहीं खाती", "fh.why.3": "फ़ोटो नहीं, जानकारी मेल नहीं खाती",
+  "fh.why.4": "विज़िटिंग समय के बाहर", "fh.why.5": "कुछ और",
+  "fh.host": "वे किससे मिलने आए हैं?", "fh.host.help": "एडमिन का जवाब न आए तो आप इन्हें कॉल करेंगे।",
+  "fh.hostphone": "होस्ट का फ़ोन", "fh.hostphone.help": "भरा न हो तो विज़िटर से पूछें।",
+  "fh.visitorphone": "विज़िटर का फ़ोन (ज़रूरी नहीं)", "fh.visitorphone.help": "सिर्फ़ तब काम आएगा जब वे विज़िटिंग समय के बाद भी अंदर हों।",
+  "fh.err.name": "विज़िटर ने जो नाम बताया, वह लिखें।", "fh.err.host": "वे किससे मिलने आए हैं, यह लिखें ताकि ज़रूरत हो तो आप कॉल कर सकें।",
+  "fh.err.phone": "नंबर जाँचें: सिर्फ़ अंक, स्पेस और +।",
+  "case.back": "दूसरा विज़िटर खोजें · यह केस खुला रहेगा",
+  "case.withadmin": "एडमिन के पास · {timer}",
+  "case.step1": "एडमिन फ़ैसला करेंगे", "case.step1.sub": "{t} बजे {n} और {k} अन्य एडमिन को सूचना दी गई", "case.step1.sub1": "{t} बजे {n} को सूचना दी गई",
+  "case.step2": "आप होस्ट को कॉल करेंगे", "case.step2.sub": "{h}, अगर {t} तक जवाब न आए",
+  "case.tell": "विज़िटर को बताएँ", "case.tell.admin": "आपकी विज़िट एडमिन के पास है। {t} तक जवाब न आया तो मैं {h} को कॉल करूँगा।",
+  "case.host.banner.a": "{m} मिनट में एडमिन का जवाब नहीं आया।", "case.host.banner.b": "अभी होस्ट को कॉल करें।",
+  "case.host.call": "{h} को कॉल करें", "case.after": "कॉल के बाद",
+  "case.after.text": "होस्ट पुष्टि करें: अनुमति दें। होस्ट मना करें या संपर्क न हो: “पुष्टि नहीं, होस्ट से संपर्क नहीं हुआ” कारण के साथ मना करें और विज़िटर से होस्ट से सीधे संपर्क करने को कहें।",
+  "case.unreachable": "पुष्टि नहीं, होस्ट से संपर्क नहीं हुआ",
+  "case.admin.can": "एडमिन अब भी जवाब दे सकते हैं; उनका फ़ैसला यहाँ दिखेगा।",
+  "case.approved.admin.b": "एडमिन ({a}) ने अनुमति दी · {t}।", "case.approved.admin": "{n} को अंदर जाने दें। एंट्री दर्ज हुई।",
+  "case.denied.admin.b": "एडमिन ({a}) ने मना किया · {t}।", "case.denied.admin": "कारण: {r}।",
+  "case.approved.host.b": "होस्ट से कॉल के बाद अनुमति · {t}।", "case.approved.host": "{n} को अंदर जाने दें। एंट्री दर्ज हुई।",
+  "case.denied.host.b": "मना किया · {r} · {t}।", "case.denied.host": "ऑडिट रिकॉर्ड में सेव हुआ।",
+  "case.tell.denied": "मैं आपकी विज़िट की पुष्टि नहीं कर सका। कृपया {h} से सीधे संपर्क करें; उनकी पुष्टि के बाद गेट पर वापस आएँ।",
+  "case.waiting": "एडमिन के जवाब का इंतज़ार", "case.withhost": "होस्ट को कॉल करें",
+  "cases.none": "कोई विज़िटर रुका हुआ नहीं है", "cases.none.sub": "विज़िटर के रिकॉर्ड से, या कोई मेल न मिलने पर खोज से, उन्हें रोकें और सूचित करें।",
+  "kv.visitor": "विज़िटर", "kv.says": "बताते हैं", "kv.why": "रोकने का कारण", "kv.purpose": "आने का कारण", "kv.host": "होस्ट", "kv.asgiven": "(बताया गया नाम)",
+  "exp.title": "आज {n} लोग आने वाले", "exp.sub": "एडमिन ने जोड़ा है। विज़िटर के आने पर पंक्ति खोलें; बिना सूचना आने वालों को सामान्य तरह खोजें।",
+  "exp.none": "आज कोई आने वाला नहीं", "exp.none.sub": "एडमिन ने आज के लिए किसी को नहीं जोड़ा। बिना सूचना आने वालों को सामान्य तरह खोजें।",
+  "exp.meta": "{k} · {t} · होस्ट: {h}", "chip.arrived": "{t} बजे पहुँचे",
+  "in.title": "{n} लोग अंदर", "in.title1": "1 व्यक्ति अंदर",
+  "in.sub": "गेट से निकलते समय निकास दर्ज करें। विज़िटिंग समय ख़त्म होने के बाद भी अंदर रहने वालों पर निशान लगेगा।",
+  "in.none": "अभी कोई अंदर नहीं है", "in.none.sub": "गेट पर अनुमति मिलने के बाद विज़िटर यहाँ दिखेंगे।",
+  "in.since": "{k} · {t} से अंदर · कारण: {p}", "in.family": "{g} मेहमान · होस्ट: {s} (छात्र) · {t} से अंदर",
+  "in.exit": "निकास दर्ज करें", "in.follow": "पता करें", "in.close": "विज़िट बंद करें",
+  "in.overstay": "1 समय से ज़्यादा", "in.overstays": "{n} समय से ज़्यादा", "chip.overstay": "समय से ज़्यादा · {m} मिनट",
+  "exit.title": "{n} का निकास दर्ज करें?", "exit.body": "विज़िट {t} बजे बंद होगी। वे “अभी अंदर” सूची से हट जाएँगे।",
+  "exit.done.b": "निकास दर्ज · {n} · {t}।", "exit.done": "विज़िट {d} बाद बंद हुई।",
+  "ov.title": "इस क्रम में पता करें", "ov.1": "ऊपर दिए नंबर पर {n} को कॉल करें।",
+  "ov.1.nophone": "रिकॉर्ड में फ़ोन नंबर नहीं है: पहले आने के कारण वाली जगह पर जाएँ।",
+  "ov.2": "जवाब न मिले: आने का कारण ({p}) देखें कि वे कहाँ हो सकते हैं।", "ov.3": "फिर भी न मिलें: वहाँ जाएँ, या उस बिल्डिंग के डेस्क पर कॉल करें।",
+  "ov.call": "{n} को कॉल करें", "kv.insince": "कब से अंदर", "kv.phone": "फ़ोन",
+  "kv.insince.v": "{t} (विज़िटिंग समय {u} बजे ख़त्म हुआ)",
+  "purpose.none": "दर्ज नहीं", "walkin.norecord": "बिना सूचना · कोई रिकॉर्ड नहीं",
+  "fam.title": "छात्र के परिवार की विज़िट दर्ज करें",
+  "fam.sub": "छात्र का गेट पर होना ज़रूरी है। पहले छात्र सूची में उन्हें खोजें; परिवार के जाने तक उसकी ज़िम्मेदारी छात्र की है।",
+  "fam.search": "छात्र का नाम या रोल नंबर", "fam.found": "{n} छात्र मिला। गेट पर मौजूद छात्र से फ़ोटो मिलाएँ।",
+  "fam.found.n": "{n} छात्र मिले। गेट पर मौजूद छात्र से फ़ोटो मिलाएँ।",
+  "fam.none": "“{q}” से कोई वर्तमान छात्र मेल नहीं खाता",
+  "fam.none.sub": "स्पेलिंग जाँचें, या छात्र के आईडी कार्ड से रोल नंबर खोजें। वर्तमान छात्र के बिना परिवार की विज़िट दर्ज नहीं हो सकती।",
+  "fam.guests": "मेहमानों की संख्या", "fam.guests.help": "सिर्फ़ गिनती। मेहमानों के नाम नहीं लिखे जाते।",
+  "fam.less": "एक मेहमान कम", "fam.more": "एक मेहमान ज़्यादा", "fam.purpose": "आने का कारण",
+  "fam.read.small": "परिवार के अंदर जाने से पहले छात्र को यह पढ़कर सुनाएँ", "fam.read": "मेहमानों के जाने तक उनकी ज़िम्मेदारी आपकी है।",
+  "fam.log": "परिवार की विज़िट दर्ज करें", "fam.lookup": "छात्र खोज", "kv.roll": "रोल {r}",
+  "fam.saved.b": "परिवार की विज़िट दर्ज · {s} के साथ {g} मेहमान · {t}।", "fam.saved": "विज़िट बंद करने तक वे “अभी अंदर” में दिखेंगे।",
+  "fam.close.title": "{s} का परिवार", "fam.close.sub": "पूरा समूह निकल जाए तब विज़िट बंद करें। बंद करते ही {s} की ज़िम्मेदारी ख़त्म होगी।",
+  "fam.close": "परिवार की विज़िट बंद करें",
+  "fam.closed.b": "परिवार की विज़िट बंद · {s} · {t}।", "fam.closed": "{g} मेहमान गए। अब {s} ज़िम्मेदार नहीं हैं।",
+  "kv.guests": "मेहमान", "kv.hoststudent": "होस्ट छात्र",
+  "err.name_required": "विज़िटर ने जो नाम बताया, वह लिखें।", "err.host_required": "वे किससे मिलने आए हैं, यह लिखें ताकि ज़रूरत हो तो आप कॉल कर सकें।",
+  "err.reason_required": "मना करने से पहले कारण लिखें।", "err.student_required": "यह छात्र वर्तमान छात्र सूची में नहीं है।",
+  "err.not_allowed": "यह अभी इस गेट से नहीं हो सकता। स्क्रीन रिफ़्रेश करें।",
+};
+
+const DICT: Record<Lang, Record<Key, string>> = { en, hi };
+export type TKey = Key;
+
+/** Look up a string and fill {placeholders}. Values are plain text; React escapes them when rendered. */
+export function tr(lang: Lang, key: TKey, vars: Record<string, string | number> = {}): string {
+  const s = DICT[lang][key] ?? en[key];
+  return s.replace(/\{(\w+)\}/g, (_, k) => (k in vars ? String(vars[k]) : `{${k}}`));
+}
+
+export function asLang(v: string | undefined | null): Lang {
+  return v === "hi" ? "hi" : "en";
+}
