@@ -1,0 +1,25 @@
+-- Index every foreign key (performance advisor, 2026-10-02): cheap now, avoids slow joins and deletes later.
+create index if not exists campus_rules_university_idx  on public.campus_rules (university_id);
+create index if not exists campuses_university_idx      on public.campuses (university_id);
+create index if not exists cases_decided_by_idx         on public.cases (decided_by);
+create index if not exists cases_gate_idx               on public.cases (gate_id);
+create index if not exists cases_held_by_idx            on public.cases (held_by);
+create index if not exists cases_person_idx             on public.cases (person_id);
+create index if not exists expected_gate_idx            on public.expected_visits (gate_id);
+create index if not exists expected_person_idx          on public.expected_visits (person_id);
+create index if not exists expected_day_idx             on public.expected_visits (university_id, expected_at);
+create index if not exists family_gate_idx              on public.family_visits (gate_id);
+create index if not exists family_logged_by_idx         on public.family_visits (logged_by);
+create index if not exists family_student_idx           on public.family_visits (student_id);
+create index if not exists family_university_idx        on public.family_visits (university_id);
+create index if not exists gates_campus_idx             on public.gates (campus_id);
+create index if not exists gates_university_idx         on public.gates (university_id);
+create index if not exists shifts_gate_idx              on public.shifts (gate_id);
+create index if not exists shifts_guard_idx             on public.shifts (guard_id);
+create index if not exists shifts_university_idx        on public.shifts (university_id);
+create index if not exists staff_gate_idx               on public.staff (gate_id);
+create index if not exists staff_university_idx         on public.staff (university_id);
+create index if not exists visits_case_idx              on public.visits (case_id);
+create index if not exists visits_decided_by_idx        on public.visits (decided_by);
+create index if not exists visits_gate_idx              on public.visits (gate_id);
+create index if not exists visits_person_idx            on public.visits (person_id);

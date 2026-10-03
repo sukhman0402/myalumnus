@@ -1,0 +1,712 @@
+/* Text sizes are rem (Mockup factor 3): controls use min-height, never height, so text enlarged by the
+   browser setting grows the control instead of clipping. Icons, photos and spacing stay in px.
+   My Alumnus — reference implementation of the Component states decided in research/44, step 1.
+   Hand-written, NOT generated. Uses only tokens from dist/tokens.css (--ma-*).
+   Markup:
+     <button class="ma-decision ma-decision--approve"><svg class="ma-ic">…check…</svg>Approve</button>
+     <button class="ma-decision ma-decision--approve" aria-disabled="true"><svg class="ma-ic">…lock…</svg>Approve</button>
+   Disabled uses aria-disabled (not the disabled attribute) so the button stays focusable and
+   keyboard users can reach the lock + reason; the click handler must ignore it. */
+
+/* ---------- Decision buttons: Approve / Deny / Flag & Hold ---------- */
+.ma-decision {
+  --_bg: var(--ma-button-decision-approve-bg);
+  --_fg: var(--ma-button-decision-approve-text);
+  --_bg-pressed: var(--ma-button-decision-approve-bg-pressed);
+  --_ripple: rgb(255 255 255 / 0.28);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;                                   /* default: text only */
+  min-height: var(--ma-button-decision-height);
+  padding: 0 var(--ma-space-6);
+  border: 0;
+  border-radius: var(--ma-button-decision-radius);
+  background: var(--_bg);
+  color: var(--_fg);
+  font-family: var(--ma-button-decision-typography-font-family);
+  font-size: var(--ma-button-decision-typography-font-size);
+  font-weight: var(--ma-button-decision-typography-font-weight);
+  line-height: var(--ma-button-decision-typography-line-height);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: gap var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing);
+}
+.ma-decision--deny {
+  --_bg: var(--ma-button-decision-deny-bg);
+  --_fg: var(--ma-button-decision-deny-text);
+  --_bg-pressed: var(--ma-button-decision-deny-bg-pressed);
+}
+.ma-decision--hold {
+  --_bg: var(--ma-button-decision-hold-bg);
+  --_fg: var(--ma-button-decision-hold-text);
+  --_bg-pressed: var(--ma-button-decision-hold-bg-pressed);
+  --_ripple: rgb(29 35 51 / 0.16);
+}
+
+/* The icon is collapsed by default and slides in. */
+.ma-decision .ma-ic {
+  width: 0;
+  height: var(--ma-button-decision-icon-size);
+  opacity: 0;
+  flex: 0 0 auto;
+  transition:
+    width var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing),
+    opacity var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing);
+}
+.ma-decision:focus-visible { gap: var(--ma-button-decision-gap); }
+.ma-decision:focus-visible .ma-ic { width: var(--ma-button-decision-icon-size); opacity: 1; }
+
+/* Hover (mouse only): same fill, icon appears. */
+@media (hover: hover) {
+  .ma-decision:hover { gap: var(--ma-button-decision-gap); }
+  .ma-decision:hover .ma-ic { width: var(--ma-button-decision-icon-size); opacity: 1; }
+}
+
+/* Keyboard focus: icon + label and a 2px ring with a 2px gap. */
+.ma-decision:focus { outline: none; }
+.ma-decision:focus-visible {
+  outline: var(--ma-button-decision-focus-ring-width) solid var(--ma-button-decision-focus-ring);
+  outline-offset: var(--ma-button-decision-focus-ring-offset);
+}
+
+/* Pressed: 10% on-colour layer + ripple, text only (overrides hover/focus icon). */
+.ma-decision:not([aria-disabled="true"]):active { background: var(--_bg-pressed); gap: 0; }
+.ma-decision:not([aria-disabled="true"]):active .ma-ic { width: 0; opacity: 0; }
+.ma-decision:not([aria-disabled="true"]):active::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: calc(var(--ma-button-decision-height) * 1.6);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--_ripple) 0 45%, transparent 46%);
+  pointer-events: none;
+}
+
+/* Disabled (e.g. Approve outside visiting hours): grey, text only; lock on hover / focus. */
+.ma-decision[aria-disabled="true"] {
+  background: var(--ma-button-decision-disabled-bg);
+  color: var(--ma-button-decision-disabled-text);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ma-decision, .ma-decision .ma-ic { transition: none; }
+}
+
+/* ---------- Actions (decided: Option 3) ---------- */
+.ma-btn {
+  display: inline-flex; align-items: center; gap: var(--ma-space-2);
+  border: 0; border-radius: var(--ma-button-primary-radius); cursor: pointer;
+  font-family: var(--ma-font-family-sans); text-decoration: none;  /* also used on <a> that navigate */
+}
+.ma-btn--primary, .ma-btn--secondary {
+  min-height: var(--ma-button-primary-height); padding: 0 var(--ma-space-6);
+  font-size: var(--ma-button-primary-typography-font-size); font-weight: var(--ma-button-primary-typography-font-weight);
+}
+.ma-btn--primary   { background: var(--ma-button-primary-bg);   color: var(--ma-button-primary-text); }
+.ma-btn--secondary { background: var(--ma-button-secondary-bg); color: var(--ma-button-secondary-text); }
+.ma-btn--row, .ma-btn--retry {
+  min-height: var(--ma-button-row-action-height); padding: 0 var(--ma-space-4);
+  font-size: var(--ma-button-row-action-typography-font-size); font-weight: 600;
+}
+.ma-btn--row   { background: var(--ma-button-row-action-bg); color: var(--ma-button-row-action-text); }
+.ma-btn--retry { background: var(--ma-button-retry-bg); color: var(--ma-button-retry-text); margin-left: auto; }
+.ma-btn:focus-visible {
+  outline: var(--ma-button-decision-focus-ring-width) solid var(--ma-button-decision-focus-ring);
+  outline-offset: var(--ma-button-decision-focus-ring-offset);
+}
+/* Icon on hover (v1.15, owner rule 2026-10-02, research/63): every action button is text only by default
+   ("Call Rahul", "Mark exit"); its icon slides in on mouse hover and on keyboard focus — the decision-button rule.
+   Touch screens show text only. Icon-only buttons (stepper − / +) opt out with .ma-btn--icon and must carry aria-label. */
+.ma-btn:not(.ma-btn--icon) { gap: 0; transition: gap var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing); }
+.ma-btn:not(.ma-btn--icon) > svg {
+  width: 0; height: var(--ma-size-icon); opacity: 0; flex: 0 0 auto;
+  transition:
+    width var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing),
+    opacity var(--ma-button-decision-icon-reveal-duration) var(--ma-button-decision-icon-reveal-easing);
+}
+.ma-btn:not(.ma-btn--icon):focus-visible { gap: var(--ma-space-2); }
+.ma-btn:not(.ma-btn--icon):focus-visible > svg { width: var(--ma-size-icon); opacity: 1; }
+@media (hover: hover) {
+  .ma-btn:not(.ma-btn--icon):hover { gap: var(--ma-space-2); }
+  .ma-btn:not(.ma-btn--icon):hover > svg { width: var(--ma-size-icon); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .ma-btn, .ma-btn > svg { transition: none; } }
+
+/* ---------- Status chip (decided: Option 3) ---------- */
+.ma-chip {
+  --_bg: var(--ma-chip-status-info-bg); --_fg: var(--ma-chip-status-info-text);
+  display: inline-flex; align-items: center; gap: var(--ma-chip-status-gap);
+  min-height: var(--ma-chip-status-height);
+  padding: 0 var(--ma-chip-status-padding-end) 0 var(--ma-chip-status-padding-start);
+  border-radius: var(--ma-chip-status-radius);
+  background: var(--_bg); color: var(--_fg);
+  font-family: var(--ma-font-family-sans);
+  font-size: var(--ma-chip-status-typography-font-size); font-weight: var(--ma-chip-status-typography-font-weight);
+}
+.ma-chip--hold    { --_bg: var(--ma-chip-status-hold-bg);    --_fg: var(--ma-chip-status-hold-text); }
+.ma-chip--success { --_bg: var(--ma-chip-status-success-bg); --_fg: var(--ma-chip-status-success-text); }
+.ma-chip--danger  { --_bg: var(--ma-chip-status-danger-bg);  --_fg: var(--ma-chip-status-danger-text); }
+.ma-circle {
+  display: inline-grid; place-items: center; flex: 0 0 auto;
+  width: var(--ma-chip-status-circle); height: var(--ma-chip-status-circle);
+  border-radius: 50%; background: var(--_fg); color: var(--_bg);
+}
+.ma-circle svg { width: var(--ma-chip-status-icon); height: var(--ma-chip-status-icon); }
+
+/* ---------- Banner: escalation + decision results (decided: Option 3) ---------- */
+.ma-banner {
+  --_bg: var(--ma-chip-status-hold-bg); --_fg: var(--ma-chip-status-hold-text);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-banner-status-gap);  /* wraps at narrow widths (WCAG 1.4.10) */
+  min-height: var(--ma-banner-status-height);
+  padding: var(--ma-space-2) var(--ma-banner-status-padding-end) var(--ma-space-2) var(--ma-banner-status-padding-start);
+  border-radius: min(var(--ma-banner-status-radius), calc(var(--ma-banner-status-height) / 2));  /* same as a pill on one line; stays 24px when it wraps */
+  background: var(--_bg); color: var(--_fg);
+  font-family: var(--ma-font-family-sans);
+  font-size: var(--ma-banner-status-result-typography-font-size);
+}
+.ma-banner--escalation { font-size: var(--ma-banner-status-typography-font-size); font-weight: var(--ma-banner-status-typography-font-weight); }
+.ma-banner--success { --_bg: var(--ma-chip-status-success-bg); --_fg: var(--ma-chip-status-success-text); }
+.ma-banner--danger  { --_bg: var(--ma-chip-status-danger-bg);  --_fg: var(--ma-chip-status-danger-text); }
+.ma-banner .ma-circle { width: var(--ma-banner-status-circle); height: var(--ma-banner-status-circle); }
+.ma-banner .ma-circle svg { width: var(--ma-banner-status-icon); height: var(--ma-banner-status-icon); }
+.ma-tabular { font-variant-numeric: tabular-nums; }
+
+/* ---------- Navigation rail (research/44 step 2) ----------
+   <nav class="ma-rail"><div class="ma-rail__logo">MA</div>
+     <a class="ma-rail__item" href="/search" aria-current="page"><svg>…</svg><span>Search</span></a> …</nav>
+   The current page carries aria-current="page" (the guard console opens on Search). */
+.ma-rail {
+  width: max-content; min-width: var(--ma-rail-width); box-sizing: border-box; padding: var(--ma-rail-padding);  /* widens with enlarged text instead of breaking words */
+  display: flex; flex-direction: column; gap: var(--ma-rail-gap);
+  background: var(--ma-rail-bg); border-radius: var(--ma-rail-radius);
+}
+.ma-rail__logo {
+  min-width: var(--ma-rail-item-width); min-height: var(--ma-rail-item-height); padding: var(--ma-space-1); box-sizing: border-box; border-radius: var(--ma-rail-item-radius);
+  display: grid; place-items: center; font-weight: 700;
+  background: var(--ma-color-brand-surface); color: var(--ma-color-brand-on-surface);
+}
+.ma-rail__item {
+  position: relative; overflow: hidden;
+  min-width: var(--ma-rail-item-width); min-height: var(--ma-rail-item-height); padding: var(--ma-space-1) var(--ma-space-2); box-sizing: border-box; border-radius: var(--ma-rail-item-radius);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ma-rail-item-gap);
+  border: 0; padding: 0; background: transparent; text-decoration: none; cursor: pointer;
+  color: var(--ma-rail-item-text);
+  transition: color var(--ma-rail-item-transition-duration) var(--ma-rail-item-transition-easing);
+}
+.ma-rail__item svg { width: var(--ma-rail-item-icon-size); height: var(--ma-rail-item-icon-size); }
+.ma-rail__item span {
+  font-family: var(--ma-rail-item-typography-font-family); font-size: var(--ma-rail-item-typography-font-size);
+  font-weight: var(--ma-rail-item-typography-font-weight); line-height: var(--ma-rail-item-typography-line-height);
+  letter-spacing: var(--ma-rail-item-typography-letter-spacing); text-align: center;
+  /* the item grows with its label, so nothing clips under enlarged text or text spacing (WCAG 1.4.4, 1.4.12) */
+}
+@media (hover: hover) { .ma-rail__item:not([aria-current="page"]):hover { color: var(--ma-rail-item-text-hover); } }
+.ma-rail__item:active { background-image: linear-gradient(var(--ma-rail-item-pressed-layer), var(--ma-rail-item-pressed-layer)); }
+.ma-rail__item:focus { outline: none; }
+.ma-rail__item:focus-visible {
+  color: var(--ma-rail-item-text-hover);
+  outline: var(--ma-rail-item-focus-ring-width) solid var(--ma-rail-item-focus-ring);
+  outline-offset: var(--ma-rail-item-focus-ring-offset);
+}
+.ma-rail__item[aria-current="page"] { background-color: var(--ma-rail-item-selected-bg); color: var(--ma-rail-item-selected-text); }
+.ma-rail__item[aria-current="page"]:active {
+  background-image: linear-gradient(var(--ma-rail-item-selected-pressed-layer), var(--ma-rail-item-selected-pressed-layer));
+}
+
+/* ---------- Tabs (segmented, research/44 step 2) ----------
+   <div class="ma-tabs" role="tablist"><button class="ma-tab" role="tab" aria-selected="true">Today</button>…</div>
+   Arrow keys move between tabs (WAI-ARIA tabs pattern); only the selected tab is in the Tab order. */
+.ma-tabs {
+  box-sizing: border-box; display: inline-flex; align-items: center; gap: var(--ma-tabs-track-gap); padding: var(--ma-tabs-track-padding);
+  min-height: var(--ma-tabs-track-height); background: var(--ma-tabs-track-bg); border-radius: var(--ma-tabs-radius);
+}
+.ma-tab {
+  position: relative; overflow: hidden; min-height: var(--ma-tabs-tab-height); padding: 0 var(--ma-tabs-tab-padding-x);
+  border: 0; border-radius: var(--ma-tabs-radius); background: transparent; cursor: pointer;
+  color: var(--ma-tabs-tab-text);
+  font-family: var(--ma-tabs-tab-typography-font-family); font-size: var(--ma-tabs-tab-typography-font-size);
+  font-weight: var(--ma-tabs-tab-typography-font-weight); line-height: var(--ma-tabs-tab-typography-line-height);
+  transition: color var(--ma-motion-duration-reveal) var(--ma-motion-easing-out);
+}
+@media (hover: hover) { .ma-tab:hover { color: var(--ma-tabs-tab-text-hover); } }
+.ma-tab:active { background-image: linear-gradient(var(--ma-tabs-tab-pressed-layer), var(--ma-tabs-tab-pressed-layer)); }
+.ma-tab:focus { outline: none; }
+.ma-tab:focus-visible {
+  color: var(--ma-tabs-tab-text-hover);
+  outline: var(--ma-tabs-tab-focus-ring-width) solid var(--ma-tabs-tab-focus-ring);
+  outline-offset: var(--ma-tabs-tab-focus-ring-offset);
+}
+.ma-tab[aria-selected="true"] {
+  background-color: var(--ma-tabs-tab-selected-bg); color: var(--ma-tabs-tab-selected-text);
+  font-weight: var(--ma-tabs-tab-selected-weight);
+}
+/* Ripple shared by rail items and tabs */
+:is(.ma-rail__item, .ma-tab):active::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 56px; aspect-ratio: 1; translate: -50% -50%;
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, var(--ma-color-state-pressed-layer) 0 45%, transparent 46%);
+}
+@media (prefers-reduced-motion: reduce) { .ma-rail__item, .ma-tab { transition: none; } }
+
+/* ---------- Fields: text, search, select (research/44 step 3) ----------
+   <div class="ma-field">
+     <label class="ma-field__label" for="q">Search alumnus, faculty or placement visitor</label>
+     <div class="ma-field__box"><svg class="ma-field__icon">…search…</svg>
+       <input id="q" placeholder="Type a name…" aria-describedby="q-help">
+       <button class="ma-field__clear" aria-label="Clear">…x…</button></div>
+     <p class="ma-field__help" id="q-help"><svg>…</svg>Type a name to begin. Results appear after 3 letters.</p></div>
+   Modifiers on .ma-field: .is-error, .is-disabled (input gets readonly + aria-disabled="true"), .is-busy (spinner). */
+.ma-field { display: flex; flex-direction: column; gap: var(--ma-field-label-gap); }
+.ma-field__label {
+  font-family: var(--ma-field-label-typography-font-family); font-size: var(--ma-field-label-typography-font-size);
+  font-weight: var(--ma-field-label-typography-font-weight); line-height: var(--ma-field-label-typography-line-height);
+  color: var(--ma-field-label-text);
+}
+.ma-field__help {
+  margin: 0; display: flex; align-items: center; gap: var(--ma-field-gap);
+  font-family: var(--ma-field-helper-typography-font-family); font-size: var(--ma-field-helper-typography-font-size);
+  font-weight: var(--ma-field-helper-typography-font-weight); line-height: var(--ma-field-helper-typography-line-height);
+  color: var(--ma-field-helper-text);
+}
+.ma-field__help svg { width: var(--ma-field-helper-icon-size); height: var(--ma-field-helper-icon-size); flex: 0 0 auto; }
+.ma-field__box {
+  position: relative; display: flex; align-items: center; gap: var(--ma-field-gap);
+  min-height: var(--ma-field-height); padding: 0 var(--ma-field-padding-x);
+  background: var(--ma-field-bg); border-radius: var(--ma-field-radius);
+  box-shadow: inset 0 0 0 var(--ma-field-border-width) var(--ma-field-border);
+  color: var(--ma-field-text); cursor: text;
+  transition: box-shadow var(--ma-field-transition-duration) var(--ma-field-transition-easing);
+}
+.ma-field__icon, .ma-field__spin { width: var(--ma-field-icon-size); height: var(--ma-field-icon-size); color: var(--ma-field-icon); flex: 0 0 auto; }
+.ma-field__box :is(input, select) {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; appearance: none;
+  font-family: var(--ma-field-value-typography-font-family); font-size: var(--ma-field-value-typography-font-size);
+  font-weight: var(--ma-field-value-typography-font-weight); line-height: var(--ma-field-value-typography-line-height);
+}
+.ma-field__box input::placeholder { color: var(--ma-field-placeholder); opacity: 1; }
+@media (hover: hover) { .ma-field__box:hover { box-shadow: inset 0 0 0 var(--ma-field-border-width) var(--ma-field-border-hover); } }
+.ma-field__box:focus-within {
+  box-shadow: inset 0 0 0 var(--ma-field-border-width) var(--ma-field-border-hover);
+  outline: var(--ma-field-focus-ring-width) solid var(--ma-field-focus-ring); outline-offset: var(--ma-field-focus-ring-offset);
+}
+.ma-field__clear {
+  display: none; place-items: center; width: var(--ma-field-clear-size); height: var(--ma-field-clear-size);
+  margin-right: calc(var(--ma-space-2) * -1); border: 0; border-radius: 50%; background: transparent;
+  color: var(--ma-field-icon); cursor: pointer;
+}
+.ma-field__clear svg { width: var(--ma-field-clear-icon-size); height: var(--ma-field-clear-icon-size); }
+.ma-field__box:has(input:not(:placeholder-shown)) .ma-field__clear { display: grid; }
+@media (hover: hover) { .ma-field__clear:hover { color: var(--ma-field-text); } }
+.ma-field__clear:active { background: var(--ma-field-clear-pressed-layer); }
+.ma-field__spin { display: none; }
+.ma-field.is-busy .ma-field__spin { display: block; }
+.ma-field.is-busy .ma-field__box .ma-field__clear { display: none; }
+.ma-field.is-error .ma-field__box { box-shadow: inset 0 0 0 var(--ma-field-error-border-width) var(--ma-field-error-border); }
+.ma-field.is-error .ma-field__help { color: var(--ma-field-error-text); }
+.ma-field.is-disabled .ma-field__box { background: var(--ma-field-disabled-bg); box-shadow: none; color: var(--ma-field-disabled-text); cursor: not-allowed; }
+.ma-field.is-disabled .ma-field__lock {
+  width: 0; height: var(--ma-field-icon-size); opacity: 0; flex: 0 0 auto;
+  transition: width var(--ma-field-transition-duration) var(--ma-field-transition-easing), opacity var(--ma-field-transition-duration);
+}
+@media (hover: hover) { .ma-field.is-disabled .ma-field__box:hover .ma-field__lock { width: var(--ma-field-icon-size); opacity: 1; } }
+.ma-field.is-disabled .ma-field__box:focus-within .ma-field__lock { width: var(--ma-field-icon-size); opacity: 1; }
+.ma-field.is-disabled .ma-field__box:focus-within { box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .ma-field__box, .ma-field__lock { transition: none !important; } }
+
+/* ---------- Lists: search results, Expected today, Inside now (research/44 step 4) ----------
+   <ul class="ma-list" aria-label="Search results">   (a plain list of links; announce "3 results" in a role="status" region)
+     <li><a class="ma-row" href="/record/42"><span class="ma-row__photo"><img …></span>
+       <span class="ma-row__text"><b>Rahul Verma</b><span>Alumnus · B.Tech Mechanical · Batch 2019</span></span>
+       <svg class="ma-row__chev">…chevron-right…</svg></a></li> …</ul>
+   A row with its own button (Inside now → Mark exit) uses <div class="ma-row ma-row--static">, with chips and
+   actions grouped in <span class="ma-row__end">…</span>. */
+.ma-list { list-style: none; margin: 0; padding: var(--ma-list-padding); background: var(--ma-list-bg); border-radius: var(--ma-list-radius); }
+.ma-list > li + li { border-top: 1px solid var(--ma-list-divider); }
+.ma-row {
+  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-list-row-gap);
+  min-height: var(--ma-list-row-min-height); padding: 0 var(--ma-list-row-padding-x);
+  border-radius: var(--ma-list-row-radius); color: var(--ma-list-row-name-text); text-decoration: none; cursor: pointer;
+}
+.ma-row--static { cursor: default; }
+.ma-row__photo {
+  flex: 0 0 auto; width: var(--ma-list-row-photo-size); height: var(--ma-list-row-photo-size);
+  border-radius: var(--ma-list-row-photo-radius); background: var(--ma-list-row-photo-bg); overflow: hidden;
+  display: grid; place-items: center; color: var(--ma-list-row-meta-text);
+}
+.ma-row__photo img { width: 100%; height: 100%; object-fit: cover; }
+.ma-row__text { flex: 1 1 8rem; min-width: 0; display: flex; flex-direction: column; }  /* below ~8rem the chips and actions wrap to a second line instead of crushing the name (WCAG 1.4.10) */
+.ma-row__end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--ma-list-row-gap); margin-left: auto; }
+/* Chips and row actions go inside .ma-row__end, so on a narrow screen they wrap together to the right edge. */
+.ma-row--static { padding-block: var(--ma-space-2); }
+.ma-row__text b {
+  font-family: var(--ma-list-row-name-typography-font-family); font-size: var(--ma-list-row-name-typography-font-size);
+  font-weight: var(--ma-list-row-name-typography-font-weight); line-height: var(--ma-list-row-name-typography-line-height);
+}
+.ma-row__text span {
+  font-family: var(--ma-list-row-meta-typography-font-family); font-size: var(--ma-list-row-meta-typography-font-size);
+  font-weight: var(--ma-list-row-meta-typography-font-weight); line-height: var(--ma-list-row-meta-typography-line-height);
+  color: var(--ma-list-row-meta-text);
+}
+.ma-row__chev {
+  flex: 0 0 auto; width: 0; height: var(--ma-list-row-chevron-size); opacity: 0; color: var(--ma-list-row-chevron);
+  transition: width var(--ma-list-row-transition-duration) var(--ma-list-row-transition-easing),
+              opacity var(--ma-list-row-transition-duration), color var(--ma-list-row-transition-duration);
+}
+/* Hover: no fill; the chevron slides in and darkens. Focus / active option: same cue + ring inside the row. */
+@media (hover: hover) { .ma-row:not(.ma-row--static):hover .ma-row__chev { width: var(--ma-list-row-chevron-size); opacity: 1; color: var(--ma-list-row-chevron-hover); } }
+.ma-row:focus { outline: none; }
+.ma-row:focus-visible, .ma-row[aria-selected="true"] {
+  outline: var(--ma-list-row-focus-ring-width) solid var(--ma-list-row-focus-ring); outline-offset: var(--ma-list-row-focus-ring-offset);
+}
+:is(.ma-row:focus-visible, .ma-row[aria-selected="true"]) .ma-row__chev { width: var(--ma-list-row-chevron-size); opacity: 1; color: var(--ma-list-row-chevron-hover); }
+.ma-row:not(.ma-row--static):active { background-image: linear-gradient(var(--ma-list-row-pressed-layer), var(--ma-list-row-pressed-layer)); }
+/* Duplicate names (P-D): neither record is shown; the row asks first. */
+.ma-row--prompt { background: var(--ma-list-prompt-bg); color: var(--ma-list-prompt-text); }
+.ma-row--prompt .ma-row__text span { color: var(--ma-list-prompt-text); }
+/* System states */
+.ma-skel { display: block; border-radius: 999px; background: var(--ma-list-skeleton); height: 12px; }
+.ma-row .ma-skel--photo { width: var(--ma-list-row-photo-size); height: var(--ma-list-row-photo-size); border-radius: var(--ma-list-row-photo-radius); }
+.ma-empty { padding: var(--ma-list-empty-padding); display: flex; flex-direction: column; gap: var(--ma-space-2); align-items: flex-start; color: var(--ma-list-empty-text); }
+.ma-empty b {
+  color: var(--ma-list-row-name-text); font-family: var(--ma-list-empty-title-typography-font-family);
+  font-size: var(--ma-list-empty-title-typography-font-size); font-weight: var(--ma-list-empty-title-typography-font-weight);
+}
+
+/* ---------- Interactive card (count tiles that open a list) ---------- */
+.ma-card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: var(--ma-space-1);
+  padding: var(--ma-card-interactive-padding); background: var(--ma-card-interactive-bg);
+  border-radius: var(--ma-card-interactive-radius); text-decoration: none; color: var(--ma-color-text-primary); cursor: pointer;
+}
+.ma-card__value { font-family: var(--ma-card-interactive-value-typography-font-family); font-size: var(--ma-card-interactive-value-typography-font-size);
+  font-weight: var(--ma-card-interactive-value-typography-font-weight); line-height: var(--ma-card-interactive-value-typography-line-height); font-variant-numeric: tabular-nums; }
+.ma-card__label { font-family: var(--ma-card-interactive-label-typography-font-family); font-size: var(--ma-card-interactive-label-typography-font-size);
+  font-weight: var(--ma-card-interactive-label-typography-font-weight); color: var(--ma-card-interactive-label-text); }
+.ma-card__arrow { position: absolute; top: var(--ma-card-interactive-padding); right: var(--ma-card-interactive-padding);
+  width: var(--ma-card-interactive-arrow-size); height: var(--ma-card-interactive-arrow-size); color: var(--ma-card-interactive-arrow);
+  opacity: 0; translate: -4px 4px; transition: opacity var(--ma-motion-duration-reveal) var(--ma-motion-easing-out), translate var(--ma-motion-duration-reveal) var(--ma-motion-easing-out); }
+@media (hover: hover) { .ma-card:hover .ma-card__arrow { opacity: 1; translate: 0 0; } }
+.ma-card:focus { outline: none; }
+.ma-card:focus-visible { outline: var(--ma-card-interactive-focus-ring-width) solid var(--ma-card-interactive-focus-ring); outline-offset: var(--ma-card-interactive-focus-ring-offset); }
+.ma-card:focus-visible .ma-card__arrow { opacity: 1; translate: 0 0; }
+.ma-card:active { background-image: linear-gradient(var(--ma-card-interactive-pressed-layer), var(--ma-card-interactive-pressed-layer)); }
+
+/* ---------- Admin table ---------- */
+.ma-table { width: 100%; border-collapse: collapse; background: var(--ma-color-bg-card); }
+.ma-table th {
+  text-align: left; padding: 0 var(--ma-table-cell-padding-x); height: 44px; color: var(--ma-table-header-text);
+  font-family: var(--ma-table-header-typography-font-family); font-size: var(--ma-table-header-typography-font-size);
+  font-weight: var(--ma-table-header-typography-font-weight); letter-spacing: var(--ma-table-header-typography-letter-spacing); text-transform: uppercase;
+}
+.ma-table td {
+  padding: 0 var(--ma-table-cell-padding-x); height: var(--ma-table-row-height); border-top: 1px solid var(--ma-table-divider);
+  color: var(--ma-table-cell-text); font-family: var(--ma-table-cell-typography-font-family); font-size: var(--ma-table-cell-typography-font-size);
+  font-weight: var(--ma-table-cell-typography-font-weight); font-variant-numeric: tabular-nums;
+}
+/* Markup: the row opens through a real link in the last cell, so keyboard and screen-reader users get a link:
+   <td><a class="ma-view" href="/visits/123">View<span class="ma-visually-hidden"> visit of Suresh Iyer</span></a></td>
+   A stretched ::after makes the whole row the link's hit area. The ring is drawn on the row while the link has focus.
+   Wrap wide tables in <div class="ma-table-wrap" tabindex="0" role="region" aria-label="Visit history">
+   so they scroll sideways at 320px instead of breaking the page (tables are exempt from reflow, WCAG 1.4.10). */
+.ma-table-wrap { overflow-x: auto; position: relative; }  /* keeps the stretched links' ::after inside the scroll box at 320px */
+.ma-table tbody tr { cursor: pointer; position: relative; }
+/* Stretched link: the link's hit area covers the whole 56px row, so the target is the row (WCAG 2.5.8)
+   and the "row click" needs no script. */
+.ma-table .ma-view::after { content: ""; position: absolute; inset: 0; }
+.ma-table .ma-view:focus { outline: none; }
+.ma-table tbody tr:has(.ma-view:focus-visible) { outline: var(--ma-table-focus-ring-width) solid var(--ma-table-focus-ring); outline-offset: var(--ma-table-focus-ring-offset); }
+.ma-table tbody tr:has(.ma-view:focus-visible) .ma-view { opacity: 1; }
+.ma-table .ma-view { color: var(--ma-table-view-text); font-weight: 600; text-decoration: none; opacity: 0; transition: opacity var(--ma-motion-duration-reveal) var(--ma-motion-easing-out); }
+@media (hover: hover) { .ma-table tbody tr:hover .ma-view { opacity: 1; } }
+.ma-table tbody tr:focus { outline: none; }
+.ma-table tbody tr:focus-visible { outline: var(--ma-table-focus-ring-width) solid var(--ma-table-focus-ring); outline-offset: var(--ma-table-focus-ring-offset); }
+.ma-table tbody tr:focus-visible .ma-view { opacity: 1; }
+.ma-table tbody tr:active td { background-image: linear-gradient(var(--ma-table-pressed-layer), var(--ma-table-pressed-layer)); }
+
+/* ---------- Menu (open select) ----------
+   <ul class="ma-menu" role="listbox" id="decision-list" aria-label="Decision">
+     <li class="ma-option" role="option" aria-selected="true">All decisions <svg>…check…</svg></li> …</ul>
+   Options need role="option" (aria-selected is only valid there). The select button carries
+   aria-haspopup="listbox", aria-expanded and aria-controls; arrow keys move .is-active and
+   aria-activedescendant, Enter selects, Esc closes and returns focus to the select. */
+.ma-menu {
+  list-style: none; margin: var(--ma-menu-gap) 0 0; padding: var(--ma-menu-padding); background: var(--ma-menu-bg);
+  border-radius: var(--ma-menu-radius); box-shadow: inset 0 0 0 var(--ma-menu-border-width) var(--ma-menu-border);
+}
+.ma-option {
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between;
+  min-height: var(--ma-menu-option-height); padding: 0 var(--ma-menu-option-padding-x); border-radius: var(--ma-menu-option-radius);
+  color: var(--ma-menu-option-text); cursor: pointer;
+  font-family: var(--ma-menu-option-typography-font-family); font-size: var(--ma-menu-option-typography-font-size);
+  font-weight: var(--ma-menu-option-typography-font-weight);
+  transition: color var(--ma-motion-duration-reveal) var(--ma-motion-easing-out);
+}
+.ma-option svg { width: var(--ma-size-icon); height: var(--ma-size-icon); visibility: hidden; }
+@media (hover: hover) { .ma-option:hover { color: var(--ma-menu-option-text-hover); } }
+.ma-option[aria-selected="true"] { color: var(--ma-menu-option-selected-text); font-weight: var(--ma-menu-option-selected-weight); }
+.ma-option[aria-selected="true"] svg { visibility: visible; }
+.ma-option.is-active { color: var(--ma-menu-option-text-hover); outline: var(--ma-menu-option-focus-ring-width) solid var(--ma-menu-option-focus-ring); outline-offset: var(--ma-menu-option-focus-ring-offset); }
+.ma-option:active { background-image: linear-gradient(var(--ma-menu-option-pressed-layer), var(--ma-menu-option-pressed-layer)); }
+:is(.ma-row:not(.ma-row--static), .ma-card, .ma-option):active::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 56px; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, var(--ma-color-state-pressed-layer) 0 45%, transparent 46%);
+}
+@media (prefers-reduced-motion: reduce) { .ma-row__chev, .ma-card__arrow, .ma-view, .ma-option { transition: none !important; } }
+
+/* ---------- Dialog + scrim (research/44 step 5) ----------
+   Native <dialog> opened with dialog.showModal(): the browser puts it in the top layer, makes the page
+   behind inert (no clicks, no Tab) and closes it on Esc. No custom focus trap is needed.
+   <dialog class="ma-dialog" aria-labelledby="dlg-t">
+     <div class="ma-dialog__head"><h2 class="ma-dialog__title" id="dlg-t">Mark exit for Rahul Verma?</h2>
+       <button class="ma-dialog__close" aria-label="Close">…x…</button></div>
+     <div class="ma-dialog__who"><span class="ma-row__photo">…</span><div><b>Rahul Verma</b><span>Alumnus · …</span></div></div>
+     <p class="ma-dialog__body">The visit closes at 14:32.</p>
+     <div class="ma-dialog__actions"><button class="ma-btn ma-btn--secondary">Cancel</button>
+       <button class="ma-btn ma-btn--primary" autofocus>Mark exit</button></div></dialog>
+   Script rules (not CSS): always set autofocus (first field, else the action, else the safe choice for
+   destructive dialogs) — without it the browser focuses the × first. Ignore scrim clicks (do not close on
+   backdrop click). While saving add .is-saving, set aria-disabled on Cancel and ×, and preventDefault the
+   'cancel' event so Esc can't close mid-save. On close, return focus to the button that opened it. */
+dialog.ma-dialog {
+  box-sizing: border-box;
+  width: min(var(--ma-dialog-width), calc(100vw - 2 * var(--ma-dialog-viewport-gutter)));
+  max-height: calc(100vh - 4 * var(--ma-dialog-viewport-gutter));
+  padding: var(--ma-dialog-padding); border: 0; border-radius: var(--ma-dialog-radius);
+  background: var(--ma-dialog-bg); color: var(--ma-dialog-title-text); box-shadow: none;
+  font-family: var(--ma-font-family-sans);
+  flex-direction: column; gap: var(--ma-dialog-gap);
+  transition:
+    opacity var(--ma-dialog-enter-duration) var(--ma-dialog-enter-easing),
+    translate var(--ma-dialog-enter-duration) var(--ma-dialog-enter-easing),
+    overlay var(--ma-dialog-enter-duration) allow-discrete, display var(--ma-dialog-enter-duration) allow-discrete;
+}
+dialog.ma-dialog[open] { display: flex; }
+@starting-style { dialog.ma-dialog[open] { opacity: 0; translate: 0 var(--ma-dialog-enter-rise); } }
+dialog.ma-dialog::backdrop { background: var(--ma-dialog-scrim); transition: opacity var(--ma-dialog-enter-duration); }
+@starting-style { dialog.ma-dialog[open]::backdrop { opacity: 0; } }
+.ma-dialog__head { display: flex; align-items: flex-start; gap: var(--ma-space-4); }
+.ma-dialog__title {
+  flex: 1; margin: 0; padding-top: var(--ma-space-2);
+  font-family: var(--ma-dialog-title-typography-font-family); font-size: var(--ma-dialog-title-typography-font-size);
+  font-weight: var(--ma-dialog-title-typography-font-weight); line-height: var(--ma-dialog-title-typography-line-height);
+  color: var(--ma-dialog-title-text);
+}
+.ma-dialog__body {
+  margin: 0; color: var(--ma-dialog-body-text);
+  font-size: var(--ma-dialog-body-typography-font-size); line-height: var(--ma-dialog-body-typography-line-height);
+  font-weight: var(--ma-dialog-body-typography-font-weight);
+}
+.ma-dialog__who { display: flex; align-items: center; gap: var(--ma-list-row-gap); }
+.ma-dialog__who b { display: block; font-size: var(--ma-list-row-name-typography-font-size); line-height: var(--ma-list-row-name-typography-line-height); font-weight: var(--ma-list-row-name-typography-font-weight); }
+.ma-dialog__who span:not(.ma-row__photo) { font-size: var(--ma-list-row-meta-typography-font-size); line-height: var(--ma-list-row-meta-typography-line-height); color: var(--ma-list-row-meta-text); }
+.ma-dialog__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--ma-dialog-actions-gap); margin-top: var(--ma-space-1); }
+.ma-dialog__close {
+  position: relative; overflow: hidden; flex: 0 0 auto; display: grid; place-items: center;
+  width: var(--ma-dialog-close-size); height: var(--ma-dialog-close-size); margin: -2px -10px 0 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--ma-dialog-close-icon); cursor: pointer;
+  transition: color var(--ma-dialog-enter-duration) var(--ma-dialog-enter-easing);
+}
+.ma-dialog__close svg { width: var(--ma-dialog-close-icon-size); height: var(--ma-dialog-close-icon-size); }
+@media (hover: hover) { .ma-dialog__close:hover { color: var(--ma-dialog-close-icon-hover); } }
+.ma-dialog__close:not([aria-disabled="true"]):active { background: var(--ma-dialog-close-pressed-layer); }
+.ma-dialog__close:focus { outline: none; }
+.ma-dialog__close:focus-visible {
+  color: var(--ma-dialog-close-icon-hover);
+  outline: var(--ma-dialog-close-focus-ring-width) solid var(--ma-dialog-close-focus-ring);
+  outline-offset: var(--ma-dialog-close-focus-ring-offset);
+}
+/* Saving: the action shows a spinner; Cancel and × go grey and stop responding. */
+.ma-dialog.is-saving :is(.ma-dialog__close, .ma-btn--secondary) { color: var(--ma-color-control-disabled-text); cursor: not-allowed; }
+.ma-dialog.is-saving .ma-btn--secondary { background: var(--ma-color-control-disabled-bg); }
+/* Destructive (irreversible admin actions only). */
+.ma-btn--destructive {
+  min-height: var(--ma-button-destructive-height); padding: 0 var(--ma-space-6);
+  font-size: var(--ma-button-primary-typography-font-size); font-weight: var(--ma-button-primary-typography-font-weight);
+  background: var(--ma-button-destructive-bg); color: var(--ma-button-destructive-text);
+}
+.ma-btn--destructive:focus-visible {
+  outline: var(--ma-button-decision-focus-ring-width) solid var(--ma-button-decision-focus-ring);
+  outline-offset: var(--ma-button-decision-focus-ring-offset);
+}
+.ma-spin { animation: ma-spin 1s linear infinite; }
+@keyframes ma-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  dialog.ma-dialog, dialog.ma-dialog::backdrop, .ma-dialog__close { transition: none; }
+  @starting-style { dialog.ma-dialog[open] { translate: 0 0; } }
+  .ma-spin { animation-duration: 3s; }
+}
+
+/* ---------- Global focus ring (research/44 step 6) ----------
+   One ring for every control: 2px interactive-focus-strong, drawn with outline (never box-shadow, which
+   Windows Contrast themes remove). Keyboard only (:focus-visible); text fields show it on click too,
+   because focus there means "type here". Outside with a 2px gap for anything standing alone; inside
+   (−2px) where the parent clips or items touch. Never inset on a Signal fill (1.56:1 light / 2.48:1 dark).
+   The rule below is a low-specificity fallback (:where) — every component above keeps its own ring. */
+:where(a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong);
+  outline-offset: var(--ma-stroke-focus-offset);
+}
+:where(a[href], button, input, select, textarea, summary, [tabindex]):focus:not(:focus-visible) { outline: none; }
+
+/* Text link: hover cue = underline (no fill); focus = ring + underline. */
+.ma-link {
+  display: inline-flex; align-items: center; gap: var(--ma-link-gap); width: fit-content; min-height: var(--ma-link-min-height);  /* standalone link = a target (WCAG 2.5.8) */
+  border-radius: var(--ma-link-radius); color: var(--ma-link-text); font-weight: var(--ma-link-weight);
+  text-decoration: none; text-underline-offset: var(--ma-link-underline-offset);
+}
+.ma-link svg { width: var(--ma-link-icon-size); height: var(--ma-link-icon-size); }
+@media (hover: hover) { .ma-link:hover { text-decoration: underline; } }
+.ma-link:focus-visible {
+  text-decoration: underline;
+  outline: var(--ma-link-focus-ring-width) solid var(--ma-link-focus-ring); outline-offset: var(--ma-link-focus-ring-offset);
+}
+
+/* Forced colours (Windows Contrast themes): the browser swaps in the user's system colours and drops
+   backgrounds and box-shadows; outlines survive. Restore cues that lived only in fills or shadows.
+   Normal specificity on purpose: these must beat the component fills above. */
+@media (forced-colors: active) {
+  .ma-decision, .ma-btn, .ma-tab { border: 2px solid ButtonText; }
+  .ma-field__box { border: 1px solid CanvasText; }
+  .ma-banner, .ma-chip { border: 1px solid CanvasText; }  /* status fills are dropped; keep them as visible blocks */
+  .ma-decision[aria-disabled="true"], .ma-btn[aria-disabled="true"] { border-color: GrayText; color: GrayText; }
+  .ma-rail__item[aria-current="page"], .ma-tab[aria-selected="true"], .ma-option[aria-selected="true"] {
+    forced-color-adjust: none; background: Highlight; color: HighlightText;
+  }
+  .ma-row[aria-selected="true"], .ma-option.is-active { outline-color: Highlight; }
+  /* forced-color-adjust: none above opts these out of system colours, so give their ring one back. */
+  :is(.ma-rail__item[aria-current="page"], .ma-tab[aria-selected="true"]):focus-visible { outline-color: CanvasText; }
+}
+
+
+/* ---------- Accessibility utilities (Mockup factor 3) ---------- */
+/* Text for screen readers only (e.g. the table's "Actions" header, "visit of Suresh Iyer" after View). */
+.ma-visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+/* Skip link: first focusable element on every screen; visible only when focused. */
+.ma-skip {
+  position: absolute; left: var(--ma-space-4); top: var(--ma-space-4); z-index: 100;
+  transform: translateY(-200%);
+  padding: 0 var(--ma-space-5); min-height: var(--ma-size-control-nav); display: inline-flex; align-items: center;
+  border-radius: var(--ma-radius-control); background: var(--ma-color-bg-card); color: var(--ma-color-text-link);
+  font-family: var(--ma-font-family-sans); font-weight: 600; text-decoration: none;
+}
+.ma-skip:focus-visible { transform: none; outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: var(--ma-stroke-focus-offset); }
+
+
+/* ---------- App shell: layout across desktop and iPad (Mockup factor 4) ----------
+   Supported: desktop (1280–1920 wide) and iPad (744–1032 portrait, 1133–1376 landscape). No phone interface.
+   <div class="ma-app"><div class="ma-shell">
+     <nav class="ma-rail" aria-label="Main">…</nav>
+     <main class="ma-shell__main" id="main">
+       <header class="ma-titlebar"><h1>Search</h1><p class="ma-identity">R. Sharma · Shift 08:00 AM–04:00 PM · Gate 2</p></header>
+       <div class="ma-columns"><div>…main…</div><aside class="ma-side">…side…</aside></div>
+     </main></div></div>
+   Container queries (not media queries) measure the app's own width, so the layout is right in iPad Split View
+   and inside the Design System preview too. Breakpoints are in em, so they move with the user's text size:
+   at 200% text the side column stacks sooner instead of squeezing the main column.
+     ≥ 70em (1120px): rail + main + 360 side column
+     46.5–70em (744–1119px): rail + one column; the side column stacks under the main
+     < 46.5em: rail becomes a scrolling top bar — reached only at 400% zoom or in Split View (WCAG 1.4.10) */
+.ma-app { container: ma-app / inline-size; min-height: 100vh; background: var(--ma-color-bg-canvas); color: var(--ma-color-text-primary); font-family: var(--ma-font-family-sans); font-size: 1rem; }
+.ma-shell {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--ma-layout-column-gap);
+  padding: var(--ma-layout-rail-inset) var(--ma-layout-page-margin) var(--ma-layout-page-margin) var(--ma-layout-rail-inset);
+}
+/* The rail stays in view while the page scrolls; if the window is shorter than the rail
+   (admin's 7 items on a 1280×720 laptop), the rail scrolls on its own instead of being cut off. */
+.ma-shell > .ma-rail { position: sticky; top: var(--ma-layout-rail-inset); max-height: calc(100vh - 2 * var(--ma-layout-rail-inset)); overflow-y: auto; box-sizing: border-box; }
+.ma-shell__main { min-width: 0; display: flex; flex-direction: column; gap: var(--ma-layout-section-gap); }
+.ma-titlebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ma-space-4); min-height: var(--ma-size-control-nav); }
+.ma-titlebar h1 {
+  margin: 0; font-size: var(--ma-typography-page-title-font-size); line-height: var(--ma-typography-page-title-line-height);
+  font-weight: var(--ma-typography-page-title-font-weight);
+}
+.ma-identity {
+  margin: 0; display: inline-flex; align-items: center; gap: var(--ma-space-2); min-height: var(--ma-size-control-nav);
+  padding: 0 var(--ma-space-4); border-radius: var(--ma-radius-control); background: var(--ma-color-bg-card);
+  font-size: var(--ma-typography-label-font-size); line-height: var(--ma-typography-label-line-height); font-weight: 500; color: var(--ma-color-text-secondary);
+}
+.ma-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ma-layout-column-gap); align-items: start; }
+.ma-columns > * { min-width: 0; display: flex; flex-direction: column; gap: var(--ma-layout-section-gap); }
+.ma-panel { display: flex; flex-direction: column; gap: var(--ma-space-4); padding: var(--ma-layout-container-padding); border-radius: var(--ma-radius-container); background: var(--ma-color-bg-container); }
+.ma-panel__title {
+  margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ma-space-2);
+  font-size: var(--ma-typography-panel-title-font-size); line-height: var(--ma-typography-panel-title-line-height); font-weight: var(--ma-typography-panel-title-font-weight);
+}
+/* Count tiles: 2 × 2 in the 360 side column; one row of 4 wherever their box is 30em (480px) or wider.
+   They measure their own panel (container query), never the window, so the grid is never 3 + 1. */
+.ma-shell__main, .ma-panel { container-type: inline-size; }
+.ma-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ma-layout-control-gap); }
+@container (min-width: 30em) { .ma-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container ma-app (min-width: 70em) {
+  .ma-columns { grid-template-columns: minmax(0, 1fr) var(--ma-layout-side-column); }
+}
+@container ma-app (max-width: 46.49em) {
+  .ma-shell { grid-template-columns: minmax(0, 1fr); padding: var(--ma-space-4); gap: var(--ma-space-4); }
+  .ma-shell > .ma-rail { position: static; max-height: none; width: auto; flex-direction: row; overflow-x: auto; }
+  .ma-shell > .ma-rail .ma-rail__logo, .ma-shell > .ma-rail .ma-rail__item { flex: 0 0 auto; }
+  /* Top bar only: enlarged labels need room inside the selected fill (Mockup build, Tier A). */
+  .ma-shell > .ma-rail .ma-rail__item { padding-inline: var(--ma-space-3); }
+}
+
+/* ---------- Photo (Mockup factor 6, proposed) ----------
+   <figure class="ma-photo ma-photo--record">
+     <img src="/photos/42-480.webp" alt="Photo of Rahul Verma" width="180" height="240">
+     <figcaption>Photo added Jun 2019</figcaption></figure>
+   States: .is-none (no photo on file), .is-loading (spinning loader icon + "Loading photo…"), .is-failed (couldn't load).
+   Loading markup: <div class="ma-photo__frame" aria-busy="true"><svg class="ma-spin">…loader-circle…</svg></div>
+   <figcaption role="status">Loading photo…</figcaption>
+   Never initials: a wrong letter (I / l) would look like an identity. */
+.ma-photo { margin: 0; display: inline-flex; flex-direction: column; gap: var(--ma-space-2); }
+.ma-photo__frame {
+  position: relative; overflow: hidden; display: grid; place-items: center;
+  width: var(--ma-photo-thumb-size); aspect-ratio: 1; border-radius: var(--ma-photo-radius);
+  background: var(--ma-photo-bg); color: var(--ma-photo-icon);
+}
+.ma-photo--record .ma-photo__frame { width: var(--ma-photo-record-width); aspect-ratio: 3 / 4; }
+.ma-photo__frame img { width: 100%; height: 100%; object-fit: cover; object-position: 50% var(--ma-photo-focus-y); }
+.ma-photo__frame svg { width: 40%; height: auto; }
+.ma-photo figcaption, .ma-photo__note {
+  max-width: var(--ma-photo-record-width); color: var(--ma-photo-caption-text);
+  font-size: var(--ma-photo-caption-typography-font-size); line-height: var(--ma-photo-caption-typography-line-height);
+}
+.ma-photo__note b { display: block; color: var(--ma-color-text-primary); font-weight: 600; }
+.ma-photo.is-loading .ma-photo__frame { background: var(--ma-photo-bg); }
+/* The spinner keeps turning (slower, 3s) under reduced motion: it is the only sign the photo is still coming,
+   unlike list skeletons, where the row shapes already say "loading". */
+.ma-photo.is-loading .ma-photo__frame svg { width: 24%; }
+/* Tap to enlarge: the record photo is a button that opens a dialog with the 2× image. */
+button.ma-photo__frame { border: 0; padding: 0; cursor: zoom-in; }
+button.ma-photo__frame:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: var(--ma-stroke-focus-offset); }
+
+/* ---------- Icons (Mockup factor 7) ----------
+   Lucide (lucide-react in the app; it renders <svg class="lucide lucide-…" stroke-width="2">).
+   CSS beats the stroke-width attribute, so the stroke lives in one token: change stroke-icon to 2 and every
+   icon follows (the glare fallback). Status icons inside the 20px circle are 12px at stroke 2.
+   One icon = one meaning: see the icon dictionary (research/52). */
+:where(svg.lucide) { stroke-width: var(--ma-stroke-icon); }
+.ma-circle svg { stroke-width: var(--ma-stroke-icon-status); }
+
+/* ---------- Decision bar (Mockup factor 8) ----------
+   Approve / Deny / Flag & Hold sit right under the record. At normal text they are on screen without
+   scrolling down to 1280×593 (measured). When enlarged text pushes them below the fold, the bar sticks to
+   the bottom of the viewport, so a decision is never hidden. scroll-padding stops the bar from covering
+   the focused field (WCAG 2.4.11).
+   Markup: <div class="ma-decide" role="group" aria-label="Decision">…three .ma-decision buttons…</div> */
+.ma-decide {
+  position: sticky; bottom: 0; z-index: 1;
+  display: flex; flex-wrap: wrap; gap: var(--ma-layout-control-gap);
+  margin: 0 calc(-1 * var(--ma-layout-container-padding)) calc(-1 * var(--ma-layout-container-padding));
+  padding: var(--ma-space-4) var(--ma-layout-container-padding) var(--ma-layout-container-padding);
+  border-radius: 0 0 var(--ma-radius-container) var(--ma-radius-container);
+  background: var(--ma-color-bg-container);
+}
+html:has(.ma-decide) { scroll-padding-bottom: calc(var(--ma-button-decision-height) + 2 * var(--ma-space-6)); }

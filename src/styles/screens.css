@@ -1,0 +1,152 @@
+/* My Alumnus — screen patterns used by the mockups (Mockup build, research/54).
+   Uses only --ma-* tokens. Candidates to move into examples/components.css once a second screen reuses them. */
+
+.ma-columns--single { grid-template-columns: minmax(0, 1fr) !important; }
+.ma-shell__main:focus { outline: none; }
+
+/* Thumbnail with a photo: square crop from the top third (photo decision, research/50). */
+.ma-row__photo--img { overflow: hidden; padding: 0; }
+.ma-row__photo--img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% var(--ma-photo-focus-y); display: block; }
+.ma-banner__text { flex: 1 1 14rem; min-width: 0; }
+.ma-banner .ma-banner__text b { font-weight: 600; }
+
+/* Short secondary line under a panel title. */
+.ma-note { margin: 0; color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); line-height: var(--ma-typography-label-line-height); }
+
+/* ---------- Record (guard record, admin escalation decision) ---------- */
+.ma-record { display: flex; gap: var(--ma-space-6); align-items: flex-start; flex-wrap: wrap; }
+.ma-record__info { flex: 1 1 16rem; min-width: 0; display: flex; flex-direction: column; gap: var(--ma-space-4); }
+.ma-record__name { margin: 0; font-size: var(--ma-typography-entity-name-font-size); line-height: var(--ma-typography-entity-name-line-height); font-weight: var(--ma-typography-entity-name-font-weight); }
+.ma-record__meta { margin: var(--ma-space-1) 0 0; color: var(--ma-color-text-secondary); }
+.ma-record__chips { display: flex; flex-wrap: wrap; gap: var(--ma-space-2); margin-top: var(--ma-space-2); }
+
+/* ---------- "Say to the visitor" line (P-B: the guard relays status aloud) ---------- */
+.ma-say {
+  margin: 0; display: flex; gap: var(--ma-space-3); align-items: flex-start;
+  padding: var(--ma-space-4); border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card);
+  font-size: var(--ma-typography-body-font-size); line-height: var(--ma-typography-body-line-height);
+}
+.ma-say svg { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 2px; color: var(--ma-color-text-secondary); }
+.ma-say small { display: block; font-size: var(--ma-typography-label-font-size); line-height: var(--ma-typography-label-line-height); font-weight: 500; color: var(--ma-color-text-secondary); }
+.ma-say q { quotes: "“" "”"; font-weight: 500; }
+
+/* ---------- Escalation steps: 1 Admin → 2 Host (fixed chain, planning/01) ---------- */
+.ma-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); gap: var(--ma-layout-control-gap); }
+.ma-step { display: flex; gap: var(--ma-space-3); align-items: flex-start; padding: var(--ma-space-4); border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card); }
+.ma-step__n {
+  flex: 0 0 auto; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--ma-color-control-track); color: var(--ma-color-text-secondary); font-weight: 600;
+}
+.ma-step b { display: block; font-weight: 600; }
+.ma-step span { color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); line-height: var(--ma-typography-label-line-height); }
+.ma-step[aria-current="step"] { box-shadow: inset 0 0 0 2px var(--ma-color-status-hold-border); }
+.ma-step[aria-current="step"] .ma-step__n { background: var(--ma-color-decision-hold); color: var(--ma-color-decision-on-hold); }
+.ma-step.is-done .ma-step__n { background: var(--ma-color-text-secondary); color: var(--ma-color-bg-card); }
+
+/* ---------- Key/value summary (case details) ---------- */
+.ma-kv { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--ma-space-2) var(--ma-space-6); }
+.ma-kv dt { color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); line-height: var(--ma-typography-body-line-height); font-weight: 500; }
+.ma-kv dd { margin: 0; min-width: 0; }
+@container (max-width: 28em) { .ma-kv { grid-template-columns: minmax(0, 1fr); } .ma-kv dd { margin-bottom: var(--ma-space-2); } }
+
+/* ---------- Duplicate names: the guard taps the answer the visitor gives (P-D) ---------- */
+.ma-choices { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ma-space-2); }
+
+/* Ordered next steps (no match). */
+.ma-next { margin: 0; padding-left: 1.4em; display: grid; gap: var(--ma-space-2); }
+.ma-next li::marker { font-weight: 600; color: var(--ma-color-text-secondary); }
+
+/* A row of ordinary buttons. */
+.ma-actions { display: flex; flex-wrap: wrap; gap: var(--ma-layout-control-gap); align-items: center; }
+.ma-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ma-space-5); }
+.ma-form__2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr)); gap: var(--ma-space-5); }
+
+/* Live timer text inside the escalation banner. */
+.ma-timer { font-variant-numeric: tabular-nums; }
+
+/* Windows Contrast themes drop fills and shadows: keep the blocks and the current step visible. */
+@media (forced-colors: active) {
+  .ma-step, .ma-say { border: 1px solid CanvasText; }
+  .ma-step[aria-current="step"] { border-width: 3px; }
+  .ma-step__n { border: 1px solid CanvasText; }
+}
+
+/* ---------- Case trail: timestamped steps of one case (admin escalation, visit detail) ---------- */
+.ma-trail { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ma-space-3); }
+.ma-trail li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: var(--ma-space-3); align-items: baseline; }
+.ma-trail time { font-variant-numeric: tabular-nums; color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); font-weight: 500; }
+.ma-trail li.is-next { color: var(--ma-color-text-secondary); }
+.ma-trail li.is-next span::before { content: "Next · "; font-weight: 600; }
+
+/* A titled group inside a panel (one heading level below the panel's). */
+.ma-sub { display: grid; gap: var(--ma-space-3); }
+.ma-sub__title { margin: 0; font-size: var(--ma-typography-card-title-font-size); line-height: var(--ma-typography-card-title-line-height); font-weight: var(--ma-typography-card-title-font-weight); }
+
+/* ---------- Tier B / C patterns ---------- */
+/* Table on a card inside a panel. */
+.ma-tablecard { background: var(--ma-color-bg-card); border-radius: var(--ma-radius-card); padding: var(--ma-space-1) var(--ma-space-2); }
+.ma-table { width: 100%; }
+.ma-table td .ma-chip { white-space: nowrap; }
+.ma-cellperson { display: flex; align-items: center; gap: var(--ma-space-3); }
+.ma-cellperson .ma-row__photo { width: 36px; height: 36px; flex: 0 0 auto; }
+/* Filters above a list or table: wrap to one column when narrow. */
+.ma-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr)); gap: var(--ma-space-4); align-items: end; }
+.ma-panel__head { display: flex; flex-wrap: wrap; gap: var(--ma-space-3); align-items: center; justify-content: space-between; }
+/* Upload area: a dashed edge marks it as a drop target (tone-only elevation otherwise). */
+.ma-drop {
+  display: grid; justify-items: start; gap: var(--ma-space-3); padding: var(--ma-space-8) var(--ma-space-6);
+  border: 2px dashed var(--ma-color-control-field-border); border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card);
+}
+.ma-drop svg { width: 32px; height: 32px; color: var(--ma-color-text-secondary); }
+/* Number stepper (headcount): − value + with 48px targets. */
+.ma-stepper { display: inline-flex; align-items: center; gap: var(--ma-space-3); }
+.ma-stepper .ma-btn { width: 48px; min-height: 48px; padding: 0; justify-content: center; }
+.ma-stepper output { min-width: 3ch; text-align: center; font-size: var(--ma-typography-entity-name-font-size); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Sign in: one centred card, no rail. */
+.ma-signin { min-height: 100vh; display: grid; place-items: center; padding: var(--ma-space-4); box-sizing: border-box; background: var(--ma-color-bg-canvas); }
+.ma-signin__card { width: min(26rem, 100%); display: grid; gap: var(--ma-space-5); padding: var(--ma-space-8) var(--ma-layout-container-padding); border-radius: var(--ma-radius-container); background: var(--ma-color-bg-container); box-sizing: border-box; }
+.ma-signin__card h1 { margin: 0; font-size: var(--ma-typography-page-title-font-size); line-height: var(--ma-typography-page-title-line-height); font-weight: 600; }
+.ma-signin .ma-rail__logo { width: 56px; min-width: 0; }
+.ma-btn--block { width: 100%; justify-content: center; }
+@media (forced-colors: active) { .ma-drop { border-color: CanvasText; } }
+
+/* ---------- Charts: Reports weekly review (research/62, owner chose B) ----------
+   One axis per chart, Signal for data (500 light / 300 dark), decision colours only for outcomes,
+   hatched texture for 'held, then approved', every mark labelled or in the legend, table one click away. */
+:root{--ma-chart-bar:var(--ma-color-signal-500);--ma-chart-bar-out:var(--ma-color-decision-hold);--ma-chart-ink:var(--ma-color-text-secondary)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ma-chart-bar:var(--ma-color-signal-300)}}
+:root[data-theme="dark"]{--ma-chart-bar:var(--ma-color-signal-300)}
+.ma-chart-grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(13rem,100%),1fr));gap:var(--ma-layout-control-gap)}
+.ma-chart-kpi{display:grid;gap:4px;padding:var(--ma-space-4);border-radius:var(--ma-radius-card);background:var(--ma-color-bg-card)}
+.ma-chart-kpi__l{display:flex;gap:6px;align-items:center;color:var(--ma-color-text-secondary);font-size:var(--ma-typography-label-font-size);font-weight:500}
+.ma-chart-kpi__v{font-size:2rem;line-height:2.5rem;font-weight:600}
+.ma-chart-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(26rem,100%),1fr));gap:var(--ma-layout-control-gap)}
+.ma-chart-card{display:grid;gap:var(--ma-space-3);align-content:start;padding:var(--ma-space-4) var(--ma-space-5);border-radius:var(--ma-radius-card);background:var(--ma-color-bg-card);min-width:0}
+.ma-chart-card h3{margin:0;font-size:var(--ma-typography-card-title-font-size);line-height:var(--ma-typography-card-title-line-height);font-weight:600}
+.ma-chart-card svg{width:100%;height:auto;display:block;overflow:visible}
+.ma-chart-grid{stroke:var(--ma-color-border-divider);stroke-width:1}
+.ma-chart-ax{fill:var(--ma-color-text-secondary);font:500 12px var(--ma-font-family-sans)}
+.ma-chart-val{fill:var(--ma-color-text-primary);font:600 13px var(--ma-font-family-sans)}
+.ma-chart-bar{fill:var(--ma-chart-bar)} .ma-chart-bar--out{fill:var(--ma-chart-bar-out);stroke:var(--ma-color-status-hold-border);stroke-width:1}
+.ma-chart-band{fill:var(--ma-color-interactive-tint);opacity:.55}
+.ma-chart-hit:hover .ma-chart-bar,.ma-chart-hit:hover .ma-chart-dot{filter:brightness(1.15)}
+.ma-chart-limit{stroke:var(--ma-color-decision-deny);stroke-width:2;stroke-dasharray:4 4}
+.ma-chart-stem{stroke:var(--ma-color-border-divider);stroke-width:2}
+.ma-chart-dot{stroke:var(--ma-color-bg-card);stroke-width:2} .ma-chart-dot--admin{fill:var(--ma-chart-bar);background:var(--ma-chart-bar)} .ma-chart-dot--host{fill:var(--ma-chart-bar-out);background:var(--ma-chart-bar-out)}
+.ma-chart-hbars{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ma-chart-hbar{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 2.5rem;gap:12px;align-items:center}
+.ma-chart-hbar__l{font-size:var(--ma-typography-label-font-size);color:var(--ma-color-text-secondary);font-weight:500}
+.ma-chart-hbar__track{height:20px;border-radius:4px;background:var(--ma-color-control-track);overflow:hidden}
+.ma-chart-hbar__fill{display:block;height:100%;border-radius:4px;background:var(--ma-chart-bar)}
+.ma-chart-hbar b{text-align:right}
+.ma-chart-stack{display:flex;gap:2px;height:28px;border-radius:6px;overflow:hidden}
+.ma-chart-seg{min-width:6px}
+.ma-chart-seg--approve{background:var(--ma-color-decision-approve)} .ma-chart-seg--held{background:repeating-linear-gradient(135deg,var(--ma-color-decision-approve) 0 3px,var(--ma-color-bg-card) 3px 5px)}
+.ma-chart-seg--deny{background:var(--ma-color-decision-deny)}
+.ma-chart-legend{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:var(--ma-typography-label-font-size);color:var(--ma-color-text-secondary)}
+.ma-chart-legend li{display:flex;align-items:center;gap:8px} .ma-chart-legend b{color:var(--ma-color-text-primary)}
+.ma-chart-key{width:12px;height:12px;border-radius:3px;display:inline-block}
+.ma-chart-tip{position:fixed;pointer-events:none;z-index:5;padding:6px 10px;border-radius:8px;background:var(--ma-color-neutral-900);color:#fff;font:500 13px var(--ma-font-family-sans);transform:translate(-50%,calc(-100% - 10px))}
+.ma-chart-tip[hidden]{display:none}
+@media (forced-colors: active){.ma-chart-bar,.ma-chart-hbar__fill,.ma-chart-seg,.ma-chart-dot{forced-color-adjust:none}.ma-chart-card,.ma-chart-kpi{border:1px solid CanvasText}}
+details.ma-chart-table summary{cursor:pointer;color:var(--ma-color-text-link);font-weight:600;min-height:44px;display:flex;align-items:center}
