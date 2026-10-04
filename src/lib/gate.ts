@@ -5,7 +5,7 @@ import { requireRole, type Profile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { asLang, LANG_COOKIE, tr, type Lang } from "@/lib/i18n";
 import type { NavItem } from "@/components/Shell";
-import { samplePhoto } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
 
 export async function getLang(): Promise<Lang> {
   return asLang((await cookies()).get(LANG_COOKIE)?.value);
@@ -43,18 +43,10 @@ export function identity(d: Duty) {
   return `${d.guard.name}${shift} · ${d.me.gate_name}`;
 }
 
-/**
- * Where a photo is shown from. The fictional sample people use drawn SAMPLE faces shipped with the app.
- * Real photos live in the private "photos" bucket (planning/02 D8) and are shown through a link that
- * expires after 5 minutes; that bucket arrives with bulk upload (slice 4).
- */
+/** One photo's address (sample face, or a 5-minute signed link to the private bucket). */
 export async function photoSrc(path: string | null): Promise<string | null> {
   if (!path) return null;
-  const sample = samplePhoto(path);
-  if (sample) return sample;
-  const supabase = await createClient();
-  const { data } = await supabase.storage.from("photos").createSignedUrl(path, 300);
-  return data?.signedUrl ?? null;
+  return (await signPhotos([path])).get(path) ?? null;
 }
 
 export async function getToday() {

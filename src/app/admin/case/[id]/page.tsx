@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Timer } from "@/components/Timer";
-import { fmtTime, personMeta, samplePhoto, type Kind } from "@/lib/format";
+import { fmtTime, personMeta, type Kind } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
 import { AdminShell } from "../../AdminShell";
 import { AdminDecide } from "./AdminDecide";
 
@@ -52,8 +53,9 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
       {ok ? `${c.held?.name ?? "The guard"} at ${c.gate?.name} sees it now and lets ${c.name_given} in.` : `${c.held?.name ?? "The guard"} at ${c.gate?.name} sees it now.`}</Banner>;
   }
 
+  const urls = await signPhotos([c.person?.photo_path, ...sims.map((s) => s.photo_path)]);
   const row = (p: Person, chip?: React.ReactNode) => {
-    const src = samplePhoto(p.photo_path);
+    const src = urls.get(p.photo_path ?? "") ?? null;
     return (
       <div className="ma-row ma-row--static">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -66,7 +68,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
 
   const trail: [string, string, boolean?][] = [
     [fmtTime(c.created_at), `${c.held?.name ?? "The guard"} held the visitor at ${c.gate?.name}`],
-    [fmtTime(c.created_at), "Admins were alerted in the console"],
+    [fmtTime(c.created_at), "Admins were alerted (dashboard, and phone or computer alerts where turned on)"],
   ];
   if (passed) trail.push([fmtTime(c.passed_to_host_at ?? handoff), `Passed to the host: ${c.held?.name ?? "the guard"} is calling ${firstHost}`]);
   if (c.decided_at) trail.push([fmtTime(c.decided_at), `${c.status === "approved" ? "Approved" : "Denied"} by ${c.decider?.role === "admin" ? c.decider.name : "the guard"}${c.note ? `: ${c.note}` : ""}`]);

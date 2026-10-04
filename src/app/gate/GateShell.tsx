@@ -3,6 +3,7 @@ import { tr } from "@/lib/i18n";
 import { gateNav, identity, type Duty, type GateSection } from "@/lib/gate";
 import { LangToggle } from "./LangToggle";
 import { Today } from "./Today";
+import { OfflineSync } from "./OfflineSync";
 
 /** Every guard screen after the name picker: rail, title bar with the guard on duty, and the Today tiles. */
 export function GateShell({ duty, title, section, banner, actions, children }: {
@@ -13,6 +14,7 @@ export function GateShell({ duty, title, section, banner, actions, children }: {
     <Shell lang={lang} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, section)}
       title={title} identityIcon="shield-user" identity={identity(duty)} banner={banner}
       actions={<>{actions}<LangToggle lang={lang} /></>} aside={<Today lang={lang} />}>
+      <OfflineSync lang={lang} />
       {children}
     </Shell>
   );

@@ -46,3 +46,52 @@ export function overMinutes(enteredIso: string, closeHHMM: string, now: Date = n
   const close = new Date(`${ymd}T${closeHHMM.slice(0, 5)}:00+05:30`).getTime();
   return Math.max(0, Math.floor((now.getTime() - close) / 60000));
 }
+
+// ---------- dates in campus time (admin console, slice 4) ----------
+/** YYYY-MM-DD in campus time. */
+export function ymd(d: Date = new Date()) {
+  return d.toLocaleDateString("en-CA", { timeZone: TZ });
+}
+/** A campus-local date (and optional HH:MM) as an ISO instant. */
+export function localIso(day: string, hhmm = "00:00") {
+  return new Date(`${day}T${hhmm.slice(0, 5)}:00+05:30`).toISOString();
+}
+/** YYYY-MM-DD plus n days. */
+export function addDays(day: string, n: number) {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+/** The Monday of the week that contains this date. */
+export function mondayOf(day: string) {
+  const dow = new Date(`${day}T00:00:00Z`).getUTCDay(); // 0 = Sunday
+  return addDays(day, -((dow + 6) % 7));
+}
+export function isYmd(s: unknown): s is string {
+  return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`));
+}
+/** "4 Oct 2026", in campus time. */
+export function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-IN", { timeZone: TZ, day: "numeric", month: "short", year: "numeric" });
+}
+/** "Sun 4 Oct" for a YYYY-MM-DD. */
+export function fmtDay(day: string) {
+  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" });
+}
+/** "2 h 18 min" / "45 min" / "4 min 40 s". */
+export function fmtDuration(ms: number, withSeconds = false) {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+  if (h) return `${h} h ${m} min`;
+  if (withSeconds && m < 10) return s ? `${m} min ${s} s` : `${m} min`;
+  return `${m} min`;
+}
+/** Words for a person's type in the admin console. */
+export const KIND_LABEL: Record<string, string> = {
+  alumnus: "Alumnus", student: "Current student", faculty: "Visiting faculty", placement: "Placement visitor",
+  walkin: "Walk-in, no record", family: "Student family",
+};
+/** The current time, for server-rendered pages (each request renders once, so "now" is stable for that page). */
+export function nowMs() {
+  return Date.now();
+}

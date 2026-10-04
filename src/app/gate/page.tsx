@@ -5,7 +5,8 @@ import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
 import { tr } from "@/lib/i18n";
 import { fmtTime } from "@/lib/format";
-import { decidedRecently, gateNav, getDuty, getLang, identity } from "@/lib/gate";
+import { decidedRecently, gateNav, getDuty, getLang, getRules, identity } from "@/lib/gate";
+import { OfflineSync } from "./OfflineSync";
 import { endShift, startShift } from "./actions";
 import { GateSearch } from "./GateSearch";
 import { LangToggle } from "./LangToggle";
@@ -80,6 +81,7 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
     );
   }
 
+  const rules = await getRules(me.gate_id ?? "");
   return (
     <Shell {...common} title={tr(lang, "title.search")} identity={identity({ me, lang, ...duty })} banner={banner}
       actions={<>
@@ -87,7 +89,8 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
         <form action={endShift} className="ma-inline-form"><button className="ma-btn ma-btn--secondary"><Icon name="users" />{tr(lang, "duty.change")}</button></form>
       </>}
       aside={<Today lang={lang} />}>
-      <GateSearch lang={lang} initialQuery={sp.done || sp.family ? "" : (sp.q ?? "").slice(0, 80)} />
+      <OfflineSync lang={lang} />
+      <GateSearch lang={lang} initialQuery={sp.done || sp.family ? "" : (sp.q ?? "").slice(0, 80)} guard={duty.guard.id} hours={rules} />
     </Shell>
   );
 }

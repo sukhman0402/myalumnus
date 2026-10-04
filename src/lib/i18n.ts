@@ -74,7 +74,7 @@ const en = {
   "fh.err.phone": "Check the number: digits, spaces and + only.", // new
   "case.back": "Search another visitor · this case stays open",
   "case.withadmin": "With admin · {timer}",
-  "case.step1": "Admin decides", "case.step1.sub": "{n} and {k} other admins notified at {t}", "case.step1.sub1": "{n} notified at {t}", // sub/sub1: new wording
+  "case.step1": "Admin decides", "case.step1.sub": "{n} and {k} other admins alerted at {t}", "case.step1.sub1": "{n} alerted at {t}", // sub/sub1: new wording
   "case.step2": "You call the host", "case.step2.sub": "{h}, if no reply by {t}",
   "case.tell": "Tell the visitor", "case.tell.admin": "Your visit is with the admin. If they don't reply by {t}, I'll call {h}.",
   "case.host.banner.a": "No reply from admin in {m} minutes.", "case.host.banner.b": "Call the host now.",
@@ -125,6 +125,25 @@ const en = {
   "err.name_required": "Enter the name the visitor gave.", "err.host_required": "Enter who they came to see, so you can call them if needed.", // new
   "err.reason_required": "Add a reason before denying.", "err.student_required": "That student isn't on the current student list.", // new
   "err.not_allowed": "This can't be done from this gate right now. Refresh the screen.", // new
+  // slice 5: offline search and sync (all new; Hindi needs native review)
+  "case.step1.none": "No admin has signed in yet: phone the admin office.",
+  "case.step1.dash": "Shown on the admin dashboard at {t}. No admin has phone alerts on: if it's urgent, phone the admin office.",
+  "off.banner.b": "No internet connection.", "off.banner": "Searching the list saved on this iPad at {t} ({n} records). Photos and expected visits aren't available offline.",
+  "off.none": "No saved list on this iPad yet. Phone the admin office to check this visitor.",
+  "off.result": "{n} saved records match “{q}”", "off.result1": "1 saved record matches “{q}”",
+  "off.nomatch": "No saved record matches “{q}”. Flag & Hold needs the internet: phone the admin office.",
+  "off.check": "No photo offline. Check a photo ID before letting them in.",
+  "off.approve": "Approve offline", "off.deny": "Deny offline", "off.back": "Back to results",
+  "off.hold": "Flag & Hold needs the internet. If you're unsure, phone the admin office.",
+  "off.hours": "Outside visiting hours ({o}–{c}): Approve is unavailable.",
+  "off.saved.b": "Saved on this iPad · {n} · {t}.", "off.saved": "It's recorded in the system as soon as the internet is back. Don't reload this page until then.",
+  "off.queue": "{n} entries saved on this iPad, waiting for the internet. Keep this page open.", "off.queue1": "1 entry saved on this iPad, waiting for the internet. Keep this page open.",
+  "off.syncing": "Internet is back. Recording the saved entries ({n})…",
+  "off.failed.b": "Not recorded: {n}.", "off.dismiss": "Dismiss",
+  "off.err.outside_hours": "It was outside visiting hours.", "off.err.already_inside": "They were already recorded inside.",
+  "off.err.too_old": "It was saved more than 4 hours ago.", "off.err.no_shift": "The guard on duty then couldn't be confirmed.",
+  "off.err.not_found": "The record is no longer available.", "off.err.other": "The system refused it. Tell the admin office.",
+  "off.nostore": "This iPad couldn't save the entry. Note it on paper and phone the admin office.",
 };
 type Key = keyof typeof en;
 
@@ -247,6 +266,24 @@ const hi: Record<Key, string> = {
   "err.name_required": "विज़िटर ने जो नाम बताया, वह लिखें।", "err.host_required": "वे किससे मिलने आए हैं, यह लिखें ताकि ज़रूरत हो तो आप कॉल कर सकें।",
   "err.reason_required": "मना करने से पहले कारण लिखें।", "err.student_required": "यह छात्र वर्तमान छात्र सूची में नहीं है।",
   "err.not_allowed": "यह अभी इस गेट से नहीं हो सकता। स्क्रीन रिफ़्रेश करें।",
+  "case.step1.none": "अभी तक किसी एडमिन ने साइन इन नहीं किया है: एडमिन ऑफ़िस को फ़ोन करें।",
+  "case.step1.dash": "{t} बजे एडमिन डैशबोर्ड पर दिखाया गया। किसी एडमिन के फ़ोन अलर्ट चालू नहीं हैं: ज़रूरी हो तो एडमिन ऑफ़िस को फ़ोन करें।",
+  "off.banner.b": "इंटरनेट कनेक्शन नहीं है।", "off.banner": "इस iPad पर {t} बजे सेव की गई सूची में खोज रहे हैं ({n} रिकॉर्ड)। ऑफ़लाइन फ़ोटो और अपेक्षित विज़िटर नहीं दिखते।",
+  "off.none": "इस iPad पर अभी कोई सेव की गई सूची नहीं है। इस विज़िटर की जाँच के लिए एडमिन ऑफ़िस को फ़ोन करें।",
+  "off.result": "“{q}” से {n} सेव किए गए रिकॉर्ड मिले", "off.result1": "“{q}” से 1 सेव किया गया रिकॉर्ड मिला",
+  "off.nomatch": "“{q}” से कोई सेव किया गया रिकॉर्ड नहीं मिला। Flag & Hold के लिए इंटरनेट चाहिए: एडमिन ऑफ़िस को फ़ोन करें।",
+  "off.check": "ऑफ़लाइन फ़ोटो नहीं है। अंदर जाने देने से पहले फ़ोटो वाला ID देखें।",
+  "off.approve": "ऑफ़लाइन मंज़ूर करें", "off.deny": "ऑफ़लाइन मना करें", "off.back": "नतीजों पर वापस",
+  "off.hold": "Flag & Hold के लिए इंटरनेट चाहिए। अगर पक्का न हो, तो एडमिन ऑफ़िस को फ़ोन करें।",
+  "off.hours": "मुलाक़ात का समय ({o}–{c}) नहीं है: मंज़ूरी नहीं दी जा सकती।",
+  "off.saved.b": "इस iPad पर सेव · {n} · {t}।", "off.saved": "इंटरनेट आते ही यह सिस्टम में दर्ज हो जाएगा। तब तक यह पेज रीलोड न करें।",
+  "off.queue": "इस iPad पर {n} एंट्री सेव हैं, इंटरनेट का इंतज़ार है। यह पेज खुला रखें।", "off.queue1": "इस iPad पर 1 एंट्री सेव है, इंटरनेट का इंतज़ार है। यह पेज खुला रखें।",
+  "off.syncing": "इंटरनेट वापस आ गया। {n} सेव की गई एंट्री दर्ज हो रही हैं…",
+  "off.failed.b": "दर्ज नहीं हुआ: {n}।", "off.dismiss": "हटाएँ",
+  "off.err.outside_hours": "उस समय मुलाक़ात का समय नहीं था।", "off.err.already_inside": "वे पहले से अंदर दर्ज थे।",
+  "off.err.too_old": "इसे 4 घंटे से ज़्यादा पहले सेव किया गया था।", "off.err.no_shift": "उस समय ड्यूटी पर गार्ड की पुष्टि नहीं हो सकी।",
+  "off.err.not_found": "यह रिकॉर्ड अब उपलब्ध नहीं है।", "off.err.other": "सिस्टम ने इसे नहीं माना। एडमिन ऑफ़िस को बताएँ।",
+  "off.nostore": "यह iPad एंट्री सेव नहीं कर सका। इसे कागज़ पर लिखें और एडमिन ऑफ़िस को फ़ोन करें।",
 };
 
 const DICT: Record<Lang, Record<Key, string>> = { en, hi };

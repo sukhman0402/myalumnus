@@ -17,7 +17,7 @@ type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string;
   host_phone: string | null; status: "admin" | "host" | "approved" | "denied"; created_at: string; handoff_at: string;
   decided_at: string | null; note: string | null; decided_by_name: string | null; decided_by_role: "admin" | "guard" | null;
-  admins: number; first_admin: string | null; escalate_minutes: number;
+  admins: number; first_admin: string | null; alerted: number; first_alerted: string | null; escalate_minutes: number;
 };
 
 const WHY = ["Name not found", "Photo doesn't match", "No photo, details don't match", "Outside visiting hours", "Something else"];
@@ -54,15 +54,15 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
 
   let body: React.ReactNode;
   if (c.status === "admin") {
-    const others = Math.max(0, c.admins - 1);
     body = (
       <>
         <Banner kind="escalation" icon="hourglass">{tr(lang, "case.withadmin", { timer: "" })}<Timer since={c.created_at} /></Banner>
         <ol className="ma-steps" aria-label={tr(lang, "title.flag")}>
           <li className="ma-step" aria-current="step"><span className="ma-step__n">1</span>
-            <div><b>{tr(lang, "case.step1")}</b><span>{others
-              ? tr(lang, "case.step1.sub", { n: c.first_admin ?? "", k: others, t: fmtTime(c.created_at) })
-              : tr(lang, "case.step1.sub1", { n: c.first_admin ?? "", t: fmtTime(c.created_at) })}</span></div></li>
+            <div><b>{tr(lang, "case.step1")}</b><span>{c.admins === 0 ? tr(lang, "case.step1.none")
+              : c.alerted === 0 ? tr(lang, "case.step1.dash", { t: fmtTime(c.created_at) })
+              : c.alerted > 1 ? tr(lang, "case.step1.sub", { n: c.first_alerted ?? "", k: c.alerted - 1, t: fmtTime(c.created_at) })
+              : tr(lang, "case.step1.sub1", { n: c.first_alerted ?? "", t: fmtTime(c.created_at) })}</span></div></li>
           <li className="ma-step"><span className="ma-step__n">2</span>
             <div><b>{tr(lang, "case.step2")}</b><span>{tr(lang, "case.step2.sub", { h: host, t: handoff })}</span></div></li>
         </ol>

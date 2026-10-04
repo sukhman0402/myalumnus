@@ -1,6 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { after } from "next/server";
+import { alertAdminsOfHold } from "@/lib/push";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -8,7 +10,7 @@ import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { asLang, LANG_COOKIE, tr, type TKey } from "@/lib/i18n";
 import { getLang } from "@/lib/gate";
-import { samplePhoto } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
 
 /** A guard taps their name: the database ends any open shift on this device and opens theirs (planning/02 Q1). */
 export async function startShift(form: FormData) {
@@ -39,7 +41,7 @@ export async function setLang(form: FormData) {
 export type SearchHit = {
   id: string; full_name: string; kind: "alumnus" | "faculty" | "placement" | "student";
   program: string | null; batch_year: number | null; has_photo: boolean; expected_at: string | null;
-  photo: string | null; // thumbnail address (sample faces only for now; real photos arrive with slice 4)
+  photo: string | null; // thumbnail address: a sample face or a 5-minute signed link (planning/02 D8)
 };
 
 /** Live search as the guard types (planning/02 D10). The database applies the 3-letter rule and the gate checks. */
@@ -57,7 +59,8 @@ export async function searchPeople(q: string): Promise<{ ok: true; hits: SearchH
     const { data: rows } = await supabase.rpc("gate_photos", { p_ids: withPhoto });
     (rows as { id: string; photo_path: string | null }[] | null)?.forEach((r) => paths.set(r.id, r.photo_path));
   }
-  return { ok: true, hits: hits.map((h) => ({ ...h, photo: samplePhoto(paths.get(h.id) ?? null) })) };
+  const urls = await signPhotos([...paths.values()]);
+  return { ok: true, hits: hits.map((h) => ({ ...h, photo: urls.get(paths.get(h.id) ?? "") ?? null })) };
 }
 
 export type DecideState = { error?: string; field?: string };
@@ -131,7 +134,7 @@ const Hold = z.object({
 });
 
 export async function holdVisitor(_prev: FormState, form: FormData): Promise<FormState> {
-  await requireRole("gate");
+  const me = await requireRole("gate");
   const lang = await getLang();
   const raw = Object.fromEntries(["client", "person", "name", "says", "why", "purpose", "host", "host_phone", "visitor_phone"]
     .map((k) => [k, String(form.get(k) ?? "")]));
@@ -151,8 +154,16 @@ export async function holdVisitor(_prev: FormState, form: FormData): Promise<For
     p_visitor_phone: h.visitor_phone || null, p_client: h.client,
   });
   if (error) return { error: await errorText(error.hint), values: raw };
+  const held = data as { id: string };
+  // Alert admins' phones and computers once the guard's screen has moved on (planning/02 D13). Never blocks the gate.
+  after(() => alertAdminsOfHold(held.id, {
+    title: `Visitor held at ${me.gate_name ?? "the gate"}`,
+    // No visitor or host names: alerts can show on a lock screen or a shared office computer.
+    body: `Reason: ${WHY_EN[h.why - 1]}. Tap to decide before the guard calls the host.`,
+    url: `/admin/case/${held.id}`, tag: `case-${held.id}`, requireInteraction: true,
+  }).catch(() => undefined));
   revalidatePath("/gate", "layout");
-  redirect(`/gate/case/${(data as { id: string }).id}`);
+  redirect(`/gate/case/${held.id}`);
 }
 
 /** The guard decides a held case once it has passed to the host (after the call). */
@@ -198,8 +209,9 @@ export async function searchStudents(q: string): Promise<{ ok: true; hits: Stude
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("gate_students", { p_q: query.data });
   if (error) return { ok: false };
-  return { ok: true, hits: ((data ?? []) as (Omit<StudentHit, "photo"> & { photo_path: string | null })[])
-    .map(({ photo_path, ...s }) => ({ ...s, photo: samplePhoto(photo_path) })) };
+  const rows = (data ?? []) as (Omit<StudentHit, "photo"> & { photo_path: string | null })[];
+  const urls = await signPhotos(rows.map((r) => r.photo_path));
+  return { ok: true, hits: rows.map(({ photo_path, ...s }) => ({ ...s, photo: urls.get(photo_path ?? "") ?? null })) };
 }
 
 export async function logFamily(_prev: FormState, form: FormData): Promise<FormState> {
@@ -214,4 +226,40 @@ export async function logFamily(_prev: FormState, form: FormData): Promise<FormS
   if (error) return { error: await errorText(error.hint) };
   revalidatePath("/gate", "layout");
   redirect(`/gate?family=${(data as { id: string }).id}`);
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Slice 5: offline search (planning/02 D11, Q3). The iPad keeps a minimal roster and queues decisions made
+// without internet; each is sent here when the network is back and checked as of the moment it was made.
+
+export type RosterRow = { id: string; full_name: string; kind: "alumnus" | "faculty" | "placement" | "student"; program: string | null; batch_year: number | null };
+
+export async function getRoster(): Promise<{ ok: true; rows: RosterRow[] } | { ok: false }> {
+  await requireRole("gate");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("gate_roster");
+  if (error) return { ok: false };
+  return { ok: true, rows: (data ?? []) as RosterRow[] };
+}
+
+const Offline = z.object({
+  client: z.uuid(), person: z.uuid(), approve: z.boolean(), reason: z.string().trim().max(300), purpose: z.string().trim().max(200),
+  at: z.iso.datetime({ offset: true }), guard: z.uuid(),
+});
+const FINAL = new Set(["outside_hours", "already_inside", "too_old", "no_shift", "not_found", "reason_required", "not_allowed"]);
+
+/** Record one offline decision. "final" errors won't succeed on retry; anything else is retried later. */
+export async function syncOffline(item: unknown): Promise<{ ok: true } | { ok: false; final: boolean; hint: string }> {
+  await requireRole("gate");
+  const p = Offline.safeParse(item);
+  if (!p.success) return { ok: false, final: true, hint: "other" };
+  const d = p.data;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("gate_decide_offline", {
+    p_person: d.person, p_approve: d.approve, p_purpose: d.purpose || null, p_reason: d.approve ? null : d.reason,
+    p_client: d.client, p_at: d.at, p_guard: d.guard,
+  });
+  if (!error) { revalidatePath("/gate", "layout"); return { ok: true }; }
+  const hint = error.hint ?? "";
+  return { ok: false, final: FINAL.has(hint), hint: FINAL.has(hint) ? hint : "other" };
 }

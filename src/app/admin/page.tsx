@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Timer } from "@/components/Timer";
-import { dayStartIso, fmtTime, overMinutes, samplePhoto, type Kind } from "@/lib/format";
+import { dayStartIso, fmtTime, overMinutes, type Kind } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
+import { PushToggle } from "@/components/PushToggle";
 import { AdminShell } from "./AdminShell";
 
 /** The tab title carries the number of visitors waiting, e.g. "(2) Dashboard", so it shows in a background tab. */
@@ -56,16 +58,18 @@ export default async function AdminDashboard() {
     [open.length, "Awaiting your decision", "#queue"],
     [overstays.length, "Overstay flagged", "#overstay"],
   ];
+  const urls = await signPhotos([...open, ...recent, ...insideRows].map((x) => x.person?.photo_path));
   const name = (p: Person, walkin: string | null) => p?.full_name ?? walkin ?? "—";
   const thumb = (p: Person) => {
-    const src = samplePhoto(p?.photo_path ?? null);
+    const src = urls.get(p?.photo_path ?? "") ?? null;
     // eslint-disable-next-line @next/next/no-img-element
     return src ? <span className="ma-row__photo ma-row__photo--img"><img src={src} alt="" /></span> : <span className="ma-row__photo"><Icon name="user" /></span>;
   };
 
   return (
     <AdminShell me={me} title="Dashboard" current="/admin"
-      aside={
+      aside={<>
+        <PushToggle />
         <section className="ma-panel" aria-labelledby="overstay">
           <h2 className="ma-panel__title" id="overstay">Overstay {overstays.length ? <Chip kind="hold" icon="triangle-alert" text={`${overstays.length} flagged`} /> : null}</h2>
           {overstays.length ? (
@@ -82,7 +86,7 @@ export default async function AdminDashboard() {
             </>
           ) : <p className="ma-note">No one is inside after visiting hours.</p>}
         </section>
-      }>
+      </>}>
       <AutoRefresh seconds={10} />
       <div className="ma-stats">
         {tiles.map(([v, label, href]) => (
@@ -124,15 +128,17 @@ export default async function AdminDashboard() {
               const ok = v.outcome === "approved";
               const by = v.decider ? (v.decider.role === "admin" ? (v.decider.name === me.name ? "you" : v.decider.name) : "guard") : "—";
               return (
-                <li key={v.id}><div className="ma-row ma-row--static">{thumb(v.person)}
+                <li key={v.id}><Link className="ma-row" href={`/admin/history/${v.id}`}>{thumb(v.person)}
                   <span className="ma-row__text"><b>{name(v.person, v.walkin_name)}</b>
                     <span>{ok ? "Approved" : "Denied"} by {by} · {fmtTime(v.decided_at)}{v.reason ? ` · ${v.reason}` : ""}</span></span>
                   <span className="ma-row__end"><Chip kind={ok ? "success" : "danger"} icon={ok ? "check" : "ban"} text={ok ? "Approved" : "Denied"} /></span>
-                </div></li>
+                  <span className="ma-row__chev"><Icon name="chevron-right" /></span>
+                </Link></li>
               );
             })}
           </ul>
         ) : <p className="ma-note">No decisions yet today.</p>}
+        {recent.length ? <p><Link className="ma-link" href="/admin/history">All of today in History<Icon name="arrow-right" size={16} /></Link></p> : null}
       </section>
     </AdminShell>
   );

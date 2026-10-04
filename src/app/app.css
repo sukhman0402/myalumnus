@@ -7,3 +7,27 @@ html, body { margin: 0; background: var(--ma-color-bg-canvas); color: var(--ma-c
 .ma-field__box input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
 /* Parts of the design that arrive in later build slices: visibly switched off, still announced as such. */
 .ma-rail__item[aria-disabled="true"], .ma-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+/* Admin console (slice 4) */
+.ma-filters__go { display: flex; align-items: flex-end; min-height: 48px; }
+.ma-pager { justify-content: flex-end; align-items: center; margin-top: var(--ma-space-3); }
+.ma-pager .ma-note { margin-right: auto; }
+.ma-form__check { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; cursor: pointer; }
+.ma-form__check input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--ma-color-interactive-primary); flex: none; }
+.ma-form__check span { display: grid; gap: 2px; }
+.ma-form__check small { color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); }
+.ma-photo-edit { display: flex; gap: var(--ma-space-5); align-items: flex-start; flex-wrap: wrap; }
+.ma-photo-edit .ma-actions { margin-top: var(--ma-space-3); }
+.ma-file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.ma-file:focus-visible + label { outline: 3px solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+.ma-progress { width: 100%; height: 8px; accent-color: var(--ma-color-decision-approve); }
+.ma-rows-scroll { max-height: 22rem; overflow: auto; }
+.ma-picked { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ma-lookup { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ma-lookup button { width: 100%; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.ma-week { display: flex; gap: var(--ma-space-2); align-items: center; flex-wrap: wrap; }
+/* Tabs that are links between views (aria-current), styled like the design system's selected tab. */
+a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
+.ma-tab[aria-current="page"] { background-color: var(--ma-tabs-tab-selected-bg); color: var(--ma-tabs-tab-selected-text); font-weight: var(--ma-tabs-tab-selected-weight); }
+.ma-tabs { flex-wrap: wrap; max-width: 100%; }
+.ma-stack-sm { display: grid; gap: var(--ma-space-2); }
+.ma-linkbtn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; justify-self: start; }

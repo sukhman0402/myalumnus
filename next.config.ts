@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         { key: "X-Robots-Tag", value: "noindex, nofollow" },
       ],
+    }, {
+      // The alerts service worker: always re-checked, so a fix reaches every admin device at once.
+      source: "/sw.js",
+      headers: [
+        { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+        { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self'" },
+      ],
     }];
   },
 };

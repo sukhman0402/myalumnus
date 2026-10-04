@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SignInForm } from "./SignInForm";
+import { WipeOffline } from "./WipeOffline";
 import { signOut } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
 
   return (
     <main className="ma-signin" id="main">
+      <WipeOffline />
       <div className="ma-signin__card">
         <div className="ma-rail__logo" aria-hidden="true">MA</div>
         <h1>Sign in to My Alumnus</h1>

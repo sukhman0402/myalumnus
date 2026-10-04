@@ -3,7 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { tr, type TKey } from "@/lib/i18n";
-import { fmtTime, samplePhoto, type Kind } from "@/lib/format";
+import { fmtTime, type Kind } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
 import { requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 
@@ -19,6 +20,7 @@ export default async function ExpectedPage() {
   const supabase = await createClient();
   const { data } = await supabase.rpc("gate_expected");
   const rows = (data ?? []) as Row[];
+  const urls = await signPhotos(rows.map((r) => r.photo_path));
   return (
     <GateShell duty={duty} title={tr(lang, "title.expected")} section="expected">
       <section className="ma-panel" aria-labelledby="eh">
@@ -28,7 +30,7 @@ export default async function ExpectedPage() {
             <p className="ma-note">{tr(lang, "exp.sub")}</p>
             <ul className="ma-list">
               {rows.map((r) => {
-                const photo = samplePhoto(r.photo_path);
+                const photo = urls.get(r.photo_path ?? "") ?? null;
                 return (
                   <li key={`${r.person_id}-${r.expected_at}`}>
                     <Link className="ma-row" href={`/gate/person/${r.person_id}?picked=1`}>

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { tr, type TKey } from "@/lib/i18n";
-import { fmtTime, samplePhoto, type Kind } from "@/lib/format";
+import { fmtTime, type Kind } from "@/lib/format";
+import { signPhotos } from "@/lib/photos";
 import { decidedRecently, requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 import { ExitButton } from "./ExitButton";
@@ -49,6 +50,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
     );
   }
 
+  const urls = await signPhotos(rows.map((r) => (r.kind === "visit" ? r.photo_path : null)));
   return (
     <GateShell duty={duty} title={tr(lang, "title.inside")} section="inside" banner={banner}>
       <section className="ma-panel" aria-labelledby="ih">
@@ -62,7 +64,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
             <p className="ma-note">{tr(lang, "in.sub")}</p>
             <ul className="ma-list">
               {rows.map((r) => {
-                const photo = r.kind === "visit" ? samplePhoto(r.photo_path) : null;
+                const photo = r.kind === "visit" ? urls.get(r.photo_path ?? "") ?? null : null;
                 const kind = r.person_kind ? tr(lang, `kind.${r.person_kind}` as TKey) : tr(lang, "walkin.norecord");
                 const sub = r.kind === "family"
                   ? tr(lang, "in.family", { g: r.guests ?? 0, s: r.name, t: fmtTime(r.entered_at) })
