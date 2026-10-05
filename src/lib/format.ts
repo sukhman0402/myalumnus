@@ -95,3 +95,9 @@ export const KIND_LABEL: Record<string, string> = {
 export function nowMs() {
   return Date.now();
 }
+/** Minutes in words for overstays: "45 min", "16 h 44 min" (Hindi: "45 मिनट", "16 घंटे 44 मिनट"). */
+export function fmtMinutes(min: number, lang: Lang = "en") {
+  const h = Math.floor(min / 60), m = min % 60;
+  if (lang === "hi") return h ? `${h} घंटे${m ? ` ${m} मिनट` : ""}` : `${m} मिनट`;
+  return h ? `${h} h${m ? ` ${m} min` : ""}` : `${m} min`;
+}

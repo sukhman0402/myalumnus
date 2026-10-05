@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { RecordPhoto } from "@/components/RecordPhoto";
 import { tr } from "@/lib/i18n";
-import { fmtMonth, fmtTime, personMeta, type Kind } from "@/lib/format";
+import { fmtMinutes, fmtMonth, fmtTime, personMeta, type Kind } from "@/lib/format";
 import { photoSrc, requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../../GateShell";
 import { ExitButton } from "../ExitButton";
@@ -45,7 +45,7 @@ export default async function OverstayPage({ params }: { params: Promise<{ id: s
               <h2 className="ma-record__name" id="oh">{v.name}</h2>
               <p className="ma-record__meta">{meta}</p>
               {v.over_minutes > 0 ? <div className="ma-record__chips"><span className="ma-chip ma-chip--hold"><span className="ma-circle"><Icon name="triangle-alert" /></span>
-                <span className="ma-tabular">{tr(lang, "chip.overstay", { m: v.over_minutes })}</span></span></div> : null}
+                <span className="ma-tabular">{tr(lang, "chip.overstay", { m: fmtMinutes(v.over_minutes, lang) })}</span></span></div> : null}
             </div>
             <dl className="ma-kv">
               <dt>{tr(lang, "kv.insince")}</dt><dd>{tr(lang, "kv.insince.v", { t: fmtTime(v.entered_at), u: fmtTime(v.closes_at) })}</dd>

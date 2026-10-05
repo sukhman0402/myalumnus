@@ -30,16 +30,23 @@ a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
 .ma-stack-sm { display: grid; gap: var(--ma-space-2); }
 .ma-linkbtn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; justify-self: start; }
 /* Side bar in two states (owner decision 2026-10-05): icons only by default; icon + label side by side when open.
-   Labels stay in the page for screen readers when hidden (visually-hidden pattern). */
-.ma-rail { min-width: 0; }
-.ma-rail:not(.is-open) .ma-rail__item, .ma-rail:not(.is-open) .ma-rail__logo { min-width: var(--ma-rail-item-height); }
+   Labels stay in the page for screen readers when hidden (visually-hidden pattern).
+   Form follows the Clinexa reference (owner, 2026-10-05; replaces the 16px / 12px rectangle radius of research/45):
+   a pill-shaped rail 56px wide, round 44px buttons, the current page as a filled circle, and a grey hover. */
+.ma-rail { min-width: 0; padding: 6px; gap: var(--ma-space-2); border-radius: 28px; align-items: center; }
+.ma-rail__logo { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 50%; font-size: 14px; }
+.ma-rail__item { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 22px; }
+.ma-rail__item svg { width: 20px; height: 20px; flex: none; }
+@media (hover: hover) {
+  .ma-rail__item:not([aria-current="page"]):not([aria-disabled="true"]):hover { background-color: var(--ma-color-bg-canvas); color: var(--ma-rail-item-text-hover); }
+}
 .ma-rail:not(.is-open) .ma-rail__label {
   position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
-.ma-rail.is-open .ma-rail__item { flex-direction: row; justify-content: flex-start; gap: var(--ma-space-3); padding: 0 var(--ma-space-4) 0 var(--ma-space-5); min-width: 11.5rem; }
+.ma-rail.is-open { align-items: stretch; }
+.ma-rail.is-open .ma-rail__item { width: auto; height: auto; min-width: 11rem; flex-direction: row; justify-content: flex-start; gap: var(--ma-space-3); padding: 0 var(--ma-space-4) 0 12px; }
 .ma-rail.is-open .ma-rail__item .ma-rail__label { text-align: left; }
 .ma-rail__toggle { margin-top: var(--ma-space-2); font: inherit; }
-.ma-rail__toggle svg { width: 20px; height: 20px; }
 /* "Who's on duty?": the names are list rows, like search results (one line each, shift underneath). */
 button.ma-row { width: 100%; text-align: left; font: inherit; border: 0; background: none; }
 /* On narrow screens the side bar becomes a top bar: open items take only the room their label needs. */

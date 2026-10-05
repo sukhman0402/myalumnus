@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { tr, type TKey } from "@/lib/i18n";
-import { fmtTime, type Kind } from "@/lib/format";
+import { fmtMinutes, fmtTime, type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { decidedRecently, requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
@@ -81,7 +81,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
                         {r.kind === "visit" && r.over_minutes > 0 ? (
                           <>
                             <span className="ma-chip ma-chip--hold"><span className="ma-circle"><Icon name="triangle-alert" /></span>
-                              <span className="ma-tabular">{tr(lang, "chip.overstay", { m: r.over_minutes })}</span></span>
+                              <span className="ma-tabular">{tr(lang, "chip.overstay", { m: fmtMinutes(r.over_minutes, lang) })}</span></span>
                             <Link className="ma-btn ma-btn--row" href={`/gate/inside/${r.id}`}><Icon name="phone" />{tr(lang, "in.follow")}<span className="ma-visually-hidden"> · {r.name}</span></Link>
                           </>
                         ) : r.kind === "family" ? (

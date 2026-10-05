@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Timer } from "@/components/Timer";
-import { dayStartIso, fmtTime, overMinutes, type Kind } from "@/lib/format";
+import { dayStartIso, fmtMinutes, fmtTime, overMinutes, type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { PushToggle } from "@/components/PushToggle";
 import { AdminShell } from "./AdminShell";
@@ -78,7 +78,7 @@ export default async function AdminDashboard() {
                 {overstays.map((v) => (
                   <li key={v.id}><div className="ma-row ma-row--static">{thumb(v.person)}
                     <span className="ma-row__text"><b>{name(v.person, v.walkin_name)}</b>
-                      <span>{v.gate?.name} · in since {fmtTime(v.entered_at)} · {v.over} min after closing</span></span>
+                      <span>{v.gate?.name} · in since {fmtTime(v.entered_at)} · {fmtMinutes(v.over)} after closing</span></span>
                     <span className="ma-row__end"><Chip icon="bell" text="Guard notified" /></span></div></li>
                 ))}
               </ul>
