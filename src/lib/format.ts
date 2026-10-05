@@ -29,10 +29,11 @@ export function personMeta(lang: Lang, p: { kind: Kind; program: string | null; 
   return [kind, p.program, p.batch_year ? tr(lang, "batch", { y: p.batch_year }) : null].filter(Boolean).join(" · ");
 }
 
-/** The fictional sample people use drawn SAMPLE faces shipped with the app (public/sample-photos). */
+/** The fictional sample people use AI-generated photos of fictional people shipped with the app (public/sample-photos,
+ *  480 × 640 JPEG; owner, 2026-10-05; prompts: brand/sample-photo-prompts.md), never the private bucket. */
 export function samplePhoto(path: string | null): string | null {
   const m = path ? /^sample\/([a-z0-9]+)\.webp$/.exec(path) : null;
-  return m ? `/sample-photos/${m[1]}.svg` : null;
+  return m ? `/sample-photos/${m[1]}.jpg` : null;
 }
 
 /** Start of today in the university's timezone, as an ISO instant (for "today" filters). */
