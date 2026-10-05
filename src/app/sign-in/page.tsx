@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BrandMark } from "@/components/BrandMark";
 import { SignInForm } from "./SignInForm";
 import { WipeOffline } from "./WipeOffline";
 import { signOut } from "./actions";
@@ -16,7 +17,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
     <main className="ma-signin" id="main">
       <WipeOffline />
       <div className="ma-signin__card">
-        <div className="ma-rail__logo" aria-hidden="true">MA</div>
+        <div className="ma-rail__logo" aria-hidden="true"><BrandMark /></div>
         <h1>Sign in to My Alumnus</h1>
         {signedInButNotInvited ? (
           <>

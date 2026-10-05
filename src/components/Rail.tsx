@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BrandMark } from "./BrandMark";
 import { Icon } from "./Icon";
 import type { NavItem } from "./Shell";
 
@@ -22,7 +23,7 @@ export function Rail({ nav, soonLabel, initialOpen, consoleName, showLabel, hide
   };
   return (
     <nav className={`ma-rail${open ? " is-open" : ""}`} aria-label="Main" id="ma-rail">
-      <div className="ma-rail__logo" aria-hidden="true">MA</div>
+      <div className="ma-rail__logo" aria-hidden="true"><BrandMark /></div>
       {nav.map((n) => n.soon ? (
         <span key={n.href} className="ma-rail__item" aria-disabled="true" title={`${n.label}: ${soonLabel}`}>
           <Icon name={n.icon} /><span className="ma-rail__label">{n.label}</span>

@@ -34,7 +34,17 @@ a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
    Form follows the Clinexa reference (owner, 2026-10-05; replaces the 16px / 12px rectangle radius of research/45):
    a pill-shaped rail 56px wide, round 44px buttons, the current page as a filled circle, and a grey hover. */
 .ma-rail { min-width: 0; padding: 6px; gap: var(--ma-space-2); border-radius: 28px; align-items: center; }
-.ma-rail__logo { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 50%; font-size: 14px; }
+/* Logo (owner, 2026-10-05): white circle, blue mark. The circle takes the logo tile's own white-to-grey fade and a
+   hairline edge, so it still reads as a circle on the white side bar and the near-white sign-in card. */
+.ma-rail__logo {
+  width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 50%; box-sizing: border-box;
+  background: linear-gradient(var(--ma-color-white) 58%, #ebebeb); border: 1px solid var(--ma-color-border-divider);
+  color: var(--ma-color-signal-500);
+}
+.ma-rail__logo svg { width: 24px; height: 24px; }
+.ma-signin .ma-rail__logo { width: 56px; height: 56px; }
+.ma-signin .ma-rail__logo svg { width: 30px; height: 30px; }
+@media (forced-colors: active) { .ma-rail__logo { color: CanvasText; } }
 .ma-rail__item { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 22px; }
 .ma-rail__item svg { width: 20px; height: 20px; flex: none; }
 @media (hover: hover) {

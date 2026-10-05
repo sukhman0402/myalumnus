@@ -13,7 +13,7 @@ self.addEventListener("push", (event) => {
     renotify: true,
     requireInteraction: Boolean(data.requireInteraction),
     icon: "/icon-192.png",
-    badge: "/icon-192.png",
+    badge: "/badge-96.png", // white silhouette: Android draws the badge from its transparency only
     data: { url: data.url || "/admin" },
   }));
 });
