@@ -28,7 +28,6 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       <section className="ma-panel" aria-labelledby="ph">
         <PanelHead id="ph" title={<>{title} <span className="ma-note ma-tabular">({res.total.toLocaleString("en-IN")})</span></>}
           actions={res.total ? <a className="ma-btn ma-btn--secondary" href={withParams("/admin/history/export", h.echo, {})} download><Icon name="download" />Export CSV</a> : null} />
-        <p className="ma-note">Every decision, hold, exit and family visit is logged and can&apos;t be edited. Exports never include photos.</p>
         <FilterForm action="/admin/history" label="Filter visits">
           <div className="ma-field">
             <label className="ma-field__label" htmlFor="hq">Visitor name</label>

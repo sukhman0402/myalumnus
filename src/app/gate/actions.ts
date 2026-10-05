@@ -10,6 +10,7 @@ import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { asLang, LANG_COOKIE, tr, type TKey } from "@/lib/i18n";
 import { getLang, isAfterDuty } from "@/lib/gate";
+import { DEMO_MODE } from "@/lib/demo";
 import { signPhotos } from "@/lib/photos";
 
 /** A guard taps their name: the database ends any open shift on this device and opens theirs (planning/02 Q1). */
@@ -159,7 +160,8 @@ export async function holdVisitor(_prev: FormState, form: FormData): Promise<For
   if (error) return { error: await errorText(error.hint), values: raw };
   const held = data as { id: string };
   // Alert admins' phones and computers once the guard's screen has moved on (planning/02 D13). Never blocks the gate.
-  after(() => alertAdminsOfHold(held.id, {
+  // The public demo sends no alerts: viewers' holds would otherwise reach the owner's devices.
+  if (!DEMO_MODE) after(() => alertAdminsOfHold(held.id, {
     title: `Visitor held at ${me.gate_name ?? "the gate"}`,
     // No visitor or host names: alerts can show on a lock screen or a shared office computer.
     body: `Reason: ${WHY_EN[h.why - 1]}. Tap to decide before the guard calls the host.`,

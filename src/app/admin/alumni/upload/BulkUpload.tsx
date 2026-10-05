@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { DEMO_MODE } from "@/lib/demo";
 import { toGatePhoto } from "@/lib/resize";
 import { bulkSave, rollLookup, uploadPhoto, type Existing } from "../actions";
 import { COL_LABEL, matchColumns, parseCsv, readRows, REQUIRED, type ColKey, type Parsed } from "./csv";
@@ -99,7 +100,6 @@ export function BulkUpload() {
     <>
       <section className="ma-panel" aria-labelledby={`${uid}-a`}>
         <h2 className="ma-panel__title" id={`${uid}-a`}>1. Records from a spreadsheet</h2>
-        <p className="ma-note">Upload the list for a graduating batch or current students. You&apos;ll see every row before anything is saved.</p>
         <fieldset className="ma-field" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="ma-field__label">These rows are</legend>
           <div className="ma-actions">
@@ -115,7 +115,7 @@ export function BulkUpload() {
           <input id={`${uid}-f`} className="ma-file" type="file" accept=".csv,text/csv" disabled={Boolean(busy)} onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
           <label htmlFor={`${uid}-f`} className="ma-btn ma-btn--primary" aria-disabled={busy ? "true" : undefined}><Icon name="upload" />Choose file</label>
         </div>
-        <p className="ma-field__help"><Icon name="info" size={16} />From Excel: File › Save As › “CSV UTF-8”. A roll number that already exists updates that record instead of adding a second one.</p>
+        <p className="ma-field__help"><Icon name="info" size={16} />From Excel: File › Save As › “CSV UTF-8”.</p>
 
         {busy ? <p className="ma-note" role="status"><Icon name="loader-circle" size={16} className="ma-spin" /> {busy}{progress ? ` ${progress.toLocaleString("en-IN")} of ${good.length.toLocaleString("en-IN")}` : ""}</p> : null}
         {busy && progress ? <progress className="ma-progress" max={good.length} value={progress} aria-label="Saved rows" /> : null}
@@ -186,7 +186,7 @@ export function BulkUpload() {
           </div>
         ) : null}
       </section>
-      <PhotoBatch />
+      {DEMO_MODE ? null : <PhotoBatch />}
     </>
   );
 }

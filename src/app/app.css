@@ -86,3 +86,27 @@ button.ma-row { width: 100%; text-align: left; font: inherit; border: 0; backgro
 .ma-field__box > select { cursor: pointer; }
 /* A search box's clear button only shows once there is text; until then the input also takes the right edge. */
 .ma-field:not(.is-busy) .ma-field__box > input:placeholder-shown:has(~ .ma-field__clear) { margin-right: calc(-1 * var(--ma-field-padding-x)); padding-right: var(--ma-field-padding-x); }
+
+/* Sign-in card: logo and title centred (owner, 2026-10-05). Demo mode: two profile cards, Guard and Admin. */
+.ma-signin__brand { display: flex; flex-direction: column; align-items: center; gap: var(--ma-space-3); text-align: center; }
+.ma-signin__brand h1 { margin: 0; }
+.ma-signin .ma-signin__brand .ma-rail__logo { width: 64px; height: 64px; }
+.ma-signin .ma-signin__brand .ma-rail__logo svg { width: 34px; height: 34px; }
+.ma-demo__roles { border: 0; margin: 0; padding: 0; min-width: 0; }
+.ma-demo__roles legend { padding: 0; margin-bottom: var(--ma-field-label-gap); }
+.ma-demo__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: var(--ma-space-3); }
+.ma-role {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--ma-space-1); text-align: center;
+  padding: var(--ma-space-4) var(--ma-space-3); border-radius: 20px; background: var(--ma-color-white); cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--ma-color-border-divider);
+}
+.ma-role b { font-size: 1rem; }
+.ma-role__detail { font-size: 0.875rem; color: var(--ma-color-text-secondary); }
+.ma-role__icon { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; margin-bottom: var(--ma-space-1);
+  background: var(--ma-color-bg-canvas); color: var(--ma-color-text-primary); }
+.ma-role__icon svg { width: 24px; height: 24px; }
+@media (hover: hover) { .ma-role:hover { box-shadow: inset 0 0 0 1px var(--ma-color-text-secondary); } }
+.ma-role:has(input:checked) { box-shadow: inset 0 0 0 2px var(--ma-color-signal-500); }
+.ma-role:has(input:checked) .ma-role__icon { background: var(--ma-color-signal-500); color: var(--ma-color-white); }
+.ma-role:has(input:focus-visible) { outline: 3px solid var(--ma-color-signal-500); outline-offset: 2px; }
+@media (forced-colors: active) { .ma-role:has(input:checked) { outline: 3px solid Highlight; } }

@@ -11,6 +11,9 @@ import { endShift, startShift } from "./actions";
 import { GateSearch } from "./GateSearch";
 import { LangToggle } from "./LangToggle";
 import { Today } from "./Today";
+import { SignOutButton } from "@/components/SignOutButton";
+import { DEMO_MODE } from "@/lib/demo";
+import { signOut } from "../sign-in/actions";
 
 export const metadata: Metadata = { title: "Search · Guard console" };
 
@@ -26,7 +29,8 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
     const { data } = await supabase.rpc("gate_guards");
     const guards = data as { id: string; name: string; shift_label: string | null }[] | null;
     return (
-      <Shell {...common} nav={gateNav(lang, next ?? "search")} title={tr(lang, "title.duty")} identity={`${me.gate_name} · ${me.university_name}`} actions={<LangToggle lang={lang} />}>
+      <Shell {...common} nav={gateNav(lang, next ?? "search")} title={tr(lang, "title.duty")} identity={`${me.gate_name} · ${me.university_name}`}
+        actions={<><LangToggle lang={lang} />{DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null}</>}>
         <section className="ma-panel" aria-labelledby="pick">
           <h2 className="ma-panel__title" id="pick">{tr(lang, "duty.title")}</h2>
           {next ? (
@@ -35,7 +39,6 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
               <span className="ma-banner__text"><b>{tr(lang, "duty.next", { p: tr(lang, next === "expected" ? "nav.expected" : "nav.inside") })}</b></span>
             </div>
           ) : null}
-          <p className="ma-note">{tr(lang, "duty.note")}</p>
           {guards && guards.length ? (
             <ul className="ma-list">
               {guards.map((g) => (
@@ -99,6 +102,7 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
       actions={<>
         <LangToggle lang={lang} />
         <form action={endShift} className="ma-inline-form"><button className="ma-btn ma-btn--secondary"><Icon name="users" />{tr(lang, "duty.change")}</button></form>
+        {DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null}
       </>}
       aside={<Today lang={lang} />}>
       <OfflineSync lang={lang} />

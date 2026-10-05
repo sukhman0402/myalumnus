@@ -80,7 +80,6 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
           {c.host_phone ? <a className="ma-btn ma-btn--primary" href={`tel:${c.host_phone.replace(/[^+0-9]/g, "")}`}><Icon name="phone" />{tr(lang, "case.host.call", { h: hostShort })}</a> : null}
         </div>
         <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, "case.after.text")}</span></p>
-        <p className="ma-note">{tr(lang, "case.admin.can")}</p>
         {kv}
         <CaseDecide lang={lang} caseId={c.id} name={c.name_given} unreachable={tr(lang, "case.unreachable")} />
       </>

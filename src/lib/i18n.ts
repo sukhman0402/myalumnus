@@ -14,6 +14,7 @@ const en = {
   "duty.title": "Tap your name to start your shift", // new
   "duty.note": "Every entry you make is recorded under your name until the next guard taps theirs.", // new
   "duty.next": "Tap your name first. {p} opens next.",
+  "signout": "Sign out",
   "duty.none.t": "No guards on this gate's list", "duty.none.d": "Ask an admin to add guards for {g}.", // new
   "duty.change": "Change guard", "duty.shift": "Shift {s}", // new
   "search.label": "Search alumnus, faculty or placement visitor", "search.ph": "Type a name…",
@@ -50,7 +51,7 @@ const en = {
   "res.denied.b": "Denied · {n} · {t}.", "res.denied": "Reason: {r}. Saved to the audit trail.",
   "dup.title": "{c} people named {n}", "dup.prompt.sub": "Ask the visitor's batch year or department before opening a record.",
   "dup.ask.small": "Ask the visitor first. Don't read the options out.", "dup.ask": "Which batch year and department were you in?",
-  "dup.tap": "Tap the one that matches their answer. Only that record opens, with its photo.",
+  "dup.tap": "Tap the one that matches their answer.",
   "dup.neither": "Answer matches neither?",
   "today": "Today", "tile.expected": "Expected today", "tile.inside": "Inside now", "tile.flagged": "Flagged & hold", "tile.visits": "Today's visits",
   "err.no_shift": "No guard is on duty. Tap your name to start your shift, then try again.", // new
@@ -93,7 +94,7 @@ const en = {
   "cases.none": "No visitors are on hold", "cases.none.sub": "Flag & Hold a visitor from their record or from a search with no match.", // new
   "kv.visitor": "Visitor", "kv.says": "Says", "kv.why": "Why held", "kv.purpose": "Purpose", "kv.host": "Host", "kv.asgiven": "(name as given)",
   "exp.title": "{n} expected today", "exp.sub": "Added by admin. Open a row when the visitor arrives; walk-ins are searched as usual.",
-  "exp.none": "No visits expected today", "exp.none.sub": "Admin hasn't added anyone for today. Walk-in visitors are searched as usual.",
+  "exp.none": "No visits expected today", "exp.none.sub": "Admin hasn't added anyone for today.",
   "exp.meta": "{k} · {t} · Host: {h}", "chip.arrived": "Arrived {t}",
   "in.title": "{n} people inside", "in.title1": "1 person inside", // title1: new
   "in.sub": "Mark the exit when they leave the gate. Anyone still inside after visiting hours end is flagged.", // reworded for Q4
@@ -114,7 +115,7 @@ const en = {
   "fam.search": "Student's name or roll number", "fam.found": "{n} student found. Check the photo against the student at the gate.",
   "fam.found.n": "{n} students found. Check the photo against the student at the gate.", // new
   "fam.none": "No current student matches “{q}”",
-  "fam.none.sub": "Check the spelling, or search by roll number from the student's ID card. A family visit can't be registered without a current student.",
+  "fam.none.sub": "Check the spelling, or search by roll number from the student's ID card.",
   "fam.guests": "Number of guests", "fam.guests.help": "Headcount only. Guests aren't named.",
   "fam.less": "One fewer guest", "fam.more": "One more guest", "fam.purpose": "Purpose",
   "fam.read.small": "Read this to the student before the family enters", "fam.read": "You're responsible for your guests until they leave.",
@@ -136,7 +137,7 @@ const en = {
   "off.nomatch": "No saved record matches “{q}”. Flag & Hold needs the internet: phone the admin office.",
   "off.check": "No photo offline. Check a photo ID before letting them in.",
   "off.approve": "Approve offline", "off.deny": "Deny offline", "off.back": "Back to results",
-  "off.hold": "Flag & Hold needs the internet. If you're unsure, phone the admin office.",
+  "off.hold": "Flag & Hold needs the internet.",
   "off.hours": "Outside visiting hours ({o}–{c}): Approve is unavailable.",
   "off.saved.b": "Saved on this iPad · {n} · {t}.", "off.saved": "It's recorded in the system as soon as the internet is back. Don't reload this page until then.",
   "off.queue": "{n} entries saved on this iPad, waiting for the internet. Keep this page open.", "off.queue1": "1 entry saved on this iPad, waiting for the internet. Keep this page open.",
@@ -158,6 +159,7 @@ const hi: Record<Key, string> = {
   "duty.title": "शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें",
   "duty.note": "अगले गार्ड के नाम टैप करने तक आपकी हर एंट्री आपके नाम से दर्ज होगी।",
   "duty.next": "पहले अपना नाम टैप करें। उसके बाद {p} खुलेगा।",
+  "signout": "साइन आउट",
   "duty.none.t": "इस गेट की सूची में कोई गार्ड नहीं", "duty.none.d": "{g} के लिए गार्ड जोड़ने को एडमिन से कहें।",
   "duty.change": "गार्ड बदलें", "duty.shift": "शिफ़्ट {s}",
   "search.label": "पूर्व छात्र, फ़ैकल्टी या प्लेसमेंट विज़िटर खोजें", "search.ph": "नाम लिखें…",
@@ -194,7 +196,7 @@ const hi: Record<Key, string> = {
   "res.denied.b": "मना किया · {n} · {t}।", "res.denied": "कारण: {r}। ऑडिट रिकॉर्ड में सेव हुआ।",
   "dup.title": "{n} नाम के {c} लोग", "dup.prompt.sub": "रिकॉर्ड खोलने से पहले विज़िटर से बैच वर्ष या विभाग पूछें।",
   "dup.ask.small": "पहले विज़िटर से पूछें। विकल्प पढ़कर न सुनाएँ।", "dup.ask": "आप किस बैच वर्ष और विभाग में थे?",
-  "dup.tap": "उनके जवाब से मेल खाने वाले पर टैप करें। सिर्फ़ वही रिकॉर्ड फ़ोटो के साथ खुलेगा।",
+  "dup.tap": "उनके जवाब से मेल खाने वाले पर टैप करें।",
   "dup.neither": "जवाब किसी से मेल नहीं खाता?",
   "today": "आज", "tile.expected": "आज आने वाले", "tile.inside": "अभी अंदर", "tile.flagged": "रोके गए", "tile.visits": "आज की विज़िट",
   "err.no_shift": "कोई गार्ड ड्यूटी पर नहीं है। शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें, फिर दोबारा कोशिश करें।",
@@ -236,7 +238,7 @@ const hi: Record<Key, string> = {
   "cases.none": "कोई विज़िटर रुका हुआ नहीं है", "cases.none.sub": "विज़िटर के रिकॉर्ड से, या कोई मेल न मिलने पर खोज से, उन्हें रोकें और सूचित करें।",
   "kv.visitor": "विज़िटर", "kv.says": "बताते हैं", "kv.why": "रोकने का कारण", "kv.purpose": "आने का कारण", "kv.host": "होस्ट", "kv.asgiven": "(बताया गया नाम)",
   "exp.title": "आज {n} लोग आने वाले", "exp.sub": "एडमिन ने जोड़ा है। विज़िटर के आने पर पंक्ति खोलें; बिना सूचना आने वालों को सामान्य तरह खोजें।",
-  "exp.none": "आज कोई आने वाला नहीं", "exp.none.sub": "एडमिन ने आज के लिए किसी को नहीं जोड़ा। बिना सूचना आने वालों को सामान्य तरह खोजें।",
+  "exp.none": "आज कोई आने वाला नहीं", "exp.none.sub": "एडमिन ने आज के लिए किसी को नहीं जोड़ा।",
   "exp.meta": "{k} · {t} · होस्ट: {h}", "chip.arrived": "{t} बजे पहुँचे",
   "in.title": "{n} लोग अंदर", "in.title1": "1 व्यक्ति अंदर",
   "in.sub": "गेट से निकलते समय निकास दर्ज करें। विज़िटिंग समय ख़त्म होने के बाद भी अंदर रहने वालों पर निशान लगेगा।",
@@ -257,7 +259,7 @@ const hi: Record<Key, string> = {
   "fam.search": "छात्र का नाम या रोल नंबर", "fam.found": "{n} छात्र मिला। गेट पर मौजूद छात्र से फ़ोटो मिलाएँ।",
   "fam.found.n": "{n} छात्र मिले। गेट पर मौजूद छात्र से फ़ोटो मिलाएँ।",
   "fam.none": "“{q}” से कोई वर्तमान छात्र मेल नहीं खाता",
-  "fam.none.sub": "स्पेलिंग जाँचें, या छात्र के आईडी कार्ड से रोल नंबर खोजें। वर्तमान छात्र के बिना परिवार की विज़िट दर्ज नहीं हो सकती।",
+  "fam.none.sub": "स्पेलिंग जाँचें, या छात्र के आईडी कार्ड से रोल नंबर खोजें।",
   "fam.guests": "मेहमानों की संख्या", "fam.guests.help": "सिर्फ़ गिनती। मेहमानों के नाम नहीं लिखे जाते।",
   "fam.less": "एक मेहमान कम", "fam.more": "एक मेहमान ज़्यादा", "fam.purpose": "आने का कारण",
   "fam.read.small": "परिवार के अंदर जाने से पहले छात्र को यह पढ़कर सुनाएँ", "fam.read": "मेहमानों के जाने तक उनकी ज़िम्मेदारी आपकी है।",
@@ -278,7 +280,7 @@ const hi: Record<Key, string> = {
   "off.nomatch": "“{q}” से कोई सेव किया गया रिकॉर्ड नहीं मिला। Flag & Hold के लिए इंटरनेट चाहिए: एडमिन ऑफ़िस को फ़ोन करें।",
   "off.check": "ऑफ़लाइन फ़ोटो नहीं है। अंदर जाने देने से पहले फ़ोटो वाला ID देखें।",
   "off.approve": "ऑफ़लाइन मंज़ूर करें", "off.deny": "ऑफ़लाइन मना करें", "off.back": "नतीजों पर वापस",
-  "off.hold": "Flag & Hold के लिए इंटरनेट चाहिए। अगर पक्का न हो, तो एडमिन ऑफ़िस को फ़ोन करें।",
+  "off.hold": "Flag & Hold के लिए इंटरनेट चाहिए।",
   "off.hours": "मुलाक़ात का समय ({o}–{c}) नहीं है: मंज़ूरी नहीं दी जा सकती।",
   "off.saved.b": "इस iPad पर सेव · {n} · {t}।", "off.saved": "इंटरनेट आते ही यह सिस्टम में दर्ज हो जाएगा। तब तक यह पेज रीलोड न करें।",
   "off.queue": "इस iPad पर {n} एंट्री सेव हैं, इंटरनेट का इंतज़ार है। यह पेज खुला रखें।", "off.queue1": "इस iPad पर 1 एंट्री सेव है, इंटरनेट का इंतज़ार है। यह पेज खुला रखें।",

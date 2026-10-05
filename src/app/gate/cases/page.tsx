@@ -37,7 +37,7 @@ export default async function CasesPage() {
             ))}
           </ul>
         ) : (
-          <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "cases.none")}</b><span>{tr(lang, "cases.none.sub")}</span></div></div>
+          <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "cases.none")}</b></div></div>
         )}
       </section>
     </GateShell>

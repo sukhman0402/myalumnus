@@ -14,13 +14,11 @@ export function RulesForm({ campus, open, close, minutes }: { campus: string; op
       <FormError count={count} error={count ? undefined : state.error} />
       <input type="hidden" name="campus" value={campus} />
       <div className="ma-form__2">
-        <Field id={`o-${campus}`} name="open" label="Visiting hours start" type="time" defaultValue={v("open", open)} error={err.open}
-          help="Guards can approve from this time." />
-        <Field id={`c-${campus}`} name="close" label="Visiting hours end" type="time" defaultValue={v("close", close)} error={err.close}
-          help="After this, Approve is locked and anyone still inside shows as an overstay." />
+        <Field id={`o-${campus}`} name="open" label="Visiting hours start" type="time" defaultValue={v("open", open)} error={err.open} />
+        <Field id={`c-${campus}`} name="close" label="Visiting hours end" type="time" defaultValue={v("close", close)} error={err.close} />
       </div>
       <Field id={`m-${campus}`} name="minutes" label="Admin escalation time, in minutes" inputMode="numeric" maxLength={2} defaultValue={v("minutes", String(minutes))}
-        error={err.minutes} help="If no admin decides a held visitor in this time, the guard calls the visitor's host." />
+        error={err.minutes} />
       <div className="ma-actions"><SubmitButton pending={pending} icon="check">Save rules</SubmitButton></div>
     </form>
   );

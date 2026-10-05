@@ -39,21 +39,19 @@ export function StaffForm({ initial, gates }: { initial: StaffValues; gates: { i
       )}
       <div className="ma-form__2">
         <Field id="s-name" name="name" label={role === "gate" ? "Device name" : "Name"} defaultValue={v("name")} maxLength={80} autoComplete="off" error={err.name}
-          help={role === "guard" ? "As it should appear on the gate's name list, e.g. R. Sharma." : role === "gate" ? "e.g. Gate 1 iPad" : undefined} />
+          help={role === "guard" ? "e.g. R. Sharma" : role === "gate" ? "e.g. Gate 1 iPad" : undefined} />
         {role !== "admin" ? (
           <Select id="s-gate" name="gate" label="Gate" options={[["", "Pick a gate"], ...gates.map((g): [string, string] => [g.id, g.name])]}
-            defaultValue={v("gate")} error={err.gate} help={role === "guard" && editing ? "Moving a guard ends any shift they have open." : undefined} />
+            defaultValue={v("gate")} error={err.gate} />
         ) : null}
       </div>
       {role === "guard" ? (
         <Field id="s-shift" name="shift" label="Usual shift (optional)" defaultValue={v("shift")} maxLength={40} autoComplete="off"
-          help="Shown next to their name, e.g. 08:00 AM–04:00 PM." />
+          help="e.g. 08:00 AM–04:00 PM" />
       ) : (
         <Field id="s-email" name="email" label="Email" type="email" defaultValue={v("email")} maxLength={200} autoComplete="off" error={err.email}
           readOnly={initial.signedIn} aria-readonly={initial.signedIn || undefined}
-          help={initial.signedIn ? "This account has signed in, so its email can't change." : role === "gate"
-            ? "Sign the iPad in with this email; the code arrives in its inbox. A Gmail alias like name+gate1@gmail.com works."
-            : "They sign in at this site with a code sent here."} />
+          help={initial.signedIn ? "This account has signed in, so its email can't change." : undefined} />
       )}
       <div className="ma-actions">
         <Link className="ma-btn ma-btn--secondary" href="/admin/security">Cancel</Link>

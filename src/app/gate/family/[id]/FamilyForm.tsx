@@ -31,7 +31,6 @@ export function FamilyForm({ lang, studentId, clientId, photo, heading }: {
               <button type="button" className="ma-btn ma-btn--secondary ma-btn--icon" aria-label={tr(lang, "fam.more")}
                 aria-disabled={guests >= 20 ? "true" : undefined} onClick={() => setGuests((g) => Math.min(20, g + 1))}><Icon name="plus" /></button>
             </div>
-            <p className="ma-field__help"><Icon name="info" size={16} />{tr(lang, "fam.guests.help")}</p>
           </div>
           <div className="ma-field">
             <label className="ma-field__label" htmlFor="fp2">{tr(lang, "fam.purpose")}</label>

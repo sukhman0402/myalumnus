@@ -50,9 +50,9 @@ export function CaseDecide({ lang, caseId, name, unreachable }: { lang: Lang; ca
             <label className="ma-field__label" htmlFor="cr">{tr(lang, "deny.reason")}</label>
             <div className="ma-field__box">
               <input id="cr" name="reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} placeholder={tr(lang, "deny.ph")} autoFocus
-                aria-describedby="cr-h" aria-invalid={reasonErr ? true : undefined} />
+                aria-describedby={reasonErr ? "cr-h" : undefined} aria-invalid={reasonErr ? true : undefined} />
             </div>
-            <p className="ma-field__help" id="cr-h"><Icon name={reasonErr ? "circle-alert" : "info"} size={16} />{reasonErr ?? tr(lang, "deny.help")}</p>
+            {reasonErr ? <p className="ma-field__help" id="cr-h"><Icon name="circle-alert" size={16} />{reasonErr}</p> : null}
           </div>
           <div className="ma-dialog__actions">
             <button type="button" className="ma-btn ma-btn--secondary" onClick={() => { if (!denying) dialog.current?.close(); }}>{tr(lang, "cancel")}</button>

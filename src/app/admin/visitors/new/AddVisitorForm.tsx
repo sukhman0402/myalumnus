@@ -44,7 +44,6 @@ export function AddVisitorForm({ gates, today }: { gates: { id: string; name: st
           <span className="ma-field__label">Visitor</span>
           <div className="ma-picked"><span className="ma-chip ma-chip--success"><span className="ma-circle"><Icon name="check" /></span><span>{picked.label}</span></span>
             <button type="button" className="ma-btn ma-btn--secondary" onClick={() => { setPicked(null); setName(""); }}>Change</button></div>
-          <p className="ma-field__help"><Icon name="info" size={16} />An existing record: the guard sees its photo.</p>
         </div>
       ) : (
         <>
@@ -72,20 +71,19 @@ export function AddVisitorForm({ gates, today }: { gates: { id: string; name: st
             </div>
           ) : null}
           <Field id="v-program" name="program" label="Department or organisation (optional)" defaultValue={v("program")} maxLength={120} autoComplete="off"
-            help="Shown to the guard under the name, e.g. Department of Physics, or TechNova Ltd." />
+            help="e.g. Department of Physics, or TechNova Ltd." />
         </>
       )}
       <div className="ma-form__2">
         <Field id="v-date" name="date" label="Date" type="date" min={today} defaultValue={v("date", today)} error={err.date} />
         <Field id="v-time" name="time" label="Expected time" type="time" defaultValue={v("time")} error={err.time} help="Campus time." />
       </div>
-      <Select id="v-gate" name="gate" label="Gate" options={[["", "Any gate"], ...gates.map((g): [string, string] => [g.id, g.name])]} defaultValue={v("gate")}
-        help="Shown on that gate's Expected list; “Any gate” shows it everywhere." />
+      <Select id="v-gate" name="gate" label="Gate" options={[["", "Any gate"], ...gates.map((g): [string, string] => [g.id, g.name])]} defaultValue={v("gate")} />
       <div className="ma-form__2">
         <Field id="v-host" name="host" label="Host on campus" defaultValue={v("host")} maxLength={120} autoComplete="off" error={err.host}
           help="e.g. Prof. S. Rao, Mechanical" />
         <Field id="v-hostp" name="host_phone" label="Host's phone (optional)" type="tel" inputMode="tel" defaultValue={v("host_phone")} maxLength={24}
-          error={err.host_phone} help="The guard calls this number if no admin answers a hold." />
+          error={err.host_phone} />
       </div>
       <Field id="v-purpose" name="purpose" label="Purpose (optional)" defaultValue={v("purpose")} maxLength={200} autoComplete="off" help="e.g. Guest lecture, Room 204" />
       <div className="ma-actions">

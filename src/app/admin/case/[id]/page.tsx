@@ -113,7 +113,6 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
         ) : sims.length ? (
           <div className="ma-sub" role="group" aria-labelledby="sim">
             <h3 className="ma-sub__title" id="sim">Similar names in the alumni list</h3>
-            <p className="ma-note">The guard&apos;s search found no exact match. These are close spellings. Check each against what the visitor said.</p>
             <ul className="ma-list">{sims.map((p) => <li key={p.id}>{row(p)}</li>)}</ul>
           </div>
         ) : open ? <p className="ma-note">No similar names in the alumni list.</p> : null}

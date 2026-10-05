@@ -21,6 +21,8 @@ const MSG: Record<string, [string, string?]> = {
   self_lock: ["You can't deactivate your own account. Ask another admin."],
   hours_invalid: ["Visiting hours must start before they end, on the same day.", "close"],
   minutes_invalid: ["Enter a whole number of minutes from 1 to 60.", "minutes"],
+  demo_locked: ["This demo account can't be changed or deactivated."],
+  demo_photo: ["Photos can't be changed in the demo."],
 };
 
 export const GENERIC = "Couldn't save. Check the connection and try again. Nothing was changed.";

@@ -4,6 +4,9 @@ import { gateNav, identity, type Duty, type GateSection } from "@/lib/gate";
 import { LangToggle } from "./LangToggle";
 import { Today } from "./Today";
 import { OfflineSync } from "./OfflineSync";
+import { SignOutButton } from "@/components/SignOutButton";
+import { DEMO_MODE } from "@/lib/demo";
+import { signOut } from "../sign-in/actions";
 
 /** Every guard screen after the name picker: rail, title bar with the guard on duty, and the Today tiles. */
 export function GateShell({ duty, title, section, banner, actions, children }: {
@@ -13,7 +16,7 @@ export function GateShell({ duty, title, section, banner, actions, children }: {
   return (
     <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, section)}
       title={title} identityIcon="shield-user" identity={identity(duty)} banner={banner}
-      actions={<>{actions}<LangToggle lang={lang} /></>} aside={<Today lang={lang} />}>
+      actions={<>{actions}<LangToggle lang={lang} />{DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null}</>} aside={<Today lang={lang} />}>
       <OfflineSync lang={lang} />
       {children}
     </Shell>

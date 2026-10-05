@@ -17,7 +17,6 @@ export default async function NewPersonPage({ searchParams }: { searchParams: Pr
       <section className="ma-panel" aria-labelledby="fh">
         <Link className="ma-link" href="/admin/alumni"><Icon name="arrow-left" />Alumni</Link>
         <h2 className="ma-panel__title" id="fh">Add a record</h2>
-        <p className="ma-note">After saving, you can add the photo the guard will see.</p>
         <PersonForm initial={{ id: "", kind, name: "", roll: "", batch: "", program: "", phone: "", email: "", active: true }} />
       </section>
     </AdminShell>

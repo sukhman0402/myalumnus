@@ -29,22 +29,19 @@ export function PersonForm({ initial }: { initial: PersonValues }) {
       <input type="hidden" name="id" value={initial.id} />
       <div className="ma-form__2">
         <Select id="f-kind" name="kind" label="Type" options={TYPES} defaultValue={v("kind")} error={err.kind}
-          onChange={(e) => setKind(e.target.value)}
-          help={kind === "student" ? "Current students are found by roll number when their family visits." : "Shown to the guard next to the name."} />
-        <Field id="f-name" name="name" label="Full name" defaultValue={v("name")} maxLength={120} autoComplete="off" error={err.name}
-          help="As it appears on university records." />
+          onChange={(e) => setKind(e.target.value)} />
+        <Field id="f-name" name="name" label="Full name" defaultValue={v("name")} maxLength={120} autoComplete="off" error={err.name} />
       </div>
       <div className="ma-form__2">
         <Field id="f-roll" name="roll" label={kind === "student" ? "Roll number" : "Roll number (optional)"} defaultValue={v("roll")} maxLength={40}
-          autoComplete="off" error={err.roll} help={isPerson ? "Bulk uploads match records by roll number." : undefined} />
+          autoComplete="off" error={err.roll} />
         <Field id="f-batch" name="batch" label={kind === "alumnus" ? "Batch (graduation year)" : kind === "student" ? "Expected graduation year (optional)" : "Batch (optional)"}
           defaultValue={v("batch")} inputMode="numeric" maxLength={4} autoComplete="off" error={err.batch} help={kind === "alumnus" ? "4 digits, e.g. 2019." : undefined} />
       </div>
       <Field id="f-program" name="program" label={isPerson ? "Programme and department" : "Detail shown to the guard"} defaultValue={v("program")} maxLength={120}
         autoComplete="off" error={err.program} help={isPerson ? "e.g. B.Tech Mechanical Engineering" : "e.g. Department of Physics, or TechNova Ltd"} />
       <div className="ma-form__2">
-        <Field id="f-phone" name="phone" label="Phone (optional)" type="tel" inputMode="tel" defaultValue={v("phone")} maxLength={24} error={err.phone}
-          help="Shown to the gate only while this person is inside after visiting hours." />
+        <Field id="f-phone" name="phone" label="Phone (optional)" type="tel" inputMode="tel" defaultValue={v("phone")} maxLength={24} error={err.phone} />
         <Field id="f-email" name="email" label="Email (optional)" type="email" defaultValue={v("email")} maxLength={200} error={err.email} />
       </div>
       <label className="ma-form__check">

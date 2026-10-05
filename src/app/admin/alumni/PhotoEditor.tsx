@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { Icon } from "@/components/Icon";
+import { DEMO_MODE } from "@/lib/demo";
 import { toGatePhoto } from "@/lib/resize";
 import { removePhoto, uploadPhoto } from "./actions";
 
@@ -50,8 +51,8 @@ export function PhotoEditor({ personId, src, caption, name }: { personId: string
           <div className="ma-photo__frame">{busy ? <Icon name="loader-circle" className="ma-spin" /> : src ? <img src={src} alt={`Photo of ${name}`} /> : <Icon name="user" />}</div>
           {caption ? <figcaption>{caption}</figcaption> : null}
         </figure>
-        <div style={{ flex: "1 1 14rem" }}>
-          <p className="ma-note">This is the crop the guard sees. Use a recent, front-facing photo of one face. JPEG, PNG or WebP; it is resized to 480 × 640 before upload.</p>
+        {DEMO_MODE ? null : <div style={{ flex: "1 1 14rem" }}>
+          <p className="ma-note">JPEG, PNG or WebP.</p>
           <div className="ma-actions">
             <input ref={input} id="ph-file" className="ma-file" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => pick(e.target.files?.[0])} disabled={busy} />
             <label htmlFor="ph-file" className="ma-btn ma-btn--secondary" aria-disabled={busy ? "true" : undefined}><Icon name="upload" />{src ? "Replace photo" : "Add photo"}</label>
@@ -73,7 +74,7 @@ export function PhotoEditor({ personId, src, caption, name }: { personId: string
               <span className="ma-circle"><Icon name={msg.ok ? "check" : "circle-alert"} /></span><span className="ma-banner__text">{msg.text}</span>
             </div>
           ) : null}
-        </div>
+        </div>}
       </div>
     </div>
   );

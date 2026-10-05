@@ -42,7 +42,6 @@ export default async function VisitorsPage({ searchParams }: { searchParams: Pro
         <nav className="ma-tabs" aria-label="When">
           {TABS.map(([t, l]) => <Link key={t} className="ma-tab" href={`/admin/visitors?tab=${t}`} aria-current={tab === t ? "page" : undefined}>{l}</Link>)}
         </nav>
-        <p className="ma-note">Guards see each day&apos;s list under Expected today. Expected visitors still need the guard&apos;s check at the gate; visiting hours still apply.</p>
         {rows.length ? (
           <Table label="Expected visitors" heads={["When", "Visitor", "Type", "Visiting", "Gate", "Status", ""]}>
             {rows.map((r) => {

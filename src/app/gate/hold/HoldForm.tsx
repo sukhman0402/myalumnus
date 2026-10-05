@@ -47,10 +47,10 @@ export function HoldForm({ lang, clientId, back, personId, name, says, why, purp
       </div>
       {field("purpose", "purpose", purpose, { max: 200 })}
       <div className="ma-form__2">
-        {field("host", "fh.host", host, { help: "fh.host.help", autoFocus: Boolean(name) && !host, max: 120 })}
-        {field("host_phone", "fh.hostphone", "", { help: "fh.hostphone.help", type: "tel", max: 24 })}
+        {field("host", "fh.host", host, { autoFocus: Boolean(name) && !host, max: 120 })}
+        {field("host_phone", "fh.hostphone", "", { type: "tel", max: 24 })}
       </div>
-      {field("visitor_phone", "fh.visitorphone", "", { help: "fh.visitorphone.help", type: "tel", max: 24 })}
+      {field("visitor_phone", "fh.visitorphone", "", { type: "tel", max: 24 })}
       {state.error ? (
         <div className="ma-banner ma-banner--danger" role="alert">
           <span className="ma-circle"><Icon name="circle-alert" /></span><span className="ma-banner__text">{state.error}</span>

@@ -27,7 +27,6 @@ export default async function ExpectedPage() {
         <h2 className="ma-panel__title" id="eh">{tr(lang, "exp.title", { n: rows.length })}</h2>
         {rows.length ? (
           <>
-            <p className="ma-note">{tr(lang, "exp.sub")}</p>
             <ul className="ma-list">
               {rows.map((r) => {
                 const photo = urls.get(r.photo_path ?? "") ?? null;

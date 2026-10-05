@@ -30,7 +30,6 @@ export default async function CampusPage({ searchParams }: { searchParams: Promi
       {rules.map((r) => (
         <section key={r.campus_id} className="ma-panel" aria-labelledby={`h-${r.campus_id}`}>
           <h2 className="ma-panel__title" id={`h-${r.campus_id}`}>Campus rules{rules.length > 1 ? ` · ${r.campus}` : ""}</h2>
-          <p className="ma-note">These are the only two rules the console applies{r.gates.length ? `, at ${r.gates.join(" and ")}` : ""}. Times are campus time. Every change is logged.</p>
           <RulesForm campus={r.campus_id} open={r.open_time.slice(0, 5)} close={r.close_time.slice(0, 5)} minutes={r.escalate_minutes} />
         </section>
       ))}

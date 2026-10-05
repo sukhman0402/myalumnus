@@ -21,13 +21,13 @@ export async function getDuty() {
   return row ? { guard: { id: row.guard_id, name: row.name, shift_label: row.shift_label }, since: row.started_at } : null;
 }
 
-/** For every gate screen except the name picker: a gate device with a guard on shift. */
 /** The pages a guard can be sent on to after tapping their name (owner, 2026-10-05: side-bar items must work). */
 export const AFTER_DUTY = ["expected", "inside"] as const;
 export type AfterDuty = (typeof AFTER_DUTY)[number];
 export const isAfterDuty = (v: unknown): v is AfterDuty => typeof v === "string" && (AFTER_DUTY as readonly string[]).includes(v);
 
-/** No guard on shift yet: back to the name list; `next` says which page to open once a name is tapped. */
+/** For every gate screen except the name picker: a gate device with a guard on shift.
+ *  No guard on shift yet: back to the name list; `next` says which page to open once a name is tapped. */
 export async function requireOnDuty(next?: AfterDuty): Promise<Duty> {
   const me = await requireRole("gate");
   const [duty, lang] = await Promise.all([getDuty(), getLang()]);

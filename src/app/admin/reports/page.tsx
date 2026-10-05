@@ -62,8 +62,8 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       <ChartTips />
       <section className="ma-panel" aria-labelledby="ph">
         <PanelHead id="ph" title={title} actions={nav} />
-        <p className="ma-note">The weekly review. Open any flagged case in History. Exports never include photos.{from === thisWeek ? " This week so far." : ""}</p>
-        {quiet ? <p className="ma-note"><b>No visits recorded in this week.</b> The charts fill in as the gate records decisions.</p> : null}
+        {from === thisWeek ? <p className="ma-note">This week so far.</p> : null}
+        {quiet ? <p className="ma-note"><b>No visits recorded in this week.</b></p> : null}
         <div className="ma-chart-grid4">
           <Kpi value={total} label="Visits" sub={`${people} ${people === 1 ? "person" : "people"} + ${r.family_groups} family ${r.family_groups === 1 ? "group" : "groups"}`} icon="users" />
           <Kpi value={r.held} label="Flag & Hold" sub={`${r.held_approved} approved · ${r.held_denied} denied${r.held_open ? ` · ${r.held_open} open` : ""}`} icon="flag" />

@@ -44,7 +44,7 @@ export default async function AlumniPage({ searchParams }: { searchParams: Promi
           <Link className="ma-btn ma-btn--primary" href="/admin/alumni/new"><Icon name="plus" />Add record</Link>
         </>} />
         <p className="ma-note">
-          Guards search these records at the gate (current students only for family visits). {res.no_photo ? <>{res.no_photo.toLocaleString("en-IN")} alumni and student records have no photo yet.</> : "Every alumni and student record has a photo."}
+          {res.no_photo ? <>{res.no_photo.toLocaleString("en-IN")} alumni and student records have no photo yet.</> : "Every alumni and student record has a photo."}
         </p>
         <FilterForm action="/admin/alumni" label="Filter records">
           <div className="ma-field">

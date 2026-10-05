@@ -17,7 +17,6 @@ export default async function FamilyLookupPage() {
       <section className="ma-panel" aria-labelledby="fh">
         <Link className="ma-link" href="/gate"><Icon name="arrow-left" />{tr(lang, "back.search")}</Link>
         <h2 className="ma-panel__title" id="fh">{tr(lang, "fam.title")}</h2>
-        <p className="ma-note">{tr(lang, "fam.sub")}</p>
         <StudentSearch lang={lang} />
       </section>
     </GateShell>

@@ -72,7 +72,6 @@ export default async function PersonPage({ params, searchParams }: {
           holdHref={`/gate/hold?person=${p.id}&q=${encodeURIComponent(q)}`}
           lang={lang} personId={p.id} clientId={crypto.randomUUID()} name={p.full_name} meta={meta} thumb={src}
           purpose={p.expected?.purpose ?? ""}
-          purposeHelp={tr(lang, p.expected ? "purpose.help.expected" : "purpose.help.walkin")}
           locked={Boolean(lockReason)} lockReason={lockReason} lockIcon={p.inside ? "triangle-alert" : "clock"}
           photo={
             <RecordPhoto src={src} name={p.full_name}

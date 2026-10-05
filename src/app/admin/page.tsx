@@ -8,6 +8,7 @@ import { Timer } from "@/components/Timer";
 import { dayStartIso, fmtMinutes, fmtTime, overMinutes, type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { PushToggle } from "@/components/PushToggle";
+import { DEMO_MODE } from "@/lib/demo";
 import { AdminShell } from "./AdminShell";
 
 /** The tab title carries the number of visitors waiting, e.g. "(2) Dashboard", so it shows in a background tab. */
@@ -48,7 +49,6 @@ export default async function AdminDashboard() {
   const recent = (decided.data ?? []) as unknown as VisitRow[];
   const insideRows = (inside.data ?? []) as unknown as InsideRow[];
   const closeBy = new Map((rules.data ?? []).map((r) => [r.campus_id as string, r.close_time as string]));
-  const escalate = rules.data?.[0]?.escalate_minutes ?? 10;
   const overstays = insideRows
     .map((v) => ({ ...v, over: overMinutes(v.entered_at, closeBy.get(v.gate?.campus_id ?? "") ?? "18:00") }))
     .filter((v) => v.over > 0);
@@ -69,7 +69,7 @@ export default async function AdminDashboard() {
   return (
     <AdminShell me={me} title="Dashboard" current="/admin"
       aside={<>
-        <PushToggle />
+        {DEMO_MODE ? null : <PushToggle />}
         <section className="ma-panel" aria-labelledby="overstay">
           <h2 className="ma-panel__title" id="overstay">Overstay {overstays.length ? <Chip kind="hold" icon="triangle-alert" text={`${overstays.length} flagged`} /> : null}</h2>
           {overstays.length ? (
@@ -82,7 +82,6 @@ export default async function AdminDashboard() {
                     <span className="ma-row__end"><Chip icon="bell" text="Guard notified" /></span></div></li>
                 ))}
               </ul>
-              <p className="ma-note">The gate is following it up on its Inside now list. You don&apos;t need to act unless they ask.</p>
             </>
           ) : <p className="ma-note">No one is inside after visiting hours.</p>}
         </section>
@@ -100,7 +99,6 @@ export default async function AdminDashboard() {
         <h2 className="ma-panel__title" id="queue">Escalation queue {open.length ? <Chip icon="hourglass" text={`${open.length} waiting`} /> : null}</h2>
         {open.length ? (
           <>
-            <p className="ma-note">Guards are holding these visitors at the gate. If no admin decides within {escalate} minutes, the guard calls the visitor&apos;s host.</p>
             <ul className="ma-list">
               {open.map((c) => (
                 <li key={c.id}>

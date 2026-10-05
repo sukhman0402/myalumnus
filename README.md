@@ -31,6 +31,14 @@ Campus-gate visitor verification for universities: a **guard console** (gate iPa
 2. Copy `env.example` to `.env.local` and fill in the project URL and publishable key. For admin alerts, also add a VAPID key pair (`npx web-push generate-vapid-keys`); without it the app works and simply hides the alerts panel.
 3. `npm run dev`, then open http://localhost:3000
 
+## Demo mode (public case-study prototype)
+- `NEXT_PUBLIC_DEMO_MODE=1` replaces the email-code sign-in with two profiles: **Guard** (P. Singh, Gate 1; his shift starts automatically) and **Admin** (Campus Admin). The User ID and Password boxes accept anything and are never sent.
+- Behind the profiles are two fixed accounts (migration 0015). Their passwords live only in the sensitive Vercel variables `DEMO_GUARD_PASSWORD` and `DEMO_ADMIN_PASSWORD`.
+- Locks: the demo accounts can't be edited or deactivated, photos can't be changed, and Flag & Hold sends no push alerts.
+- Every night at 03:30 IST `private.demo_reset()` restores the sample people, staff and campus rules, and writes a fresh past week of gate activity. At 10:50 IST today's first visits are added.
+- Sign-out ends only this browser's session (`scope: "local"`), because every viewer shares the demo accounts.
+- Before real data: unset `NEXT_PUBLIC_DEMO_MODE`, unschedule the `ma-demo-*` cron jobs, and remove the demo accounts.
+
 ## Database
 - Migrations are in `supabase/migrations` and were applied to the project in order (0001 → 0004, then 0006 → 0014). 0005 is still in `supabase/pending`.
 - Two scheduled jobs run in the database (pg_cron): `ma-case-handoff` every minute (held cases pass to the host after the campus's escalation minutes) and `ma-sample-expected` daily at 00:05 IST (sample expected visitors for the fictional university only; remove before real data).

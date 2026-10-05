@@ -26,7 +26,6 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
       <section className="ma-panel" aria-labelledby="ph">
         <PanelHead id="ph" title={`${active} active ${active === 1 ? "account" : "accounts"}`}
           actions={<Link className="ma-btn ma-btn--primary" href="/admin/security/new"><Icon name="user-plus" />Add account</Link>} />
-        <p className="ma-note">Guards don&apos;t sign in: each gate iPad stays signed in, and the guard taps their name at the start of a shift. Admins and gate devices sign in with a code sent to their email. Deactivating an account never deletes its history.</p>
         {staff.length ? (
           <Table label="Security accounts" heads={["Name", "Role", "Gate", "Shift or email", "Status", ""]}>
             {staff.map((s) => (

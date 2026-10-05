@@ -34,7 +34,6 @@ export default async function FamilyVisitPage({ params }: { params: Promise<{ id
           <dt>{tr(lang, "kv.insince")}</dt><dd className="ma-tabular">{fmtTime(f.entered_at)}</dd>
           <dt>{tr(lang, "kv.purpose")}</dt><dd>{f.purpose || "—"}</dd>
         </dl>
-        <p className="ma-note">{tr(lang, "fam.close.sub", { s: f.student })}</p>
         {f.exited_at ? null : (
           <div className="ma-actions">
             <ExitButton lang={lang} id={f.id} kind="family" name={f.student} rowLabel={tr(lang, "fam.close")} variant="primary" />

@@ -61,7 +61,6 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
         </h2>
         {rows.length ? (
           <>
-            <p className="ma-note">{tr(lang, "in.sub")}</p>
             <ul className="ma-list">
               {rows.map((r) => {
                 const photo = r.kind === "visit" ? urls.get(r.photo_path ?? "") ?? null : null;
@@ -99,7 +98,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
             </ul>
           </>
         ) : (
-          <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "in.none")}</b><span>{tr(lang, "in.none.sub")}</span></div></div>
+          <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "in.none")}</b></div></div>
         )}
       </section>
     </GateShell>

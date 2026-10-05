@@ -43,7 +43,6 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
         {s.me ? <p className="ma-note">You can&apos;t deactivate your own account. Another admin can.</p> : (
           <div className="ma-sub" role="group" aria-labelledby="dh">
             <h3 className="ma-sub__title" id="dh">{s.active ? "Deactivate" : "Reactivate"}</h3>
-            <p className="ma-note">{s.active ? `${what} Their past decisions stay in History. You can reactivate them later.` : "They can use the console again straight away."}</p>
             {s.active ? (
               <ConfirmButton action={setStaffActive} fields={{ id: s.id, active: "0" }} label="Deactivate" icon="user-x"
                 title={`Deactivate ${s.name}?`} confirmLabel="Deactivate" keepLabel="Keep account"

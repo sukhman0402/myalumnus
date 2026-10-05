@@ -49,6 +49,8 @@ export async function verifyCode(_prev: SignInState, form: FormData): Promise<Si
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  // Local scope: end only this browser's session. The demo accounts are shared by every viewer, and the default
+  // (global) sign-out would end everyone's session at once.
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/sign-in");
 }

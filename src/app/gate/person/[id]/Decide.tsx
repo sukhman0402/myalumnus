@@ -11,9 +11,9 @@ import { approveVisit, denyVisit, type DecideState } from "../../actions";
  * (hours, already inside, guard on shift); this component only mirrors those rules so the guard sees them first.
  * clientId is fixed for this screen, so a double tap or a retry after a dropped connection records once.
  */
-export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, purposeHelp, locked, lockReason, lockIcon = "clock", photo, heading, holdHref }: {
+export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, locked, lockReason, lockIcon = "clock", photo, heading, holdHref }: {
   lang: Lang; personId: string; clientId: string; name: string; meta: string; thumb: string | null;
-  purpose: string; purposeHelp: string; locked: boolean; lockReason: string | null; lockIcon?: string;
+  purpose: string; locked: boolean; lockReason: string | null; lockIcon?: string;
   photo: React.ReactNode; heading: React.ReactNode; holdHref: string;
 }) {
   const [value, setValue] = useState(purpose);
@@ -42,10 +42,9 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, p
       <div className="ma-field">
         <label className="ma-field__label" htmlFor="pv">{tr(lang, "purpose")}</label>
         <div className="ma-field__box">
-          <input id="pv" value={value} maxLength={200} placeholder={tr(lang, "purpose.ph")} aria-describedby="pv-help"
+          <input id="pv" value={value} maxLength={200} placeholder={tr(lang, "purpose.ph")}
             onChange={(e) => setValue(e.target.value)} />
         </div>
-        <p className="ma-field__help" id="pv-help"><Icon name="info" size={16} />{purposeHelp}</p>
       </div>
         </div>
       </div>
@@ -102,12 +101,11 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, p
             <label className="ma-field__label" htmlFor="r">{tr(lang, "deny.reason")}</label>
             <div className="ma-field__box">
               <input ref={reason} id="r" name="reason" value={reasonText} onChange={(e) => setReasonText(e.target.value)} maxLength={300} placeholder={tr(lang, "deny.ph")} autoFocus
-                aria-describedby="r-help" aria-invalid={denyState.field === "reason" || undefined} />
+                aria-describedby={denyState.field === "reason" ? "r-help" : undefined} aria-invalid={denyState.field === "reason" || undefined} />
             </div>
-            <p className="ma-field__help" id="r-help">
-              <Icon name={denyState.field === "reason" ? "circle-alert" : "info"} size={16} />
-              {denyState.field === "reason" ? denyState.error : tr(lang, "deny.help")}
-            </p>
+            {denyState.field === "reason" ? (
+              <p className="ma-field__help" id="r-help"><Icon name="circle-alert" size={16} />{denyState.error}</p>
+            ) : null}
           </div>
           <div className="ma-dialog__actions">
             <button type="button" className="ma-btn ma-btn--secondary" aria-disabled={denying ? "true" : undefined}

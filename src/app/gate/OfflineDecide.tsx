@@ -64,8 +64,8 @@ export function OfflineDecide({ lang, row, guard, hours, onBack, onSaved }: {
         <div className={`ma-field${err ? " is-error" : ""}`}>
           <label className="ma-field__label" htmlFor="off-r">{tr(lang, "deny.reason")}</label>
           <div className="ma-field__box"><input id="off-r" value={reason} onChange={(e) => { setReason(e.target.value); setErr(null); }} maxLength={300} autoFocus
-            placeholder={tr(lang, "deny.ph")} aria-invalid={err ? true : undefined} aria-describedby="off-r-h" /></div>
-          <p className="ma-field__help" id="off-r-h"><Icon name={err ? "circle-alert" : "info"} size={16} />{err ?? tr(lang, "deny.help")}</p>
+            placeholder={tr(lang, "deny.ph")} aria-invalid={err ? true : undefined} aria-describedby={err ? "off-r-h" : undefined} /></div>
+          {err ? <p className="ma-field__help" id="off-r-h"><Icon name="circle-alert" size={16} />{err}</p> : null}
         </div>
       ) : null}
       <div className="ma-decide" role="group" aria-label={tr(lang, "dec.group")}>
