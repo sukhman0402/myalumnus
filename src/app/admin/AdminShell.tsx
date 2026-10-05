@@ -19,7 +19,7 @@ export function AdminShell({ me, title, current, aside, banner, children }: {
   me: Profile; title: string; current: string; aside?: React.ReactNode; banner?: React.ReactNode; children: React.ReactNode;
 }) {
   return (
-    <Shell title={title} nav={NAV.map((n) => ({ ...n, current: n.href === current }))} identityIcon="user"
+    <Shell consoleName="admin" title={title} nav={NAV.map((n) => ({ ...n, current: n.href === current }))} identityIcon="user"
       identity={`${me.name} · Admin · ${me.university_name}`} aside={aside} banner={banner}
       actions={<SignOutButton signOut={signOut} />}>
       <IdleSignOut signOut={signOut} />

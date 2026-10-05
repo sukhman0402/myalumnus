@@ -1,30 +1,22 @@
-import Link from "next/link";
+import { cookies } from "next/headers";
 import { Icon } from "./Icon";
+import { Rail } from "./Rail";
 
 export type NavItem = { href: string; label: string; icon: string; current?: boolean; soon?: boolean };
 
 /** The shared console frame: floating rail + title bar (design system: AppShell, NavRail). */
-export function Shell({ title, nav, identity, identityIcon, actions, children, aside, banner, lang = "en", skipLabel = "Skip to content", soonLabel = "Coming in a later build" }: {
+export async function Shell({ title, nav, identity, identityIcon, actions, children, aside, banner, lang = "en", skipLabel = "Skip to content",
+  soonLabel = "Coming in a later build", consoleName = "gate", showLabels = "Show labels", hideLabels = "Hide labels" }: {
   title: string; nav: NavItem[]; identity: string; identityIcon: string;
   actions?: React.ReactNode; children: React.ReactNode; aside?: React.ReactNode; banner?: React.ReactNode;
-  lang?: string; skipLabel?: string; soonLabel?: string;
+  lang?: string; skipLabel?: string; soonLabel?: string; consoleName?: "gate" | "admin"; showLabels?: string; hideLabels?: string;
 }) {
+  const railOpen = (await cookies()).get(`ma-rail-${consoleName}`)?.value === "1";   // starts closed (icons only)
   return (
     <div lang={lang}>
       <a className="ma-skip" href="#main">{skipLabel}</a>
       <div className="ma-app"><div className="ma-shell">
-        <nav className="ma-rail" aria-label="Main">
-          <div className="ma-rail__logo" aria-hidden="true">MA</div>
-          {nav.map((n) => n.soon ? (
-            <span key={n.href} className="ma-rail__item" aria-disabled="true" title={`${n.label}: ${soonLabel}`}>
-              <Icon name={n.icon} /><span>{n.label}</span>
-            </span>
-          ) : (
-            <Link key={n.href} className="ma-rail__item" href={n.href} aria-current={n.current ? "page" : undefined}>
-              <Icon name={n.icon} /><span>{n.label}</span>
-            </Link>
-          ))}
-        </nav>
+        <Rail nav={nav} soonLabel={soonLabel} initialOpen={railOpen} consoleName={consoleName} showLabel={showLabels} hideLabel={hideLabels} />
         <main className="ma-shell__main" id="main" tabIndex={-1}>
           <header className="ma-titlebar">
             <h1>{title}</h1>

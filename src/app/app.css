@@ -1,7 +1,5 @@
 /* App-level glue only. All visual rules come from the design system files (tokens, components, screens). */
 html, body { margin: 0; background: var(--ma-color-bg-canvas); color: var(--ma-color-text-primary); font-family: var(--ma-font-family-sans); }
-.ma-guardpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr)); gap: var(--ma-layout-control-gap); list-style: none; margin: 0; padding: 0; }
-.ma-guardpick button { width: 100%; min-height: 72px; justify-content: flex-start; font-size: var(--ma-typography-card-title-font-size); }
 .ma-inline-form { display: inline; }
 /* type="search" brings the browser's own clear button; the design system draws its own (.ma-field__clear). */
 .ma-field__box input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
@@ -31,3 +29,18 @@ a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
 .ma-tabs { flex-wrap: wrap; max-width: 100%; }
 .ma-stack-sm { display: grid; gap: var(--ma-space-2); }
 .ma-linkbtn { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; justify-self: start; }
+/* Side bar in two states (owner decision 2026-10-05): icons only by default; icon + label side by side when open.
+   Labels stay in the page for screen readers when hidden (visually-hidden pattern). */
+.ma-rail { min-width: 0; }
+.ma-rail:not(.is-open) .ma-rail__item, .ma-rail:not(.is-open) .ma-rail__logo { min-width: var(--ma-rail-item-height); }
+.ma-rail:not(.is-open) .ma-rail__label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.ma-rail.is-open .ma-rail__item { flex-direction: row; justify-content: flex-start; gap: var(--ma-space-3); padding: 0 var(--ma-space-4) 0 var(--ma-space-5); min-width: 11.5rem; }
+.ma-rail.is-open .ma-rail__item .ma-rail__label { text-align: left; }
+.ma-rail__toggle { margin-top: var(--ma-space-2); font: inherit; }
+.ma-rail__toggle svg { width: 20px; height: 20px; }
+/* "Who's on duty?": the names are list rows, like search results (one line each, shift underneath). */
+button.ma-row { width: 100%; text-align: left; font: inherit; border: 0; background: none; }
+/* On narrow screens the side bar becomes a top bar: open items take only the room their label needs. */
+@container ma-app (max-width: 46.49em) { .ma-rail.is-open .ma-rail__item { min-width: auto; } }

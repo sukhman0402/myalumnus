@@ -11,7 +11,7 @@ export function GateShell({ duty, title, section, banner, actions, children }: {
 }) {
   const { lang } = duty;
   return (
-    <Shell lang={lang} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, section)}
+    <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, section)}
       title={title} identityIcon="shield-user" identity={identity(duty)} banner={banner}
       actions={<>{actions}<LangToggle lang={lang} /></>} aside={<Today lang={lang} />}>
       <OfflineSync lang={lang} />

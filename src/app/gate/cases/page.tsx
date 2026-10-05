@@ -20,6 +20,7 @@ export default async function CasesPage() {
     <GateShell duty={duty} title={tr(lang, "title.cases")} section="search">
       <AutoRefresh seconds={10} />
       <section className="ma-panel" aria-labelledby="ch">
+        <Link className="ma-link" href="/gate"><Icon name="arrow-left" />{tr(lang, "nav.search")}</Link>
         <h2 className="ma-panel__title" id="ch">{tr(lang, "title.cases")}</h2>
         {cases.length ? (
           <ul className="ma-list">

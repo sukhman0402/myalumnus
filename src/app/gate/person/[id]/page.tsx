@@ -62,7 +62,7 @@ export default async function PersonPage({ params, searchParams }: {
   const hasChips = Boolean(p.expected || p.inside || outside);
 
   return (
-    <Shell lang={lang} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
+    <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
       title={tr(lang, "title.search")} identityIcon="shield-user" identity={identity(duty)}
       actions={<LangToggle lang={lang} />} aside={<Today lang={lang} />}>
       <section className="ma-panel" aria-labelledby="who">

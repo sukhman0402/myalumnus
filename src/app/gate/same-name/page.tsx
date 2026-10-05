@@ -34,7 +34,7 @@ export default async function SameNamePage({ searchParams }: { searchParams: Pro
   if (people.length === 1) redirect(`/gate/person/${people[0].id}?q=${encodeURIComponent(q)}&picked=1`);
 
   return (
-    <Shell lang={lang} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
+    <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
       title={tr(lang, "title.search")} identityIcon="shield-user" identity={identity(duty)}
       actions={<LangToggle lang={lang} />} aside={<Today lang={lang} />}>
       <section className="ma-panel" aria-labelledby="dh">

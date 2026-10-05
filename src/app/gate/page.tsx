@@ -18,7 +18,7 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
   const me = await requireRole("gate");
   const [duty, lang, sp] = await Promise.all([getDuty(), getLang(), searchParams]);
   const supabase = await createClient();
-  const common = { lang, skipLabel: tr(lang, "skip.main"), soonLabel: tr(lang, "soon"), nav: gateNav(lang, "search"), identityIcon: "shield-user" };
+  const common = { lang, showLabels: tr(lang, "rail.show"), hideLabels: tr(lang, "rail.hide"), skipLabel: tr(lang, "skip.main"), soonLabel: tr(lang, "soon"), nav: gateNav(lang, "search"), identityIcon: "shield-user" };
 
   // No guard on shift yet: the device shows the name picker (planning/02 Q1).
   if (!duty) {
@@ -30,12 +30,16 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
           <h2 className="ma-panel__title" id="pick">{tr(lang, "duty.title")}</h2>
           <p className="ma-note">{tr(lang, "duty.note")}</p>
           {guards && guards.length ? (
-            <ul className="ma-guardpick">
+            <ul className="ma-list">
               {guards.map((g) => (
                 <li key={g.id}>
                   <form action={startShift}>
                     <input type="hidden" name="guard_id" value={g.id} />
-                    <button className="ma-btn ma-btn--secondary"><Icon name="shield-user" />{g.name}{g.shift_label ? ` · ${g.shift_label}` : ""}</button>
+                    <button className="ma-row">
+                      <span className="ma-row__photo"><Icon name="shield-user" /></span>
+                      <span className="ma-row__text"><b>{g.name}</b>{g.shift_label ? <span className="ma-tabular">{tr(lang, "duty.shift", { s: g.shift_label })}</span> : null}</span>
+                      <span className="ma-row__chev"><Icon name="chevron-right" /></span>
+                    </button>
                   </form>
                 </li>
               ))}

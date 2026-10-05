@@ -10,6 +10,7 @@ const en = {
   "title.search": "Search", "title.duty": "Who's on duty?",
   "nav.search": "Search", "nav.expected": "Expected today", "nav.inside": "Inside now",
   "soon": "Coming in a later build",
+  "rail.show": "Show labels", "rail.hide": "Hide labels", // new
   "duty.title": "Tap your name to start your shift", // new
   "duty.note": "Every entry you make is recorded under your name until the next guard taps theirs.", // new
   "duty.none.t": "No guards on this gate's list", "duty.none.d": "Ask an admin to add guards for {g}.", // new
@@ -148,6 +149,7 @@ const en = {
 type Key = keyof typeof en;
 
 const hi: Record<Key, string> = {
+  "rail.show": "नाम दिखाएँ", "rail.hide": "नाम छिपाएँ",
   "lang.switch": "English", "lang.label": "भाषा",
   "title.search": "खोजें", "title.duty": "अभी ड्यूटी पर कौन है?",
   "nav.search": "खोजें", "nav.expected": "आज आने वाले", "nav.inside": "अभी अंदर",
