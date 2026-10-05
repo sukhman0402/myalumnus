@@ -15,7 +15,7 @@ type Row = { person_id: string; full_name: string; kind: Kind; program: string |
 
 /** Today's expected visitors at this gate, in time order (mockups g18, g19). */
 export default async function ExpectedPage() {
-  const duty = await requireOnDuty();
+  const duty = await requireOnDuty("expected");
   const { lang } = duty;
   const supabase = await createClient();
   const { data } = await supabase.rpc("gate_expected");

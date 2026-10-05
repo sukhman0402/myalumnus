@@ -23,7 +23,7 @@ export function Rail({ nav, soonLabel, initialOpen, consoleName, showLabel, hide
   };
   return (
     <nav className={`ma-rail${open ? " is-open" : ""}`} aria-label="Main" id="ma-rail">
-      <div className="ma-rail__logo" aria-hidden="true"><BrandMark /></div>
+      <div className="ma-rail__brand" aria-hidden="true"><div className="ma-rail__logo"><BrandMark /></div><span className="ma-rail__brandname">My Alumnus</span></div>
       {nav.map((n) => n.soon ? (
         <span key={n.href} className="ma-rail__item" aria-disabled="true" title={`${n.label}: ${soonLabel}`}>
           <Icon name={n.icon} /><span className="ma-rail__label">{n.label}</span>

@@ -13,6 +13,7 @@ const en = {
   "rail.show": "Show labels", "rail.hide": "Hide labels", // new
   "duty.title": "Tap your name to start your shift", // new
   "duty.note": "Every entry you make is recorded under your name until the next guard taps theirs.", // new
+  "duty.next": "Tap your name first. {p} opens next.",
   "duty.none.t": "No guards on this gate's list", "duty.none.d": "Ask an admin to add guards for {g}.", // new
   "duty.change": "Change guard", "duty.shift": "Shift {s}", // new
   "search.label": "Search alumnus, faculty or placement visitor", "search.ph": "Type a name…",
@@ -156,6 +157,7 @@ const hi: Record<Key, string> = {
   "soon": "बाद के बिल्ड में आएगा",
   "duty.title": "शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें",
   "duty.note": "अगले गार्ड के नाम टैप करने तक आपकी हर एंट्री आपके नाम से दर्ज होगी।",
+  "duty.next": "पहले अपना नाम टैप करें। उसके बाद {p} खुलेगा।",
   "duty.none.t": "इस गेट की सूची में कोई गार्ड नहीं", "duty.none.d": "{g} के लिए गार्ड जोड़ने को एडमिन से कहें।",
   "duty.change": "गार्ड बदलें", "duty.shift": "शिफ़्ट {s}",
   "search.label": "पूर्व छात्र, फ़ैकल्टी या प्लेसमेंट विज़िटर खोजें", "search.ph": "नाम लिखें…",

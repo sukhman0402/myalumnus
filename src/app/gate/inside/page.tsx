@@ -24,7 +24,7 @@ function duration(fromIso: string, toIso: string) {
  * Overstay = still inside after visiting hours end (planning/02 Q4).
  */
 export default async function InsidePage({ searchParams }: { searchParams: Promise<{ exited?: string; closed?: string }> }) {
-  const duty = await requireOnDuty();
+  const duty = await requireOnDuty("inside");
   const { lang } = duty;
   const sp = await searchParams;
   const supabase = await createClient();

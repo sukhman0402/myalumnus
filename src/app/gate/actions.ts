@@ -9,7 +9,7 @@ import { z } from "zod";
 import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { asLang, LANG_COOKIE, tr, type TKey } from "@/lib/i18n";
-import { getLang } from "@/lib/gate";
+import { getLang, isAfterDuty } from "@/lib/gate";
 import { signPhotos } from "@/lib/photos";
 
 /** A guard taps their name: the database ends any open shift on this device and opens theirs (planning/02 Q1). */
@@ -20,6 +20,9 @@ export async function startShift(form: FormData) {
   const { error } = await supabase.rpc("gate_start_shift", { p_guard: guardId });
   if (error) throw new Error("Couldn't start the shift. Try again.");
   revalidatePath("/gate");
+  // Came from "Expected today" or "Inside now" before anyone was on duty: open that page now.
+  const next = form.get("next");
+  if (isAfterDuty(next)) redirect(`/gate/${next}`);
 }
 
 /** "Change guard": ends the current shift so the next guard can tap their name. */

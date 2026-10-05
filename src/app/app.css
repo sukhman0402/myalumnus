@@ -34,14 +34,18 @@ a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
    Form follows the Clinexa reference (owner, 2026-10-05; replaces the 16px / 12px rectangle radius of research/45):
    a pill-shaped rail 56px wide, round 44px buttons, the current page as a filled circle, and a grey hover. */
 .ma-rail { min-width: 0; padding: 6px; gap: var(--ma-space-2); border-radius: 28px; align-items: center; }
-/* Logo (owner, 2026-10-05): white circle, blue mark. The circle takes the logo tile's own white-to-grey fade and a
-   hairline edge, so it still reads as a circle on the white side bar and the near-white sign-in card. */
+/* Logo (owner, 2026-10-05): plain white circle with a hairline edge, blue mark; no fade ("remove the shadow").
+   With labels shown, "My Alumnus" sits beside it, lined up with the item labels below. */
+.ma-rail__brand { display: flex; align-items: center; gap: var(--ma-space-3); }
 .ma-rail__logo {
   width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 50%; box-sizing: border-box;
-  background: linear-gradient(var(--ma-color-white) 58%, #ebebeb); border: 1px solid var(--ma-color-border-divider);
+  background: var(--ma-color-white); border: 1px solid var(--ma-color-border-divider);
   color: var(--ma-color-signal-500);
 }
 .ma-rail__logo svg { width: 24px; height: 24px; }
+.ma-rail__brandname { display: none; font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; color: var(--ma-color-text-primary); white-space: nowrap; }
+.ma-rail.is-open .ma-rail__brand { padding-right: var(--ma-space-4); }
+.ma-rail.is-open .ma-rail__brandname { display: inline; }
 .ma-signin .ma-rail__logo { width: 56px; height: 56px; }
 .ma-signin .ma-rail__logo svg { width: 30px; height: 30px; }
 @media (forced-colors: active) { .ma-rail__logo { color: CanvasText; } }
@@ -61,3 +65,24 @@ a.ma-tab { display: inline-flex; align-items: center; text-decoration: none; }
 button.ma-row { width: 100%; text-align: left; font: inherit; border: 0; background: none; }
 /* On narrow screens the side bar becomes a top bar: open items take only the room their label needs. */
 @container ma-app (max-width: 46.49em) { .ma-rail.is-open .ma-rail__item { min-width: auto; } }
+
+/* Whole field box is the click target (owner, 2026-10-05: "the whole CTA should be clickable").
+   The box looks like one pill, but the input/select used to fill only its middle: a click on the padding, the
+   search icon or the select's chevron did nothing. The control now stretches under the whole box (negative
+   margin plus matching padding, so the text stays where it was), and the icons let clicks pass through to it.
+   A clear button or spinner after the control keeps its own click, so the control stops before it. */
+.ma-field__box > :is(input, select) { align-self: stretch; }
+.ma-field__box > :is(input, select):first-child { margin-left: calc(-1 * var(--ma-field-padding-x)); padding-left: var(--ma-field-padding-x); }
+.ma-field__box > .ma-field__icon:first-child + :is(input, select) {
+  margin-left: calc(-1 * (var(--ma-field-padding-x) + var(--ma-field-icon-size) + var(--ma-field-gap)));
+  padding-left: calc(var(--ma-field-padding-x) + var(--ma-field-icon-size) + var(--ma-field-gap));
+}
+.ma-field__box > :is(input, select):last-child { margin-right: calc(-1 * var(--ma-field-padding-x)); padding-right: var(--ma-field-padding-x); }
+.ma-field__box > :is(input, select):has(+ .ma-field__icon:last-child) {
+  margin-right: calc(-1 * (var(--ma-field-gap) + var(--ma-field-icon-size) + var(--ma-field-padding-x)));
+  padding-right: calc(var(--ma-field-gap) + var(--ma-field-icon-size) + var(--ma-field-padding-x));
+}
+.ma-field__box > .ma-field__icon { position: relative; z-index: 1; pointer-events: none; }
+.ma-field__box > select { cursor: pointer; }
+/* A search box's clear button only shows once there is text; until then the input also takes the right edge. */
+.ma-field:not(.is-busy) .ma-field__box > input:placeholder-shown:has(~ .ma-field__clear) { margin-right: calc(-1 * var(--ma-field-padding-x)); padding-right: var(--ma-field-padding-x); }

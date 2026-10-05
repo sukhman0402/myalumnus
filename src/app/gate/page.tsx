@@ -5,7 +5,7 @@ import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
 import { tr } from "@/lib/i18n";
 import { fmtTime } from "@/lib/format";
-import { decidedRecently, gateNav, getDuty, getLang, getRules, identity } from "@/lib/gate";
+import { decidedRecently, gateNav, getDuty, getLang, getRules, identity, isAfterDuty } from "@/lib/gate";
 import { OfflineSync } from "./OfflineSync";
 import { endShift, startShift } from "./actions";
 import { GateSearch } from "./GateSearch";
@@ -14,7 +14,7 @@ import { Today } from "./Today";
 
 export const metadata: Metadata = { title: "Search · Guard console" };
 
-export default async function GatePage({ searchParams }: { searchParams: Promise<{ q?: string; done?: string; family?: string }> }) {
+export default async function GatePage({ searchParams }: { searchParams: Promise<{ q?: string; done?: string; family?: string; next?: string }> }) {
   const me = await requireRole("gate");
   const [duty, lang, sp] = await Promise.all([getDuty(), getLang(), searchParams]);
   const supabase = await createClient();
@@ -22,12 +22,19 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
 
   // No guard on shift yet: the device shows the name picker (planning/02 Q1).
   if (!duty) {
+    const next = isAfterDuty(sp.next) ? sp.next : null;
     const { data } = await supabase.rpc("gate_guards");
     const guards = data as { id: string; name: string; shift_label: string | null }[] | null;
     return (
-      <Shell {...common} title={tr(lang, "title.duty")} identity={`${me.gate_name} · ${me.university_name}`} actions={<LangToggle lang={lang} />}>
+      <Shell {...common} nav={gateNav(lang, next ?? "search")} title={tr(lang, "title.duty")} identity={`${me.gate_name} · ${me.university_name}`} actions={<LangToggle lang={lang} />}>
         <section className="ma-panel" aria-labelledby="pick">
           <h2 className="ma-panel__title" id="pick">{tr(lang, "duty.title")}</h2>
+          {next ? (
+            <div className="ma-banner ma-banner--escalation" role="status">
+              <span className="ma-circle"><Icon name="user-check" /></span>
+              <span className="ma-banner__text"><b>{tr(lang, "duty.next", { p: tr(lang, next === "expected" ? "nav.expected" : "nav.inside") })}</b></span>
+            </div>
+          ) : null}
           <p className="ma-note">{tr(lang, "duty.note")}</p>
           {guards && guards.length ? (
             <ul className="ma-list">
@@ -35,6 +42,7 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
                 <li key={g.id}>
                   <form action={startShift}>
                     <input type="hidden" name="guard_id" value={g.id} />
+                    {next ? <input type="hidden" name="next" value={next} /> : null}
                     <button className="ma-row">
                       <span className="ma-row__photo"><Icon name="shield-user" /></span>
                       <span className="ma-row__text"><b>{g.name}</b>{g.shift_label ? <span className="ma-tabular">{tr(lang, "duty.shift", { s: g.shift_label })}</span> : null}</span>
