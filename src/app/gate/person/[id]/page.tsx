@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { RecordPhoto } from "@/components/RecordPhoto";
 import { tr } from "@/lib/i18n";
 import { fmtClock, fmtMonth, fmtTime, personMeta, type Kind } from "@/lib/format";
-import { gateNav, identity, photoSrc, requireOnDuty } from "@/lib/gate";
+import { photoSrc, requireOnDuty } from "@/lib/gate";
 import { Today } from "../../Today";
-import { LangToggle } from "../../LangToggle";
 import { Decide } from "./Decide";
 
 export const metadata: Metadata = { title: "Record · Guard console" };
@@ -24,7 +23,7 @@ type Person = {
 
 /** One record: photo, who they are, and the decision (mockups g05, g06, g12; "already inside" is new). */
 export default async function PersonPage({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ q?: string; picked?: string }>;
+  params: Promise<{ id: string }>; searchParams: Promise<{ q?: string; picked?: string; from?: string }>;
 }) {
   const duty = await requireOnDuty();
   const { lang } = duty;
@@ -46,33 +45,35 @@ export default async function PersonPage({ params, searchParams }: {
   const now = fmtTime(new Date().toISOString());
 
   const outside = !p.hours.in_hours;
-  const lockReason = p.inside
-    ? tr(lang, "inside.locked", { t: fmtTime(p.inside.since), g: p.inside.gate })
-    : outside
-      ? tr(lang, "hours.locked", { open: p.hours.open ? fmtClock(p.hours.open) : "—", close: p.hours.close ? fmtClock(p.hours.close) : "—" })
-      : null;
+  const hours = { open: p.hours.open ? fmtClock(p.hours.open) : "—", close: p.hours.close ? fmtClock(p.hours.close) : "—" };
+  // Approve is locked when they're already inside or it's outside visiting hours; the chip says which (owner, 2026-10-07:
+  // no instructions under the record).
+  const locked = Boolean(p.inside) || outside;
 
   const chips = (
     <>
-      {p.expected ? <Chip icon="calendar-clock" text={tr(lang, "chip.expected", { t: fmtTime(p.expected.at) })} /> : null}
+      {/* Someone already inside is no longer "expected": only one of the two shows. */}
+      {p.expected && !p.inside ? <Chip icon="calendar-clock" text={tr(lang, "chip.expected", { t: fmtTime(p.expected.at) })} /> : null}
       {p.inside ? <Chip kind="hold" icon="triangle-alert" text={tr(lang, "chip.inside", { t: fmtTime(p.inside.since) })} /> : null}
-      {!p.inside && outside ? <Chip kind="hold" icon="clock" text={tr(lang, "chip.now", { t: now })} /> : null}
+      {!p.inside && outside ? <Chip kind="hold" icon="clock" text={`${tr(lang, "chip.now", { t: now })} · ${tr(lang, "lock.hours", hours)}`} /> : null}
     </>
   );
   const hasChips = Boolean(p.expected || p.inside || outside);
+  // Where "back" goes: the search results the guard came from, the Expected list, or Home.
+  const back = q ? { href: `/gate?q=${encodeURIComponent(q)}`, label: tr(lang, "back.results") }
+    : sp.from === "expected" ? { href: "/gate/expected", label: tr(lang, "title.expected") }
+    : { href: "/gate", label: tr(lang, "back.home") };
 
   return (
-    <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
-      title={tr(lang, "title.search")} identityIcon="shield-user" identity={identity(duty)}
-      actions={<LangToggle lang={lang} />} aside={<Today lang={lang} />}>
+    <Shell title={tr(lang, "title.record")} aside={<Today lang={lang} />}>
       <section className="ma-panel" aria-labelledby="who">
-        <Link className="ma-link" href={q ? `/gate?q=${encodeURIComponent(q)}` : "/gate"}><Icon name="arrow-left" />{tr(lang, "back.results")}</Link>
+        <BackLink href={back.href} label={tr(lang, "back")} />
         <Decide
           key={p.id}
           holdHref={`/gate/hold?person=${p.id}&q=${encodeURIComponent(q)}`}
           lang={lang} personId={p.id} clientId={crypto.randomUUID()} name={p.full_name} meta={meta} thumb={src}
           purpose={p.expected?.purpose ?? ""}
-          locked={Boolean(lockReason)} lockReason={lockReason} lockIcon={p.inside ? "triangle-alert" : "clock"}
+          locked={locked}
           photo={
             <RecordPhoto src={src} name={p.full_name}
               caption={p.photo_added_on ? tr(lang, "photo.added", { d: fmtMonth(p.photo_added_on, lang) }) : null}
@@ -84,7 +85,7 @@ export default async function PersonPage({ params, searchParams }: {
             <div>
               <h2 className="ma-record__name" id="who">{p.full_name}</h2>
               <p className="ma-record__meta">{meta}</p>
-              {hasChips ? <div className="ma-record__chips">{chips}</div> : null}
+              {hasChips ? <div className="ma-record__chips" id="who-chips">{chips}</div> : null}
             </div>
           }
         />

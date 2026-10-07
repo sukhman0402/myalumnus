@@ -5,23 +5,19 @@ import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
 import { tr } from "@/lib/i18n";
 import { fmtTime } from "@/lib/format";
-import { decidedRecently, gateNav, getDuty, getLang, getRules, identity, isAfterDuty } from "@/lib/gate";
+import { decidedRecently, getDuty, getLang, getRules, isAfterDuty } from "@/lib/gate";
 import { OfflineSync } from "./OfflineSync";
-import { endShift, startShift } from "./actions";
+import { startShift } from "./actions";
+import { homeLists } from "./HomeLists";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { GateSearch } from "./GateSearch";
-import { LangToggle } from "./LangToggle";
 import { Today } from "./Today";
-import { SignOutButton } from "@/components/SignOutButton";
-import { DEMO_MODE } from "@/lib/demo";
-import { signOut } from "../sign-in/actions";
 
-export const metadata: Metadata = { title: "Search · Guard console" };
+export const metadata: Metadata = { title: "Home · Guard console" };
 
 export default async function GatePage({ searchParams }: { searchParams: Promise<{ q?: string; done?: string; family?: string; next?: string }> }) {
-  const me = await requireRole("gate");
-  const [duty, lang, sp] = await Promise.all([getDuty(), getLang(), searchParams]);
+  const [me, duty, lang, sp] = await Promise.all([requireRole("gate"), getDuty(), getLang(), searchParams]);
   const supabase = await createClient();
-  const common = { lang, showLabels: tr(lang, "rail.show"), hideLabels: tr(lang, "rail.hide"), skipLabel: tr(lang, "skip.main"), soonLabel: tr(lang, "soon"), nav: gateNav(lang, "search"), identityIcon: "shield-user" };
 
   // No guard on shift yet: the device shows the name picker (planning/02 Q1).
   if (!duty) {
@@ -29,14 +25,13 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
     const { data } = await supabase.rpc("gate_guards");
     const guards = data as { id: string; name: string; shift_label: string | null }[] | null;
     return (
-      <Shell {...common} nav={gateNav(lang, next ?? "search")} title={tr(lang, "title.duty")} identity={`${me.gate_name} · ${me.university_name}`}
-        actions={<><LangToggle lang={lang} />{DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null}</>}>
+      <Shell title={tr(lang, "title.duty")}>
         <section className="ma-panel" aria-labelledby="pick">
           <h2 className="ma-panel__title" id="pick">{tr(lang, "duty.title")}</h2>
           {next ? (
             <div className="ma-banner ma-banner--escalation" role="status">
               <span className="ma-circle"><Icon name="user-check" /></span>
-              <span className="ma-banner__text"><b>{tr(lang, "duty.next", { p: tr(lang, next === "expected" ? "nav.expected" : "nav.inside") })}</b></span>
+              <span className="ma-banner__text"><b>{tr(lang, "duty.next", { p: tr(lang, ({ expected: "nav.expected", inside: "nav.inside", insights: "nav.insights", settings: "nav.settings" } as const)[next]) })}</b></span>
             </div>
           ) : null}
           {guards && guards.length ? (
@@ -96,17 +91,13 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
     );
   }
 
-  const rules = await getRules(me.gate_id ?? "");
+  const [rules, lists] = await Promise.all([getRules(me.gate_id ?? ""), homeLists(lang)]);
   return (
-    <Shell {...common} title={tr(lang, "title.search")} identity={identity({ me, lang, ...duty })} banner={banner}
-      actions={<>
-        <LangToggle lang={lang} />
-        <form action={endShift} className="ma-inline-form"><button className="ma-btn ma-btn--secondary"><Icon name="users" />{tr(lang, "duty.change")}</button></form>
-        {DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null}
-      </>}
-      aside={<Today lang={lang} />}>
+    <Shell title={tr(lang, "title.home")} banner={banner} aside={<><Today lang={lang} />{lists.aside}</>}>
       <OfflineSync lang={lang} />
+      <AutoRefresh seconds={15} />
       <GateSearch lang={lang} initialQuery={sp.done || sp.family ? "" : (sp.q ?? "").slice(0, 80)} guard={duty.guard.id} hours={rules} />
+      {lists.main}
     </Shell>
   );
 }

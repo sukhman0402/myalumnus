@@ -20,8 +20,8 @@ export async function startShift(form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("gate_start_shift", { p_guard: guardId });
   if (error) throw new Error("Couldn't start the shift. Try again.");
-  revalidatePath("/gate");
-  // Came from "Expected today" or "Inside now" before anyone was on duty: open that page now.
+  revalidatePath("/gate", "layout");   // the layout's profile badge shows the new guard
+  // Came from a side-bar page before anyone was on duty: open that page now.
   const next = form.get("next");
   if (isAfterDuty(next)) redirect(`/gate/${next}`);
 }
@@ -31,7 +31,8 @@ export async function endShift() {
   await requireRole("gate");
   const supabase = await createClient();
   await supabase.rpc("gate_end_shift");
-  revalidatePath("/gate");
+  revalidatePath("/gate", "layout");
+  redirect("/gate");   // from Settings too: straight to the name list
 }
 
 /** English ⇄ Hindi for this device (a cookie, so it survives reloads and guard changes). */
@@ -76,7 +77,7 @@ const Decision = z.object({
   reason: z.string().trim().max(300).optional().default(""),
 });
 
-const KNOWN = new Set(["no_shift", "outside_hours", "already_inside", "not_found", "reason_required"]);
+const KNOWN = new Set(["no_shift", "outside_hours", "already_inside", "not_found", "reason_required", "with_admin"]);
 
 async function decide(approve: boolean, form: FormData): Promise<DecideState> {
   await requireRole("gate");
@@ -111,7 +112,7 @@ export async function denyVisit(_prev: DecideState, form: FormData) { return dec
 // Slices 2–3: Flag & Hold, deciding at the host stage, exits, family visits. Every write goes through a
 // gate_* database function that checks this gate, its guard on shift and the university.
 
-const HINTS = new Set(["no_shift", "outside_hours", "already_inside", "not_found", "reason_required", "name_required",
+const HINTS = new Set(["no_shift", "outside_hours", "already_inside", "not_found", "reason_required", "with_admin", "name_required",
   "host_required", "student_required", "not_allowed"]);
 async function errorText(hint: string | undefined) {
   const lang = await getLang();
@@ -138,7 +139,7 @@ const Hold = z.object({
 });
 
 export async function holdVisitor(_prev: FormState, form: FormData): Promise<FormState> {
-  const me = await requireRole("gate");
+  await requireRole("gate");
   const lang = await getLang();
   const raw = Object.fromEntries(["client", "person", "name", "says", "why", "purpose", "host", "host_phone", "visitor_phone"]
     .map((k) => [k, String(form.get(k) ?? "")]));
@@ -159,19 +160,33 @@ export async function holdVisitor(_prev: FormState, form: FormData): Promise<For
   });
   if (error) return { error: await errorText(error.hint), values: raw };
   const held = data as { id: string };
-  // Alert admins' phones and computers once the guard's screen has moved on (planning/02 D13). Never blocks the gate.
-  // The public demo sends no alerts: viewers' holds would otherwise reach the owner's devices.
-  if (!DEMO_MODE) after(() => alertAdminsOfHold(held.id, {
-    title: `Visitor held at ${me.gate_name ?? "the gate"}`,
-    // No visitor or host names: alerts can show on a lock screen or a shared office computer.
-    body: `Reason: ${WHY_EN[h.why - 1]}. Tap to decide before the guard calls the host.`,
-    url: `/admin/case/${held.id}`, tag: `case-${held.id}`, requireInteraction: true,
-  }).catch(() => undefined));
+  // Host first (owner, 2026-10-06): the guard calls the host now; admins are alerted only if the case passes to them.
   revalidatePath("/gate", "layout");
   redirect(`/gate/case/${held.id}`);
 }
 
-/** The guard decides a held case once it has passed to the host (after the call). */
+/** The guard couldn't reach the host, or the host didn't confirm: the case passes to the admin now. */
+export async function passToAdmin(_prev: FormState, form: FormData): Promise<FormState> {
+  const me = await requireRole("gate");
+  const id = z.uuid().safeParse(form.get("case"));
+  if (!id.success) return { error: await errorText(undefined) };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("gate_pass_to_admin", { p_case: id.data });
+  if (error) return { error: await errorText(error.hint) };
+  const c = data as { id: string; reason: string; status: string };
+  // Alert admins' phones and computers once the guard's screen has moved on (planning/02 D13). Never blocks the gate.
+  // The public demo sends no alerts: viewers' holds would otherwise reach the owner's devices.
+  if (!DEMO_MODE && c.status === "admin") after(() => alertAdminsOfHold(c.id, {
+    title: `Visitor held at ${me.gate_name ?? "the gate"}`,
+    // No visitor or host names: alerts can show on a lock screen or a shared office computer.
+    body: `Reason: ${c.reason}. The host couldn't be reached: tap to decide.`,
+    url: `/admin/case/${c.id}`, tag: `case-${c.id}`, requireInteraction: true,
+  }).catch(() => undefined));
+  revalidatePath("/gate", "layout");
+  redirect(`/gate/case/${c.id}`);
+}
+
+/** The guard decides a held case while it is with the host (after the call); once with the admin, deny only. */
 export async function decideCase(_prev: FormState, form: FormData): Promise<FormState> {
   await requireRole("gate");
   const lang = await getLang();

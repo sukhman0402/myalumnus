@@ -19,7 +19,8 @@ export async function GET(request: Request) {
     `Student family (groups),${r.family_groups},,,${r.family_overstays}`,
     `Student family (guests),${r.family_guests},,,`, "",
     "Day,Visits", ...r.by_day.map((d) => `${d.d},${d.n}`), "",
-    `Median admin decision (seconds),${r.median_admin_seconds ?? ""}`, `Cases passed to host,${r.passed_to_host}`,
+    `Median admin decision (seconds),${r.median_admin_seconds ?? ""}`, `Cases passed to admins,${r.passed_to_admin ?? 0}`,
+    ...(r.passed_to_host ? [`Cases passed to host (before 7 Oct 2026),${r.passed_to_host}`] : []),
   ];
   return new Response("﻿" + lines.join("\r\n"), {
     headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="my-alumnus-week-${from}.csv"`, "cache-control": "no-store" },

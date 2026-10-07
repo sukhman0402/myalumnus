@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
-import { tr, type TKey } from "@/lib/i18n";
-import { fmtMinutes, fmtTime, type Kind } from "@/lib/format";
+import { tr } from "@/lib/i18n";
+import { fmtTime } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { decidedRecently, requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
-import { ExitButton } from "./ExitButton";
+import { InsideList, type InsideRow } from "./InsideList";
 
 export const metadata: Metadata = { title: "Inside now · Guard console" };
 
-type Row = { kind: "visit" | "family"; id: string; person_id: string | null; name: string; person_kind: Kind | null; program: string | null;
-  batch_year: number | null; photo_path: string | null; entered_at: string; purpose: string | null; guests: number | null; over_minutes: number };
+type Row = InsideRow;
 
 function duration(fromIso: string, toIso: string) {
   const m = Math.max(0, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 60000));
@@ -52,7 +50,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
 
   const urls = await signPhotos(rows.map((r) => (r.kind === "visit" ? r.photo_path : null)));
   return (
-    <GateShell duty={duty} title={tr(lang, "title.inside")} section="inside" banner={banner}>
+    <GateShell duty={duty} title={tr(lang, "title.inside")} banner={banner}>
       <section className="ma-panel" aria-labelledby="ih">
         <h2 className="ma-panel__title" id="ih">
           {rows.length === 1 ? tr(lang, "in.title1") : tr(lang, "in.title", { n: rows.length })}{" "}
@@ -61,41 +59,7 @@ export default async function InsidePage({ searchParams }: { searchParams: Promi
         </h2>
         {rows.length ? (
           <>
-            <ul className="ma-list">
-              {rows.map((r) => {
-                const photo = r.kind === "visit" ? urls.get(r.photo_path ?? "") ?? null : null;
-                const kind = r.person_kind ? tr(lang, `kind.${r.person_kind}` as TKey) : tr(lang, "walkin.norecord");
-                const sub = r.kind === "family"
-                  ? tr(lang, "in.family", { g: r.guests ?? 0, s: r.name, t: fmtTime(r.entered_at) })
-                  : tr(lang, "in.since", { k: kind, t: fmtTime(r.entered_at), p: r.purpose || tr(lang, "purpose.none") });
-                const title = r.kind === "family" ? tr(lang, "fam.close.title", { s: r.name }) : r.name;
-                return (
-                  <li key={r.id}>
-                    <div className="ma-row ma-row--static">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {photo ? <span className="ma-row__photo ma-row__photo--img"><img src={photo} alt="" /></span>
-                        : <span className="ma-row__photo"><Icon name={r.kind === "family" ? "users" : "user"} /></span>}
-                      <span className="ma-row__text"><b>{title}</b><span>{sub}</span></span>
-                      <span className="ma-row__end">
-                        {r.kind === "visit" && r.over_minutes > 0 ? (
-                          <>
-                            <span className="ma-chip ma-chip--hold"><span className="ma-circle"><Icon name="triangle-alert" /></span>
-                              <span className="ma-tabular">{tr(lang, "chip.overstay", { m: fmtMinutes(r.over_minutes, lang) })}</span></span>
-                            <Link className="ma-btn ma-btn--row" href={`/gate/inside/${r.id}`}><Icon name="phone" />{tr(lang, "in.follow")}<span className="ma-visually-hidden"> · {r.name}</span></Link>
-                          </>
-                        ) : r.kind === "family" ? (
-                          <Link className="ma-btn ma-btn--row" href={`/gate/family/visit/${r.id}`}><Icon name="door-open" />{tr(lang, "in.close")}<span className="ma-visually-hidden"> · {title}</span></Link>
-                        ) : (
-                          <ExitButton lang={lang} id={r.id} kind="visit" name={r.name} thumb={photo}
-                            meta={`${kind} · ${tr(lang, "in.since", { k: "", t: fmtTime(r.entered_at), p: r.purpose || tr(lang, "purpose.none") }).replace(/^ · /, "")}`}
-                            rowLabel={tr(lang, "in.exit")} />
-                        )}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <InsideList lang={lang} rows={rows} urls={urls} />
           </>
         ) : (
           <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "in.none")}</b></div></div>

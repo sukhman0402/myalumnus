@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { tr } from "@/lib/i18n";
 import { personMeta, type Kind } from "@/lib/format";
 import { requireOnDuty } from "@/lib/gate";
@@ -32,9 +31,9 @@ export default async function HoldPage({ searchParams }: { searchParams: Promise
   const why = p ? (p.hours.in_hours ? 2 : 4) : 1;
 
   return (
-    <GateShell duty={duty} title={tr(lang, "title.flag")} section="search">
+    <GateShell duty={duty} title={tr(lang, "title.flag")}>
       <section className="ma-panel" aria-labelledby="fh">
-        <Link className="ma-link" href={back}><Icon name="arrow-left" />{tr(lang, p ? "back.results" : "back.search")}</Link>
+        <BackLink href={back} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="fh">{tr(lang, "fh.title")}</h2>
         <HoldForm lang={lang} clientId={crypto.randomUUID()} back={back} personId={p?.id ?? ""}
           name={p?.full_name ?? (sp.name ?? "").slice(0, 120)} says={p ? personMeta(lang, p) : ""} why={why}

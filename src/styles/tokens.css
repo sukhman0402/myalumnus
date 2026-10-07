@@ -665,3 +665,33 @@
 
 /* Timers, times and counts must not shift width (research/41 §1c) */
 .ma-tabular { font-variant-numeric: tabular-nums; }
+
+/* ---------- Elevation and accent (owner, 2026-10-06: "looks flat, needs an accent color or a shadow") ----------
+   Tone still separates the layers (canvas → panel → card); a soft shadow now lifts panels and the rail,
+   and a hairline + shadow lifts cards inside a panel. Signal blue is the one accent (avatars, brand, selected). */
+:root {
+  --ma-elevation-1: 0 1px 2px rgb(14 18 27 / 0.06), 0 6px 18px rgb(14 18 27 / 0.08);
+  --ma-elevation-card: 0 0 0 1px rgb(14 18 27 / 0.05), 0 2px 6px rgb(14 18 27 / 0.08);
+  --ma-elevation-2: 0 0 0 1px rgb(14 18 27 / 0.06), 0 12px 32px rgb(14 18 27 / 0.16);
+  --ma-color-accent: var(--ma-color-signal-500);
+  --ma-color-accent-tint: var(--ma-color-signal-50);
+  --ma-color-accent-on-tint: var(--ma-color-signal-800);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ma-elevation-1: 0 0 0 1px rgb(255 255 255 / 0.05), 0 4px 16px rgb(0 0 0 / 0.45);
+    --ma-elevation-card: 0 0 0 1px rgb(255 255 255 / 0.07);
+    --ma-elevation-2: 0 0 0 1px rgb(255 255 255 / 0.09), 0 12px 32px rgb(0 0 0 / 0.6);
+    --ma-color-accent: var(--ma-color-signal-300);
+    --ma-color-accent-tint: var(--ma-color-signal-950);
+    --ma-color-accent-on-tint: var(--ma-color-signal-100);
+  }
+}
+:root[data-theme="dark"] {
+  --ma-elevation-1: 0 0 0 1px rgb(255 255 255 / 0.05), 0 4px 16px rgb(0 0 0 / 0.45);
+  --ma-elevation-card: 0 0 0 1px rgb(255 255 255 / 0.07);
+  --ma-elevation-2: 0 0 0 1px rgb(255 255 255 / 0.09), 0 12px 32px rgb(0 0 0 / 0.6);
+  --ma-color-accent: var(--ma-color-signal-300);
+  --ma-color-accent-tint: var(--ma-color-signal-950);
+  --ma-color-accent-on-tint: var(--ma-color-signal-100);
+}

@@ -17,7 +17,8 @@ type Visit = {
   decided_at?: string; entered_at: string | null; exited_at: string | null; offline?: boolean; synced_at?: string | null; walkin_name?: string | null; guests?: number;
   by_name: string | null; by_role: string | null; closes_at: string | null; person: Person | null;
   case?: { id: string; name_given: string; says: string | null; reason: string; host_name: string; host_phone: string | null; created_at: string;
-    passed_to_host_at: string | null; decided_at: string | null; note: string | null; held_by: string | null; status: string } | null;
+    passed_to_host_at: string | null; passed_to_admin_at?: string | null; passed_by_guard?: boolean;
+    decided_at: string | null; note: string | null; held_by: string | null; status: string } | null;
 };
 
 /** One visit and its full trail (mockup a12). */
@@ -39,8 +40,13 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
   const c = v.case;
   if (c) {
     trail.push([c.created_at, `${c.held_by ?? "The guard"} held “${c.name_given}” at ${v.gate} · reason: ${c.reason}${c.says ? ` · says: ${c.says}` : ""}`]);
-    trail.push([c.created_at, "Admins were alerted"]);
-    if (c.passed_to_host_at) trail.push([c.passed_to_host_at, `No admin decided in time: passed to the host, ${c.host_name}${c.host_phone ? ` (${c.host_phone})` : ""}`]);
+    if (c.passed_to_host_at) {   // held before 0017: admins first, then the host
+      trail.push([c.created_at, "Admins were alerted"]);
+      trail.push([c.passed_to_host_at, `No admin decided in time: passed to the host, ${c.host_name}${c.host_phone ? ` (${c.host_phone})` : ""}`]);
+    } else {                     // host first
+      trail.push([c.created_at, `The guard called the host, ${c.host_name}${c.host_phone ? ` (${c.host_phone})` : ""}`]);
+      if (c.passed_to_admin_at) trail.push([c.passed_to_admin_at, c.passed_by_guard ? "Host not reached: passed to admins" : "The host didn't confirm in time: passed to admins"]);
+    }
     if (c.decided_at) trail.push([c.decided_at, `${c.status === "approved" ? "Approved" : "Denied"} by ${by}${c.note ? `: ${c.note}` : ""}`]);
   } else if (v.type === "visit" && v.decided_at) {
     trail.push([v.decided_at, `${v.outcome === "approved" ? "Approved" : "Denied"} at ${v.gate} by ${by}${v.reason ? ` · reason: ${v.reason}` : ""}${v.offline ? ` · saved on the iPad while offline${v.synced_at ? `, recorded ${fmtDate(v.synced_at) === fmtDate(v.decided_at) ? "" : `${fmtDate(v.synced_at)} `}at ${fmtTime(v.synced_at)}` : ""}` : ""}`]);

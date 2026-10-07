@@ -25,7 +25,9 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
   const [roster, setRoster] = useState<Roster | null>(null);
   const [picked, setPicked] = useState<RosterRow | null>(null);
   const [saved, setSaved] = useState<{ name: string; at: string } | null>(null);
+  const [open, setOpen] = useState(true);   // the results layer; closes on a tap outside or Esc, opens again on focus
   const input = useRef<HTMLInputElement>(null);
+  const wrap = useRef<HTMLDivElement>(null);
   const rosterRef = useRef<Roster | null>(null);
   const term = q.trim();
 
@@ -62,6 +64,12 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
     return () => { stale = true; clearTimeout(timer); };
   }, [term]);
 
+  useEffect(() => {
+    const down = (e: PointerEvent) => { if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", down);
+    return () => document.removeEventListener("pointerdown", down);
+  }, []);
+
   const status: Status = !term ? "idle" : term.length < 3 ? "short"
     : result?.term !== term ? "busy" : result.offline ? "offline" : result.ok ? "done" : "error";
   const offRows = status === "offline" && result?.offline ? result.offline : [];
@@ -97,28 +105,24 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
           <span className="ma-banner__text"><b>{tr(lang, "off.saved.b", { n: saved.name, t: fmtTime(saved.at) })}</b> {tr(lang, "off.saved")}</span>
         </div>
       ) : null}
+      {/* Results open as a layer over the Home lists (owner, 2026-10-06), so the lists stay where they are. */}
+      <div className="ma-search" ref={wrap}>
       <section className="ma-panel" aria-label={tr(lang, "search.label")}>
         <div className={`ma-field${status === "busy" ? " is-busy" : ""}${status === "error" ? " is-error" : ""}`}>
           <label className="ma-field__label" htmlFor="q">{tr(lang, "search.label")}</label>
+          <div className="ma-search__anchor">
           <div className="ma-field__box">
             <span className="ma-field__icon"><Icon name="search" /></span>
             <input ref={input} id="q" type="search" autoComplete="off" spellCheck={false} autoFocus enterKeyHint="search"
               placeholder={tr(lang, "search.ph")} aria-describedby="q-help" value={q} maxLength={80}
-              onChange={(e) => { setQ(e.target.value); setSaved(null); }} />
+              onChange={(e) => { setQ(e.target.value); setSaved(null); setOpen(true); }} onFocus={() => setOpen(true)} onClick={() => setOpen(true)}
+              onKeyDown={(e) => { if (e.key === "Escape" && term) { e.preventDefault(); setOpen(false); } }} />
             {status === "busy" ? <span className="ma-field__spin ma-spin"><Icon name="loader-circle" /></span> : null}
             <button type="button" className="ma-field__clear" aria-label={tr(lang, "search.clear")}
               onClick={() => { setQ(""); input.current?.focus(); }}><Icon name="x" /></button>
           </div>
-          <p className="ma-field__help" id="q-help" aria-live="polite">
-            <Icon name={status === "error" ? "circle-alert" : "info"} size={16} />{help}
-          </p>
-        </div>
-        <div>
-          <Link className="ma-btn ma-btn--secondary" href="/gate/family"><Icon name="user-plus" />{tr(lang, "family.register")}</Link>
-        </div>
-      </section>
-
-      {status === "busy" && term.length >= 3 ? (
+      {open && term.length >= 3 ? <div className="ma-search__drop">
+      {status === "busy" ? (
         <section className="ma-panel" aria-label={tr(lang, "search.help.busy")} aria-busy="true">
           <ul className="ma-list">
             {[0, 1, 2].map((i) => (
@@ -204,6 +208,18 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
           ) : <h2 className="ma-visually-hidden" id="oh">{tr(lang, "off.banner.b")}</h2>}
         </section>
       ) : null}
+      </div> : null}
+          </div>
+          <p className="ma-field__help" id="q-help" aria-live="polite">
+            <Icon name={status === "error" ? "circle-alert" : "info"} size={16} />{help}
+          </p>
+        </div>
+        <div>
+          <Link className="ma-btn ma-btn--secondary" href="/gate/family"><Icon name="user-plus" />{tr(lang, "family.register")}</Link>
+        </div>
+      </section>
+
+      </div>
     </>
   );
 }

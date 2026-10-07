@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { RecordPhoto } from "@/components/RecordPhoto";
 import { tr } from "@/lib/i18n";
 import { fmtMinutes, fmtMonth, fmtTime, personMeta, type Kind } from "@/lib/format";
@@ -32,9 +32,9 @@ export default async function OverstayPage({ params }: { params: Promise<{ id: s
   const tel = v.phone?.replace(/[^+0-9]/g, "");
 
   return (
-    <GateShell duty={duty} title={tr(lang, "title.inside")} section="inside">
+    <GateShell duty={duty} title={tr(lang, "title.inside")}>
       <section className="ma-panel" aria-labelledby="oh">
-        <Link className="ma-link" href="/gate/inside"><Icon name="arrow-left" />{tr(lang, "back.inside")}</Link>
+        <BackLink href={"/gate"} label={tr(lang, "back")} />
         <div className="ma-record">
           <RecordPhoto src={src} name={v.name}
             caption={v.photo_added_on ? tr(lang, "photo.added", { d: fmtMonth(v.photo_added_on, lang) }) : null}

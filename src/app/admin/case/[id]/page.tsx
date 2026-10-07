@@ -10,47 +10,57 @@ import { fmtTime, personMeta, type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { AdminShell } from "../../AdminShell";
 import { AdminDecide } from "./AdminDecide";
+import { adminSince, handoffAt, isLegacy, passedByGuard, stageOf } from "@/lib/cases";
 
 export const metadata: Metadata = { title: "Escalation · Admin console" };
 
 type Person = { id: string; full_name: string; kind: Kind; program: string | null; batch_year: number | null; photo_path: string | null };
 type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string; host_phone: string | null;
-  status: "admin" | "host" | "approved" | "denied"; created_at: string; passed_to_host_at: string | null; decided_at: string | null; note: string | null;
+  status: "admin" | "host" | "approved" | "denied"; created_at: string; passed_to_host_at: string | null; passed_to_admin_at: string | null; decided_at: string | null; note: string | null;
   gate: { name: string; campus_id: string } | null; held: { name: string } | null; decider: { name: string; role: string } | null; person: Person | null;
 };
 
-/** One held visitor, from the admin's side (mockups a03 open, a04 passed to host, a05 decided). */
+/** One held visitor, from the admin's side. Host first (0017): the guard calls the host; the case reaches the admins if
+ *  the host can't be reached or hasn't confirmed in time. An admin may decide at either stage. */
 export default async function AdminCasePage({ params }: { params: Promise<{ id: string }> }) {
   const me = await requireRole("admin");
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
   const { data } = await supabase.from("cases")
-    .select("id, name_given, says, reason, purpose, host_name, host_phone, status, created_at, passed_to_host_at, decided_at, note, gate:gates(name, campus_id), held:staff!cases_held_by_fkey(name), decider:staff!cases_decided_by_fkey(name, role), person:people(id, full_name, kind, program, batch_year, photo_path)")
+    .select("id, name_given, says, reason, purpose, host_name, host_phone, status, created_at, passed_to_host_at, passed_to_admin_at, decided_at, note, gate:gates(name, campus_id), held:staff!cases_held_by_fkey(name), decider:staff!cases_decided_by_fkey(name, role), person:people(id, full_name, kind, program, batch_year, photo_path)")
     .eq("id", id).maybeSingle();
   const c = data as unknown as Case | null;
   if (!c) notFound();
   const { data: rule } = await supabase.from("campus_rules").select("escalate_minutes").eq("campus_id", c.gate?.campus_id ?? "").maybeSingle();
   const minutes = rule?.escalate_minutes ?? 10;
-  const handoff = new Date(new Date(c.created_at).getTime() + minutes * 60000).toISOString();
-  const passed = c.status === "host" || Boolean(c.passed_to_host_at);
-  const open = c.status === "admin" || c.status === "host";
+  const handoff = handoffAt(c, minutes);
+  const stage = stageOf(c, minutes);
+  const legacy = isLegacy(c);
+  const since = adminSince(c, minutes);
+  const byGuard = passedByGuard(c, minutes);
+  const open = stage === "admin" || stage === "host";
   const firstHost = c.host_name.split(",")[0];
+  const guard = c.held?.name ?? "The guard";
 
   // When the guard found no record, suggest close spellings (pg_trgm; planning/02 D10).
   const { data: similar } = !c.person && open ? await supabase.rpc("admin_similar_names", { p_name: c.name_given }) : { data: [] };
   const sims = (similar ?? []) as Person[];
 
-  let banner: React.ReactNode;
-  if (c.status === "admin") banner = <Banner kind="escalation" icon="hourglass">With you · <Timer since={c.created_at} />. <b>Decide by {fmtTime(handoff)}</b>, or the guard calls the host.</Banner>;
-  else if (c.status === "host") banner = <Banner kind="escalation" icon="phone">No admin decided in {minutes} minutes. <b>The guard is calling {firstHost}.</b> You can still decide; the guard sees it at once.</Banner>;
-  else {
+  // No explanatory captions on an open case (owner, 2026-10-07): a status chip next to the name says where it stands.
+  let banner: React.ReactNode = null;
+  const stageChip = stage === "admin"
+    ? <span className="ma-chip ma-chip--hold"><span className="ma-circle"><Icon name="hourglass" /></span><span className="ma-tabular">Waiting for you · <Timer since={since ?? c.created_at} /></span></span>
+    : stage === "host"
+      ? <span className="ma-chip"><span className="ma-circle"><Icon name="phone" /></span><span className="ma-tabular">Guard calling host · <Timer since={c.created_at} /></span></span>
+      : null;
+  if (!open) {
     const ok = c.status === "approved";
     const byYou = c.decider?.name === me.name && c.decider?.role === "admin";
     const who = byYou ? "You" : c.decider?.role === "admin" ? c.decider.name : "The guard, after the host call,";
     banner = <Banner kind={ok ? "success" : "danger"} icon={ok ? "check" : "ban"}><b>{who} {ok ? "approved" : "denied"} · {c.decided_at ? fmtTime(c.decided_at) : ""}.</b>{" "}
-      {ok ? `${c.held?.name ?? "The guard"} at ${c.gate?.name} sees it now and lets ${c.name_given} in.` : `${c.held?.name ?? "The guard"} at ${c.gate?.name} sees it now.`}</Banner>;
+      {ok ? `${guard} at ${c.gate?.name} sees it now and lets ${c.name_given} in.` : `${guard} at ${c.gate?.name} sees it now.`}</Banner>;
   }
 
   const urls = await signPhotos([c.person?.photo_path, ...sims.map((s) => s.photo_path)]);
@@ -66,14 +76,18 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
     );
   };
 
-  const trail: [string, string, boolean?][] = [
-    [fmtTime(c.created_at), `${c.held?.name ?? "The guard"} held the visitor at ${c.gate?.name}`],
-    [fmtTime(c.created_at), "Admins were alerted (dashboard, and phone or computer alerts where turned on)"],
-  ];
-  if (passed) trail.push([fmtTime(c.passed_to_host_at ?? handoff), `Passed to the host: ${c.held?.name ?? "the guard"} is calling ${firstHost}`]);
+  // Case trail: each time stands out (owner: "highlight timings"); the next step is marked, not timed.
+  const trail: [string, string, boolean?][] = [[fmtTime(c.created_at), `${guard} held the visitor at ${c.gate?.name}`]];
+  if (legacy) {
+    trail.push([fmtTime(c.created_at), "Admins were alerted"]);
+    trail.push([fmtTime(c.passed_to_host_at!), `Passed to the host: ${guard} called ${firstHost}`]);
+  } else {
+    trail.push([fmtTime(c.created_at), `${guard} called the host, ${firstHost}`]);
+    if (since) trail.push([fmtTime(since), byGuard ? "Host not reached: passed to admins" : `No confirmation in ${minutes} min: passed to admins`]);
+  }
   if (c.decided_at) trail.push([fmtTime(c.decided_at), `${c.status === "approved" ? "Approved" : "Denied"} by ${c.decider?.role === "admin" ? c.decider.name : "the guard"}${c.note ? `: ${c.note}` : ""}`]);
-  else if (!passed) trail.push([fmtTime(handoff), "Guard calls the host if no admin has decided", true]);
-  else trail.push(["—", "The guard or an admin decides", true]);
+  else if (stage === "host" && !legacy) trail.push([fmtTime(handoff), "Comes to admins if the host hasn't confirmed", true]);
+  else trail.push(["Next", stage === "admin" ? "An admin decides" : "The guard or an admin decides", true]);
 
   return (
     <AdminShell me={me} title="Escalation" current="/admin"
@@ -84,9 +98,6 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
             <span className="ma-step__n"><Icon name="phone" size={16} /></span>
             <div style={{ flex: "1 1 10rem" }}><b>{c.host_name}</b><span className="ma-tabular">{c.host_phone || "No phone given"}</span></div>
           </div>
-          <p className="ma-note">{!open ? (passed ? "The guard called the host before the decision." : `No call needed: the case was decided before ${fmtTime(handoff)}.`)
-            : passed ? "The guard is calling now. If the host can't be reached, the guard denies with the reason “Unverified, host unreachable”."
-            : `If you need the host to confirm, you can call them yourself. At ${fmtTime(handoff)} the guard calls them.`}</p>
         </section>
         <section className="ma-panel" aria-labelledby="th">
           <h2 className="ma-panel__title" id="th">Case trail</h2>
@@ -96,7 +107,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
       {open ? <AutoRefresh seconds={5} /> : null}
       <section className="ma-panel" aria-labelledby="who">
         <Link className="ma-link" href="/admin#queue"><Icon name="arrow-left" />Escalation queue</Link>
-        <h2 className="ma-record__name" id="who">{c.name_given}</h2>
+        <div className="ma-case-head"><h2 className="ma-record__name" id="who">{c.name_given}</h2>{stageChip}</div>
         {banner}
         <dl className="ma-kv">
           <dt>Name given</dt><dd>{c.name_given}</dd>
@@ -107,7 +118,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
         </dl>
         {c.person ? (
           <div className="ma-sub" role="group" aria-labelledby="rec">
-            <h3 className="ma-sub__title" id="rec">The record the guard opened</h3>
+            <h3 className="ma-sub__title" id="rec">Their record on file</h3>
             <div className="ma-list">{row(c.person)}</div>
           </div>
         ) : sims.length ? (

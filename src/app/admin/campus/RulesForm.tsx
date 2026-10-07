@@ -17,7 +17,7 @@ export function RulesForm({ campus, open, close, minutes }: { campus: string; op
         <Field id={`o-${campus}`} name="open" label="Visiting hours start" type="time" defaultValue={v("open", open)} error={err.open} />
         <Field id={`c-${campus}`} name="close" label="Visiting hours end" type="time" defaultValue={v("close", close)} error={err.close} />
       </div>
-      <Field id={`m-${campus}`} name="minutes" label="Admin escalation time, in minutes" inputMode="numeric" maxLength={2} defaultValue={v("minutes", String(minutes))}
+      <Field id={`m-${campus}`} name="minutes" label="Minutes the guard has to reach the host before it comes to admins" inputMode="numeric" maxLength={2} defaultValue={v("minutes", String(minutes))}
         error={err.minutes} />
       <div className="ma-actions"><SubmitButton pending={pending} icon="check">Save rules</SubmitButton></div>
     </form>

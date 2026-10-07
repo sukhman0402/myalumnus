@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireRole, type Profile } from "@/lib/profile";
@@ -13,41 +14,39 @@ export async function getLang(): Promise<Lang> {
 
 export type Duty = { me: Profile; lang: Lang; guard: { id: string; name: string; shift_label: string | null }; since: string };
 
-/** The guard on shift at this gate device, or null when nobody has tapped their name yet. */
-export async function getDuty() {
+/** The guard on shift at this gate device, or null when nobody has tapped their name yet (once per request). */
+export const getDuty = cache(async function getDuty() {
   const supabase = await createClient();
   const { data } = await supabase.rpc("gate_duty");
   const row = (data as { guard_id: string; name: string; shift_label: string | null; started_at: string }[] | null)?.[0];
   return row ? { guard: { id: row.guard_id, name: row.name, shift_label: row.shift_label }, since: row.started_at } : null;
-}
+});
 
 /** The pages a guard can be sent on to after tapping their name (owner, 2026-10-05: side-bar items must work). */
-export const AFTER_DUTY = ["expected", "inside"] as const;
+export const AFTER_DUTY = ["expected", "inside", "insights", "settings"] as const;
 export type AfterDuty = (typeof AFTER_DUTY)[number];
 export const isAfterDuty = (v: unknown): v is AfterDuty => typeof v === "string" && (AFTER_DUTY as readonly string[]).includes(v);
 
 /** For every gate screen except the name picker: a gate device with a guard on shift.
  *  No guard on shift yet: back to the name list; `next` says which page to open once a name is tapped. */
 export async function requireOnDuty(next?: AfterDuty): Promise<Duty> {
-  const me = await requireRole("gate");
-  const [duty, lang] = await Promise.all([getDuty(), getLang()]);
+  // The role check and the duty look-up run side by side (one round trip instead of two); a wrong role still redirects.
+  const [me, duty, lang] = await Promise.all([requireRole("gate"), getDuty(), getLang()]);
   if (!duty) redirect(next ? `/gate?next=${next}` : "/gate");
   return { me, lang, ...duty };
 }
 
 export type GateSection = "search" | "expected" | "inside";
-export function gateNav(lang: Lang, current: GateSection): NavItem[] {
+/** The guard console's side bar (owner, 2026-10-06: Home · Insights · Settings; the lists live on Home).
+ *  The current item follows the address (components/Rail): records, holds and lists all sit under Home. */
+export function gateNav(lang: Lang): NavItem[] {
   return [
-    { href: "/gate", label: tr(lang, "nav.search"), icon: "search", current: current === "search" },
-    { href: "/gate/expected", label: tr(lang, "nav.expected"), icon: "calendar-clock", current: current === "expected" },
-    { href: "/gate/inside", label: tr(lang, "nav.inside"), icon: "users", current: current === "inside" },
+    { href: "/gate", label: tr(lang, "nav.home"), icon: "house" },
+    { href: "/gate/insights", label: tr(lang, "nav.insights"), icon: "chart-column" },
+    { href: "/gate/settings", label: tr(lang, "nav.settings"), icon: "settings" },
   ];
 }
 
-export function identity(d: Duty) {
-  const shift = d.guard.shift_label ? ` · ${tr(d.lang, "duty.shift", { s: d.guard.shift_label })}` : "";
-  return `${d.guard.name}${shift} · ${d.me.gate_name}`;
-}
 
 /** One photo's address (sample face, or a 5-minute signed link to the private bucket). */
 export async function photoSrc(path: string | null): Promise<string | null> {

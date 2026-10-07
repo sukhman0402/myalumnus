@@ -110,3 +110,246 @@ button.ma-row { width: 100%; text-align: left; font: inherit; border: 0; backgro
 .ma-role:has(input:checked) .ma-role__icon { background: var(--ma-color-signal-500); color: var(--ma-color-white); }
 .ma-role:has(input:focus-visible) { outline: 3px solid var(--ma-color-signal-500); outline-offset: 2px; }
 @media (forced-colors: active) { .ma-role:has(input:checked) { outline: 3px solid Highlight; } }
+
+/* ======================= Look and feel, 2026-10-06 (owner's flagged changes, Stage A) ======================= */
+
+/* ---------- Console frame: logo | page title | tools, then side bar | page content ----------
+   The frame (components/Frame) is drawn by the console layout and stays between pages. The page's <main> spans
+   the title row and the content row as a subgrid, so the title lines up with the logo and the badge, and the
+   first card lines up with the top of the side bar (owner: "align navbar to Search card"). */
+.ma-shell {
+  grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto 1fr;
+  column-gap: var(--ma-layout-column-gap); row-gap: var(--ma-layout-section-gap);
+}
+.ma-brand { grid-column: 1; grid-row: 1; align-self: center; justify-self: start; display: flex; align-items: center; gap: var(--ma-space-3);
+  padding: 0 0 0 6px; border-radius: 28px; text-decoration: none; color: var(--ma-color-text-primary); }
+.ma-brand:focus { outline: none; }
+.ma-brand:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+.ma-brand .ma-rail__logo { box-shadow: var(--ma-elevation-1); }
+@media (hover: hover) { .ma-brand:hover .ma-rail__logo { border-color: var(--ma-color-signal-500); } }
+.ma-brand__name { display: none; font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; white-space: nowrap; }
+.ma-brand.is-open .ma-brand__name { display: inline; }
+.ma-shell > .ma-rail { grid-column: 1; grid-row: 2; }
+.ma-tools { grid-column: 3; grid-row: 1; align-self: center; position: relative; z-index: 2;  /* above the page's <main>, which spans this cell */
+  display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--ma-space-3); min-width: 0; }
+/* A size container can't be a subgrid, so the page's container moves from <main> to its content block. */
+.ma-shell__main { grid-column: 2 / 4; grid-row: 1 / 3; display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; container-type: normal; }
+.ma-shell__main > .ma-titlebar { grid-column: 1; grid-row: 1; min-width: 0; }
+.ma-shell__body { grid-column: 1 / -1; grid-row: 2; min-width: 0; display: flex; flex-direction: column; gap: var(--ma-layout-section-gap); container-type: inline-size; }
+/* Narrow (Split View, 400% zoom): logo and tools on top, the side bar as a top bar, then the page. */
+@container ma-app (max-width: 46.49em) {
+  .ma-shell { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: none; }
+  .ma-tools { grid-column: 2; }
+  .ma-shell > .ma-rail { grid-column: 1 / -1; grid-row: 2; }
+  .ma-shell__main { grid-column: 1 / -1; grid-row: 3; display: flex; flex-direction: column; gap: var(--ma-layout-section-gap); }
+}
+
+/* ---------- Profile badge and initials avatar (owner: "profile badge on the top right panel", "initials avatars") ---------- */
+.ma-badge { display: flex; align-items: center; gap: var(--ma-space-3); min-height: 48px; box-sizing: border-box; padding: 4px var(--ma-space-5) 4px 4px;
+  border-radius: 999px; background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-1); }
+.ma-badge__text { display: grid; line-height: 1.25; min-width: 0; }
+.ma-badge__text b { font-weight: 600; font-size: 0.9375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ma-badge__text span { font-size: var(--ma-typography-label-font-size); color: var(--ma-color-text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Between iPad portrait and a small laptop the title needs the room: the badge shows the avatar only. */
+@container ma-app (max-width: 69.99em) {
+  .ma-badge { padding: 4px; }
+  .ma-badge__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+.ma-avatar { display: inline-grid; place-items: center; flex: none; border-radius: 50%; font-weight: 700; letter-spacing: 0.02em;
+  background: var(--ma-color-accent-tint); color: var(--ma-color-accent-on-tint); }
+.ma-avatar--sm { width: 32px; height: 32px; font-size: 0.75rem; }
+.ma-avatar--md { width: 40px; height: 40px; font-size: 0.875rem; }
+.ma-avatar--lg { width: 56px; height: 56px; font-size: 1.125rem; }
+@media (forced-colors: active) { .ma-avatar, .ma-badge { border: 1px solid CanvasText; } }
+
+/* ---------- Round icon button (dark-mode switch) ---------- */
+.ma-iconbtn { display: inline-grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--ma-color-bg-card); color: var(--ma-color-text-primary); box-shadow: var(--ma-elevation-1); }
+.ma-iconbtn svg { width: 20px; height: 20px; }
+@media (hover: hover) { .ma-iconbtn:hover { background: var(--ma-color-bg-raised); color: var(--ma-color-accent); } }
+.ma-iconbtn:focus { outline: none; }
+.ma-iconbtn:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+@media (forced-colors: active) { .ma-iconbtn { border: 1px solid ButtonText; } }
+
+/* ---------- Elevation (owner: "looks flat, needs an accent color or a shadow") ---------- */
+.ma-panel, .ma-shell > .ma-rail { box-shadow: var(--ma-elevation-1); }
+.ma-list, .ma-card, .ma-tablecard, .ma-chart-card, .ma-chart-kpi, .ma-say, .ma-step, .ma-drop { box-shadow: var(--ma-elevation-card); }
+.ma-role { background: var(--ma-color-bg-card); }
+
+/* ---------- Softer focus on fields (owner: "remove highlight from search bar") ----------
+   The thick blue ring goes; a focused field keeps a 2px dark edge (still a visible focus, WCAG 2.4.7). */
+.ma-field__box:focus-within { outline: none; }
+.ma-field:not(.is-error):not(.is-disabled) .ma-field__box:focus-within { box-shadow: inset 0 0 0 2px var(--ma-field-border-hover); }
+.ma-field.is-error .ma-field__box:focus-within { box-shadow: inset 0 0 0 3px var(--ma-field-error-border); }
+@media (forced-colors: active) { .ma-field__box:focus-within { outline: 2px solid Highlight; } }
+
+/* ---------- Page loading skeleton (loading.tsx): shown at once on every tap ---------- */
+.ma-skel--title { width: min(14rem, 60%); height: 28px; border-radius: 10px; }
+.ma-skel--h2 { width: min(11rem, 50%); height: 18px; border-radius: 8px; }
+.ma-skel--block { width: 100%; height: 72px; border-radius: var(--ma-radius-card); }
+.ma-loading .ma-skel { animation: ma-pulse 1.1s ease-in-out infinite alternate; }
+@keyframes ma-pulse { from { opacity: 1; } to { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .ma-loading .ma-skel { animation: none; } }
+
+/* ======================= Guard console, 2026-10-06 (Stage B) ======================= */
+
+/* ---------- Search results as a layer over the Home lists ---------- */
+/* Anchored to the bottom of the search box itself, like a menu; it covers the help line and the Home lists. */
+.ma-search { position: relative; z-index: 3; }
+.ma-search__anchor { position: relative; }
+.ma-search__drop {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 1; display: grid; gap: var(--ma-space-2);
+  max-height: min(65vh, 38rem); overflow: auto; overscroll-behavior: contain; border-radius: var(--ma-radius-container);
+  box-shadow: var(--ma-elevation-2);
+}
+.ma-search__drop > .ma-panel { padding: var(--ma-space-4); gap: var(--ma-space-3); box-shadow: none; }
+.ma-search__drop .ma-panel__title { font-size: var(--ma-typography-card-title-font-size); line-height: var(--ma-typography-card-title-line-height); }
+@media (forced-colors: active) { .ma-search__drop > .ma-panel { border: 1px solid CanvasText; } }
+
+/* ---------- Home lists: tabs with counts ---------- */
+.ma-tabs--counts { align-self: flex-start; }
+.ma-tab__count { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-left: var(--ma-space-2); padding: 0 6px; box-sizing: border-box;
+  border-radius: 999px; background: var(--ma-color-control-track); color: var(--ma-color-text-primary); font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ma-tab[aria-selected="true"] .ma-tab__count { background: var(--ma-color-accent-tint); color: var(--ma-color-accent-on-tint); }
+.ma-tabs .ma-tab__count.is-urgent { background: var(--ma-color-decision-hold); color: var(--ma-color-decision-on-hold); }
+
+/* ---------- Clock card: time one card high, date under it ---------- */
+.ma-clock { display: grid; gap: var(--ma-space-1); padding: var(--ma-space-5); border-radius: var(--ma-radius-card);
+  background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); }
+.ma-clock__time { font-size: clamp(2.75rem, 5cqi + 1.5rem, 3.75rem); line-height: 1; font-weight: 600; letter-spacing: -0.02em; color: var(--ma-color-text-primary); }
+.ma-clock__ampm { margin-left: 0.3em; font-size: 0.4em; font-weight: 600; letter-spacing: 0.04em; color: var(--ma-color-accent); vertical-align: 0.9em; }
+.ma-clock__date { color: var(--ma-color-text-secondary); font-weight: 500; }
+.ma-card--static { cursor: default; }
+.ma-card--static:active { background-image: none; }
+.ma-stats--3 { grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr)) !important; }
+
+/* ---------- Record: why Approve is locked, as crumbs (owner: "divide it in crumbs") ---------- */
+.ma-crumbs { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-space-2); }
+.ma-crumbs__step { display: inline-flex; align-items: center; gap: var(--ma-space-2); }
+.ma-crumbs__sep { color: var(--ma-color-text-secondary); flex: none; }
+.ma-crumb { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 var(--ma-space-3); border-radius: 999px;
+  background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); font-size: var(--ma-typography-label-font-size); font-weight: 600; }
+.ma-crumb--lock { background: var(--ma-color-status-hold-bg); color: var(--ma-color-status-hold-text); box-shadow: none; }
+@media (forced-colors: active) { .ma-crumb { border: 1px solid CanvasText; } }
+
+/* ---------- Settings rows ---------- */
+.ma-setting { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ma-setting__text { display: grid; gap: var(--ma-space-1); flex: 1 1 16rem; min-width: 0; }
+.ma-setting .ma-actions:empty { display: none; }
+
+/* ---------- Profile badge as a link (guard: opens Settings) ---------- */
+.ma-badge--link { text-decoration: none; color: inherit; }
+@media (hover: hover) { .ma-badge--link:hover { background: var(--ma-color-bg-raised); } }
+.ma-badge--link:focus { outline: none; }
+.ma-badge--link:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+
+/* ---------- Held case: "pass to admin" sits after Approve / Deny ---------- */
+.ma-decide__pass { min-height: var(--ma-button-decision-height); }
+
+/* ======================= Admin console, 2026-10-06 (Stage C) ======================= */
+
+/* Case trail: the times stand out (owner: "highlight timings in Case Trail"). */
+.ma-trail li { grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; }
+.ma-trail time { justify-self: start; padding: 2px 10px; border-radius: 999px; background: var(--ma-color-accent-tint); color: var(--ma-color-accent-on-tint);
+  font-size: var(--ma-typography-label-font-size); font-weight: 700; }
+.ma-trail li.is-next time { background: var(--ma-color-control-track); color: var(--ma-color-text-secondary); }
+@media (forced-colors: active) { .ma-trail time { border: 1px solid CanvasText; } }
+
+/* Dashboard */
+a.ma-banner--link { text-decoration: none; }
+@media (hover: hover) { a.ma-banner--link:hover .ma-banner__text b { text-decoration: underline; } }
+a.ma-banner--link:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+.ma-card--hero .ma-card__value { font-size: 3rem; line-height: 1; }
+.ma-row--compact { min-height: 0; padding-block: var(--ma-space-3); }
+
+/* Reports: fewer, larger charts */
+.ma-chart-card--wide { padding: var(--ma-space-5) var(--ma-space-6); }
+.ma-chart-hours { stroke: var(--ma-color-text-secondary); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.ma-chart-ax--strong { fill: var(--ma-color-text-primary); font-weight: 600; }
+.ma-chart-name { fill: var(--ma-color-text-primary); font: 600 14px var(--ma-font-family-sans); }
+.ma-chart-esc .ma-chart-val { font-size: 14px; }
+.ma-chart-bar--admin { fill: var(--ma-chart-bar-out); stroke: var(--ma-color-status-hold-border); stroke-width: 1; }
+.ma-chart-bar--admin-key { background: var(--ma-chart-bar-out); box-shadow: inset 0 0 0 1px var(--ma-color-status-hold-border); }
+.ma-chart-bar--legacy { fill: var(--ma-color-neutral-400); }
+.ma-chart-esc .ma-chart-limit { stroke-width: 2.5; }
+@media (forced-colors: active) { .ma-chart-bar--admin, .ma-chart-bar--legacy, .ma-chart-hours { forced-color-adjust: none; } }
+/* "Show as a table": room between the summary, the table and the totals (owner: spacing). */
+details.ma-chart-table { display: grid; gap: var(--ma-space-4); padding-top: var(--ma-space-2); border-top: 1px solid var(--ma-color-border-divider); }
+details.ma-chart-table[open] > summary { margin-bottom: var(--ma-space-1); }
+details.ma-chart-table .ma-kv { padding: var(--ma-space-2) var(--ma-space-1) 0; row-gap: var(--ma-space-3); }
+.ma-panel > p:not([class]) { margin: 0; }
+
+/* ======================= Owner's review round, 2026-10-07 ======================= */
+/* Guard badge: name, then the gate to its right, one line. */
+.ma-badge--inline .ma-badge__text { display: flex; align-items: center; gap: var(--ma-space-3); }
+.ma-badge--inline .ma-badge__text span { padding: 2px 10px; border-radius: 999px; background: var(--ma-color-control-track); color: var(--ma-color-text-primary); font-weight: 600; }
+@container ma-app (max-width: 69.99em) { .ma-badge--inline .ma-badge__text { position: static; width: auto; height: auto; clip-path: none; } .ma-badge--inline { padding-right: var(--ma-space-4); } }
+/* Flag & Hold is a link styled as a button: no link underline. */
+a.ma-decision { text-decoration: none; }
+/* Generic Back button (no icon, no screen name). */
+.ma-back { justify-self: start; align-self: flex-start; display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--ma-space-4);
+  border: 0; border-radius: 999px; background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); color: var(--ma-color-text-primary);
+  font: 600 0.9375rem var(--ma-font-family-sans); text-decoration: none; cursor: pointer; }
+@media (hover: hover) { .ma-back:hover { background: var(--ma-color-bg-raised); color: var(--ma-color-accent); } }
+.ma-back:focus { outline: none; }
+.ma-back:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+@media (forced-colors: active) { .ma-back { border: 1px solid ButtonText; } }
+/* Home: Inside now and Flagged & hold, two equal panels side by side under Search (one column when narrow). */
+.ma-home-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--ma-layout-section-gap); align-items: start; }
+.ma-home-pair > .ma-panel, .ma-columns > aside > .ma-panel { min-width: 0; }
+.ma-panel__title > span { display: inline-flex; align-items: center; gap: var(--ma-space-2); }
+/* Guard Insights as infographics */
+.ma-ins-bars { list-style: none; margin: 0; padding: var(--ma-space-4) var(--ma-space-5); display: grid; gap: var(--ma-space-4);
+  border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); }
+.ma-ins-bars li { display: grid; grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr) 2.5rem; gap: var(--ma-space-4); align-items: center; }
+.ma-ins-bars__l { font-weight: 600; font-size: var(--ma-typography-label-font-size); }
+.ma-ins-bars__track { height: 22px; border-radius: 6px; background: var(--ma-color-control-track); overflow: hidden; }
+.ma-ins-bars__fill { display: block; height: 100%; min-width: 4px; border-radius: 6px; background: var(--ma-color-accent); }
+.ma-ins-bars__fill.is-approve { background: var(--ma-color-decision-approve); }
+.ma-ins-bars__fill.is-deny { background: var(--ma-color-decision-deny); }
+.ma-ins-bars__fill.is-hold { background: var(--ma-color-decision-hold); }
+.ma-ins-bars b { text-align: right; font-size: 1.125rem; }
+.ma-ins-today { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-space-6); padding: var(--ma-space-4) var(--ma-space-5);
+  border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); }
+.ma-ins-ring { width: 148px; height: 148px; flex: none; }
+.ma-ins-ring__track { fill: none; stroke: var(--ma-color-control-track); stroke-width: 14; }
+.ma-ins-ring__fill { fill: none; stroke: var(--ma-color-accent); stroke-width: 14; stroke-linecap: round; }
+.ma-ins-ring__n { fill: var(--ma-color-text-primary); font: 700 30px var(--ma-font-family-sans); }
+.ma-ins-ring__l { fill: var(--ma-color-text-secondary); font: 600 13px var(--ma-font-family-sans); }
+.ma-ins-kv { margin: 0; flex: 1 1 14rem; display: grid; gap: var(--ma-space-3); }
+.ma-ins-kv > div { display: flex; justify-content: space-between; gap: var(--ma-space-4); padding-bottom: var(--ma-space-2); border-bottom: 1px solid var(--ma-color-border-divider); }
+.ma-ins-kv dt { display: inline-flex; align-items: center; gap: var(--ma-space-2); color: var(--ma-color-text-secondary); font-weight: 500; }
+.ma-ins-kv dd { margin: 0; font-weight: 700; font-size: 1.125rem; }
+.ma-ins-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--ma-color-control-track); }
+.ma-ins-dot.is-accent { background: var(--ma-color-accent); }
+@media (forced-colors: active) { .ma-ins-bars__fill, .ma-ins-ring__fill, .ma-ins-dot { forced-color-adjust: none; } }
+.ma-case-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-space-3) var(--ma-space-4); }
+/* Security: same column widths in every section, so Status lines up. */
+.ma-sec-group .ma-table { table-layout: fixed; }
+.ma-sec-group .ma-table th:nth-child(1) { width: 32%; }
+.ma-sec-group .ma-table th:nth-child(2) { width: 38%; }
+.ma-sec-group .ma-table th:nth-child(3) { width: 18%; }
+.ma-sec-group .ma-table td { overflow-wrap: anywhere; }
+.ma-ins-bars__fill.is-zero { min-width: 0; }
+/* Home lists, compact (owner, 2026-10-07): photo · name over one time · status or action. Nothing else. */
+.ma-mini { list-style: none; margin: 0; padding: 4px; display: grid; border-radius: var(--ma-radius-card); background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); }
+.ma-mini > li + li { border-top: 1px solid var(--ma-color-border-divider); }
+.ma-mini__row { display: flex; align-items: center; gap: var(--ma-space-3); min-height: 64px; padding: var(--ma-space-2) var(--ma-space-3); box-sizing: border-box;
+  border-radius: 14px; color: inherit; text-decoration: none; }
+.ma-mini__row--link { cursor: pointer; }
+@media (hover: hover) { .ma-mini__row--link:hover { background: var(--ma-color-bg-canvas); } }
+.ma-mini__row--link:focus { outline: none; }
+.ma-mini__row--link:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: -2px; }
+.ma-mini__photo { flex: none; width: 40px; height: 40px; border-radius: 10px; overflow: hidden; display: grid; place-items: center;
+  background: var(--ma-color-bg-photo); color: var(--ma-color-text-secondary); }
+.ma-mini__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% var(--ma-photo-focus-y); display: block; }
+.ma-mini__photo.is-hold { background: var(--ma-color-status-hold-bg); color: var(--ma-color-status-hold-text); }
+.ma-mini__text { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+.ma-mini__text > b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ma-mini__time { display: inline-flex; align-items: center; gap: 5px; color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); }
+.ma-mini__time b { color: var(--ma-color-text-primary); font-weight: 600; }
+.ma-mini__time.is-warn, .ma-mini__time.is-warn b { color: var(--ma-color-status-hold-text); }
+.ma-mini__row > :last-child:not(.ma-mini__text) { flex: none; }
+.ma-mini__time { white-space: nowrap; }
+.ma-mini__time.is-ok, .ma-mini__time.is-ok b { color: var(--ma-color-status-success-text); }
+.ma-mini .ma-chip, .ma-mini .ma-btn { white-space: nowrap; }

@@ -6,16 +6,18 @@ import { AdminShell } from "../AdminShell";
 import { ChangeLog, type Change } from "../ChangeLog";
 import { Banner } from "../ui";
 import { RulesForm } from "./RulesForm";
+import { getTheme } from "@/components/Frame";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
-export const metadata: Metadata = { title: "Campus · Admin console" };
+export const metadata: Metadata = { title: "Settings · Admin console" };
 
 type Rule = { campus_id: string; campus: string; open_time: string; close_time: string; escalate_minutes: number; updated_at: string; gates: string[] };
 const LABELS = { open_time: "Hours start", close_time: "Hours end", escalate_minutes: "Escalation minutes" };
 
-/** Campus rules (mockups a15, a16). Only two rules, on purpose. Changes are logged. */
+/** Settings (renamed from Campus, owner 2026-10-06): campus rules (only two, on purpose; changes are logged),
+ *  and this computer's display. */
 export default async function CampusPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const me = await requireRole("admin");
-  const sp = await searchParams;
+  const [me, sp, theme] = await Promise.all([requireRole("admin"), searchParams, getTheme()]);
   const supabase = await createClient();
   const { data } = await supabase.rpc("admin_rules");
   const rules = (data ?? []) as Rule[];
@@ -23,7 +25,7 @@ export default async function CampusPage({ searchParams }: { searchParams: Promi
   const savedAt = sp.saved && /^\d{13}$/.test(sp.saved) && nowMs() - Number(sp.saved) < 10 * 60_000 ? fmtTime(new Date(Number(sp.saved)).toISOString()) : null;
 
   return (
-    <AdminShell me={me} title="Campus" current="/admin/campus"
+    <AdminShell me={me} title="Settings" current="/admin/campus"
       banner={savedAt ? <Banner kind="success" icon="check"><b>Saved · <span className="ma-tabular">{savedAt}</span>.</b> Guards see the new rules from their next search.</Banner> : null}
       aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Changes</h2>
         {rules.map((r, i) => <ChangeLog key={r.campus_id} rows={(logs[i].data ?? []) as Change[]} labels={LABELS} added="Rules created" />)}</section>}>
@@ -33,6 +35,11 @@ export default async function CampusPage({ searchParams }: { searchParams: Promi
           <RulesForm campus={r.campus_id} open={r.open_time.slice(0, 5)} close={r.close_time.slice(0, 5)} minutes={r.escalate_minutes} />
         </section>
       ))}
+      <section className="ma-panel ma-setting" aria-labelledby="disp">
+        <div className="ma-setting__text"><h2 className="ma-panel__title" id="disp">Display</h2>
+          <p className="ma-note">Light or dark, for this computer only. Also the moon button at the top right.</p></div>
+        <div className="ma-actions"><ThemeToggle variant="row" initial={theme} darkLabel="Dark mode" lightLabel="Light mode" /></div>
+      </section>
     </AdminShell>
   );
 }

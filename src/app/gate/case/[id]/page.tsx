@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Timer } from "@/components/Timer";
 import { tr, type Lang } from "@/lib/i18n";
@@ -16,6 +17,7 @@ export const metadata: Metadata = { title: "Flag & Hold · Guard console" };
 type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string;
   host_phone: string | null; status: "admin" | "host" | "approved" | "denied"; created_at: string; handoff_at: string;
+  admin_since: string | null; passed_by_guard: boolean; legacy: boolean;
   decided_at: string | null; note: string | null; decided_by_name: string | null; decided_by_role: "admin" | "guard" | null;
   admins: number; first_admin: string | null; alerted: number; first_alerted: string | null; escalate_minutes: number;
 };
@@ -52,36 +54,64 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
     </dl>
   );
 
+  // Host first, then admin (owner, 2026-10-06). Step 1: the guard calls the host and decides on the answer.
+  // Step 2, if the host can't be reached or hasn't confirmed by the limit: the admin decides.
+  const adminSub = c.admins === 0 ? tr(lang, "case.step1.none")
+    : c.alerted === 0 ? tr(lang, "case.step1.dash", { t: fmtTime(c.admin_since ?? c.handoff_at) })
+    : c.alerted > 1 ? tr(lang, "case.step1.sub", { n: c.first_alerted ?? "", k: c.alerted - 1, t: fmtTime(c.admin_since ?? c.handoff_at) })
+    : tr(lang, "case.step1.sub1", { n: c.first_alerted ?? "", t: fmtTime(c.admin_since ?? c.handoff_at) });
+  const callCard = (
+    <div className="ma-step" style={{ flexWrap: "wrap", alignItems: "center" }}>
+      <span className="ma-step__n"><Icon name="phone" size={16} /></span>
+      <div style={{ flex: "1 1 12rem" }}><b>{host}</b><span className="ma-tabular">{c.host_phone || "—"}</span></div>
+      {c.host_phone ? <a className="ma-btn ma-btn--primary" href={`tel:${c.host_phone.replace(/[^+0-9]/g, "")}`}><Icon name="phone" />{tr(lang, "case.host.call", { h: hostShort })}</a> : null}
+    </div>
+  );
+
   let body: React.ReactNode;
-  if (c.status === "admin") {
+  if (c.status === "host" && !c.legacy) {
     body = (
       <>
-        <Banner kind="escalation" icon="hourglass">{tr(lang, "case.withadmin", { timer: "" })}<Timer since={c.created_at} /></Banner>
+        <Banner kind="escalation" icon="phone"><b>{tr(lang, "case.host.now")}</b> {tr(lang, "case.host.time")}<Timer since={c.created_at} /></Banner>
         <ol className="ma-steps" aria-label={tr(lang, "title.flag")}>
           <li className="ma-step" aria-current="step"><span className="ma-step__n">1</span>
-            <div><b>{tr(lang, "case.step1")}</b><span>{c.admins === 0 ? tr(lang, "case.step1.none")
-              : c.alerted === 0 ? tr(lang, "case.step1.dash", { t: fmtTime(c.created_at) })
-              : c.alerted > 1 ? tr(lang, "case.step1.sub", { n: c.first_alerted ?? "", k: c.alerted - 1, t: fmtTime(c.created_at) })
-              : tr(lang, "case.step1.sub1", { n: c.first_alerted ?? "", t: fmtTime(c.created_at) })}</span></div></li>
+            <div><b>{tr(lang, "case.s1")}</b><span>{tr(lang, "case.s1.sub", { h: hostShort, t: handoff })}</span></div></li>
           <li className="ma-step"><span className="ma-step__n">2</span>
-            <div><b>{tr(lang, "case.step2")}</b><span>{tr(lang, "case.step2.sub", { h: host, t: handoff })}</span></div></li>
+            <div><b>{tr(lang, "case.s2")}</b><span>{tr(lang, "case.s2.sub", { t: handoff })}</span></div></li>
         </ol>
-        <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.tell")}</small><q>{tr(lang, "case.tell.admin", { t: handoff, h: host })}</q></span></p>
+        {callCard}
+        <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.tell")}</small><q>{tr(lang, "case.tell.host", { h: hostShort })}</q></span></p>
+        <p className="ma-say"><Icon name="info" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, "case.after.text2")}</span></p>
         {kv}
+        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="host" defaultReason={tr(lang, "case.nohost.reason")} />
+      </>
+    );
+  } else if (c.status === "admin") {
+    const since = c.admin_since ?? c.handoff_at;
+    body = (
+      <>
+        <Banner kind="escalation" icon="hourglass">{tr(lang, "case.adm.time")}<Timer since={since} />. <b>{tr(lang, "case.adm.only")}</b></Banner>
+        <ol className="ma-steps" aria-label={tr(lang, "title.flag")}>
+          <li className="ma-step is-done"><span className="ma-step__n">1</span>
+            <div><b>{tr(lang, "case.s1")}</b><span>{c.passed_by_guard ? tr(lang, "case.adm.passed", { t: fmtTime(since) })
+              : tr(lang, "case.adm.timeout", { m: c.escalate_minutes, t: fmtTime(since) })}</span></div></li>
+          <li className="ma-step" aria-current="step"><span className="ma-step__n">2</span>
+            <div><b>{tr(lang, "case.s2")}</b><span>{adminSub}</span></div></li>
+        </ol>
+        <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.tell")}</small><q>{tr(lang, "case.tell.admin2")}</q></span></p>
+        {kv}
+        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="admin" defaultReason={tr(lang, "case.left.reason")} />
       </>
     );
   } else if (c.status === "host") {
+    // A case held before the order changed (it already went to the admin first): the guard decides after the call.
     body = (
       <>
         <Banner kind="escalation" icon="phone">{tr(lang, "case.host.banner.a", { m: c.escalate_minutes })} <b>{tr(lang, "case.host.banner.b")}</b></Banner>
-        <div className="ma-step" style={{ flexWrap: "wrap", alignItems: "center" }}>
-          <span className="ma-step__n">2</span>
-          <div style={{ flex: "1 1 12rem" }}><b>{host}</b><span className="ma-tabular">{c.host_phone || "—"}</span></div>
-          {c.host_phone ? <a className="ma-btn ma-btn--primary" href={`tel:${c.host_phone.replace(/[^+0-9]/g, "")}`}><Icon name="phone" />{tr(lang, "case.host.call", { h: hostShort })}</a> : null}
-        </div>
+        {callCard}
         <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, "case.after.text")}</span></p>
         {kv}
-        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} unreachable={tr(lang, "case.unreachable")} />
+        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="legacy" defaultReason={tr(lang, "case.unreachable")} />
       </>
     );
   } else {
@@ -106,10 +136,10 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <GateShell duty={duty} title={tr(lang, "title.flag")} section="search">
+    <GateShell duty={duty} title={tr(lang, "title.flag")}>
       {open ? <AutoRefresh seconds={5} /> : null}
       <section className="ma-panel" aria-labelledby="ch">
-        <Link className="ma-link" href="/gate"><Icon name="arrow-left" />{tr(lang, open ? "case.back" : "back.search")}</Link>
+        <BackLink href={"/gate"} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="ch">{c.name_given}</h2>
         {body}
       </section>

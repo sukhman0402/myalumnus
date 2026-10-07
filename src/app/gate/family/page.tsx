@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { tr } from "@/lib/i18n";
 import { requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
@@ -13,9 +12,9 @@ export default async function FamilyLookupPage() {
   const duty = await requireOnDuty();
   const { lang } = duty;
   return (
-    <GateShell duty={duty} title={tr(lang, "title.family")} section="search">
+    <GateShell duty={duty} title={tr(lang, "title.family")}>
       <section className="ma-panel" aria-labelledby="fh">
-        <Link className="ma-link" href="/gate"><Icon name="arrow-left" />{tr(lang, "back.search")}</Link>
+        <BackLink href={"/gate"} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="fh">{tr(lang, "fam.title")}</h2>
         <StudentSearch lang={lang} />
       </section>

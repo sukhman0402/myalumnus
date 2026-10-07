@@ -44,7 +44,7 @@ export function OfflineDecide({ lang, row, guard, hours, onBack, onSaved }: {
 
   return (
     <section className="ma-panel" aria-labelledby="off-h">
-      <button type="button" className="ma-link ma-linkbtn" onClick={onBack}><Icon name="arrow-left" />{tr(lang, "off.back")}</button>
+      <button type="button" className="ma-back" onClick={onBack}>{tr(lang, "back")}</button>
       <div className="ma-record">
         <figure className="ma-photo ma-photo--record is-none"><div className="ma-photo__frame"><Icon name="cloud-off" /></div></figure>
         <div className="ma-record__info">

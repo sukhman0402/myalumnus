@@ -11,9 +11,9 @@ import { approveVisit, denyVisit, type DecideState } from "../../actions";
  * (hours, already inside, guard on shift); this component only mirrors those rules so the guard sees them first.
  * clientId is fixed for this screen, so a double tap or a retry after a dropped connection records once.
  */
-export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, locked, lockReason, lockIcon = "clock", photo, heading, holdHref }: {
+export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, locked, photo, heading, holdHref }: {
   lang: Lang; personId: string; clientId: string; name: string; meta: string; thumb: string | null;
-  purpose: string; locked: boolean; lockReason: string | null; lockIcon?: string;
+  purpose: string; locked: boolean;
   photo: React.ReactNode; heading: React.ReactNode; holdHref: string;
 }) {
   const [value, setValue] = useState(purpose);
@@ -49,11 +49,6 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
         </div>
       </div>
 
-        {lockReason ? (
-          <div className="ma-banner ma-banner--escalation" role="status" id="why-locked">
-            <span className="ma-circle"><Icon name={lockIcon} /></span><span className="ma-banner__text">{lockReason}</span>
-          </div>
-        ) : null}
         {error ? (
           <div className="ma-banner ma-banner--danger" role="alert">
             <span className="ma-circle"><Icon name="circle-alert" /></span><span className="ma-banner__text">{error}</span>
@@ -68,7 +63,7 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
 
         <div className="ma-decide" role="group" aria-label={tr(lang, "dec.group")} aria-busy={busy || undefined}>
           <button type="submit" form="f-approve" className="ma-decision ma-decision--approve"
-            aria-disabled={locked || busy ? "true" : undefined} aria-describedby={locked ? "why-locked" : undefined}
+            aria-disabled={locked || busy ? "true" : undefined} aria-describedby={locked ? "who-chips" : undefined}
             onClick={(e) => { if (locked || busy) e.preventDefault(); }}>
             <Icon name={locked ? "lock" : approving ? "loader-circle" : "check"} className={`ma-ic${approving ? " ma-spin" : ""}`} />{tr(lang, "dec.approve")}
           </button>

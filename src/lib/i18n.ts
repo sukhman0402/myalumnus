@@ -11,6 +11,7 @@ const en = {
   "nav.search": "Search", "nav.expected": "Expected today", "nav.inside": "Inside now",
   "soon": "Coming in a later build",
   "rail.show": "Show labels", "rail.hide": "Hide labels", // new
+  "home": "My Alumnus: home", "theme.dark": "Dark mode", "theme.light": "Light mode", "badge.noduty": "No guard on duty", // new 2026-10-06
   "duty.title": "Tap your name to start your shift", // new
   "duty.note": "Every entry you make is recorded under your name until the next guard taps theirs.", // new
   "duty.next": "Tap your name first. {p} opens next.",
@@ -29,7 +30,7 @@ const en = {
   "nomatch.title": "No match for “{q}”", "nomatch.sub": "Not in the alumni list or today's visitor list.",
   "nomatch.1": "Check the spelling with the visitor, then search again.",
   "nomatch.2": "Try the first name only, or the surname only.",
-  "nomatch.3": "Still not found: hold them at the gate for admin.",
+  "nomatch.3": "Still not found: Flag & Hold them at the gate and call their host.",
   "family.register": "Register a student-family visit",
   "kind.alumnus": "Alumnus", "kind.faculty": "Visiting faculty", "kind.placement": "Placement visitor", "kind.student": "Current student",
   "batch": "Batch {y}", "nophoto": "no photo",
@@ -55,7 +56,7 @@ const en = {
   "dup.neither": "Answer matches neither?",
   "today": "Today", "tile.expected": "Expected today", "tile.inside": "Inside now", "tile.flagged": "Flagged & hold", "tile.visits": "Today's visits",
   "err.no_shift": "No guard is on duty. Tap your name to start your shift, then try again.", // new
-  "err.outside_hours": "Visiting hours have just ended. Approve is unavailable: Deny, or Flag & Hold for admin.", // new
+  "err.outside_hours": "Visiting hours have just ended. Approve is unavailable: Deny, or Flag & Hold.", // new
   "err.already_inside": "This person was just let in at another gate. Check the photo again before doing anything else.", // new
   "err.not_found": "This record is no longer available. Search again.", // new
   "err.generic": "Couldn't save. Check the connection, then try again. Nothing was recorded.", // new
@@ -64,13 +65,13 @@ const en = {
   "title.flag": "Flag & Hold", "title.expected": "Expected today", "title.inside": "Inside now", "title.family": "Family visit",
   "title.cases": "Flagged & hold", // new
   "back.search": "Back to search", "back.inside": "Inside now",
-  "fh.title": "Hold the visitor for admin",
-  "fh.sub": "Admin gets this now. If admin doesn't reply in {m} minutes, you'll call the host.",
+  "fh.title": "Hold the visitor and call the host",
+  "fh.sub": "You call the host now. If the host can't be reached or doesn't confirm in {m} minutes, the admin decides.",
   "fh.name": "Name the visitor gave", "fh.says": "What they say they are", "fh.says.help": "Batch and department, in their words.",
   "fh.why": "Why are you holding them?",
   "fh.why.1": "Name not found", "fh.why.2": "Photo doesn't match", "fh.why.3": "No photo, details don't match",
   "fh.why.4": "Outside visiting hours", "fh.why.5": "Something else",
-  "fh.host": "Who are they here to see?", "fh.host.help": "You'll call this person if admin doesn't reply.",
+  "fh.host": "Who are they here to see?", "fh.host.help": "You'll call this person straight after holding.",
   "fh.hostphone": "Host's phone", "fh.hostphone.help": "Ask the visitor if it isn't filled in.",
   "fh.visitorphone": "Visitor's phone (optional)", "fh.visitorphone.help": "Used only if they are still inside after visiting hours.", // new
   "fh.err.name": "Enter the name the visitor gave.", "fh.err.host": "Enter who they came to see, so you can call them if needed.",
@@ -147,11 +148,37 @@ const en = {
   "off.err.too_old": "It was saved more than 4 hours ago.", "off.err.no_shift": "The guard on duty then couldn't be confirmed.",
   "off.err.not_found": "The record is no longer available.", "off.err.other": "The system refused it. Tell the admin office.",
   "off.nostore": "This iPad couldn't save the entry. Note it on paper and phone the admin office.",
+  // ---- 2026-10-06: Home · Insights · Settings, clock, record crumbs, host-first Flag & Hold (new; Hindi needs review) ----
+  "nav.home": "Home", "nav.insights": "Insights", "nav.settings": "Settings", "title.record": "Visitor record", "back": "Back", "mini.in": "In", "mini.held": "Held", "mini.due": "Due", "mini.arrived": "Arrived", "mini.callhost": "Call host", "mini.withadmin": "With admin",
+  "title.home": "Home", "title.insights": "Insights", "title.settings": "Settings",
+  "lists.label": "Today at this gate", "lists.open": "Open",
+  "clock.label": "Time now",
+  "lock.approve": "Approve locked", "lock.check": "Check the photo again", "lock.next": "Deny or Flag & Hold",
+  "lock.hours": "Outside hours {open}–{close}", "chip.insidegate": "Inside since {t} · {g}",
+  "back.home": "Home",
+  "ins.shift": "This shift", "ins.since": "{n} · since {t}", "ins.approved": "Let in", "ins.denied": "Denied",
+  "ins.held": "Flagged & held", "ins.passed": "Passed to admin", "ins.family": "Family visits", "ins.today": "Today at {g}",
+  "ins.inside": "Inside now", "ins.expected": "Expected today", "ins.open": "Open holds", "ins.visits": "Visits today",
+  "set.lang": "Language", "set.lang.sub": "Words on this iPad.", "set.theme": "Display", "set.theme.sub": "Dark mode is easier on the eyes at night.",
+  "set.duty": "Guard on duty", "set.duty.sub": "{n}, since {t}. When your shift ends, hand over here.",
+  "set.device": "This device", "set.signout.sub": "Demo only: a real gate iPad stays signed in.",
+  "case.s1": "You call the host", "case.s1.sub": "{h}: confirm by {t}",
+  "case.s2": "Admin decides", "case.s2.sub": "If the host can't be reached, or hasn't confirmed by {t}",
+  "case.host.time": "With the host · ", "case.host.now": "Call the host now.",
+  "case.after.text2": "Host confirms: Approve. Host says no: Deny. Can't reach the host: pass it to the admin.",
+  "case.pass": "Can't reach host: pass to admin", "case.nohost.reason": "Host did not confirm the visit",
+  "case.tell.host": "I'm calling {h} to confirm your visit. Please wait here.",
+  "case.adm.time": "With the admin · ", "case.adm.only": "Only an admin can let them in now.",
+  "case.adm.passed": "You passed it to the admin at {t}.", "case.adm.timeout": "The host didn't confirm in {m} minutes: passed to the admin at {t}.",
+  "case.tell.admin2": "The host couldn't confirm. Your visit is with the admin now; please wait here.",
+  "case.left": "Visitor left? Close as denied", "case.left.reason": "Visitor left before a decision",
+  "err.with_admin": "Only an admin can approve now: the case is with the admin.",
 };
 type Key = keyof typeof en;
 
 const hi: Record<Key, string> = {
   "rail.show": "नाम दिखाएँ", "rail.hide": "नाम छिपाएँ",
+  "home": "My Alumnus: होम", "theme.dark": "डार्क मोड", "theme.light": "लाइट मोड", "badge.noduty": "कोई गार्ड ड्यूटी पर नहीं", // new 2026-10-06
   "lang.switch": "English", "lang.label": "भाषा",
   "title.search": "खोजें", "title.duty": "अभी ड्यूटी पर कौन है?",
   "nav.search": "खोजें", "nav.expected": "आज आने वाले", "nav.inside": "अभी अंदर",
@@ -174,7 +201,7 @@ const hi: Record<Key, string> = {
   "nomatch.title": "“{q}” का कोई मेल नहीं", "nomatch.sub": "पूर्व छात्रों की सूची या आज की विज़िटर सूची में नहीं है।",
   "nomatch.1": "विज़िटर से स्पेलिंग जाँचें, फिर दोबारा खोजें।",
   "nomatch.2": "सिर्फ़ पहला नाम या सिर्फ़ उपनाम लिखकर देखें।",
-  "nomatch.3": "फिर भी न मिले: एडमिन के लिए गेट पर रोकें।",
+  "nomatch.3": "फिर भी न मिले: गेट पर रोकें और होस्ट को कॉल करें।",
   "family.register": "छात्र के परिवार की विज़िट दर्ज करें",
   "kind.alumnus": "पूर्व छात्र", "kind.faculty": "विज़िटिंग फ़ैकल्टी", "kind.placement": "प्लेसमेंट विज़िटर", "kind.student": "वर्तमान छात्र",
   "batch": "बैच {y}", "nophoto": "फ़ोटो नहीं",
@@ -200,7 +227,7 @@ const hi: Record<Key, string> = {
   "dup.neither": "जवाब किसी से मेल नहीं खाता?",
   "today": "आज", "tile.expected": "आज आने वाले", "tile.inside": "अभी अंदर", "tile.flagged": "रोके गए", "tile.visits": "आज की विज़िट",
   "err.no_shift": "कोई गार्ड ड्यूटी पर नहीं है। शिफ़्ट शुरू करने के लिए अपने नाम पर टैप करें, फिर दोबारा कोशिश करें।",
-  "err.outside_hours": "विज़िटिंग समय अभी खत्म हुआ है। अनुमति नहीं दी जा सकती: मना करें, या एडमिन के लिए रोकें।",
+  "err.outside_hours": "विज़िटिंग समय अभी खत्म हुआ है। अनुमति नहीं दी जा सकती: मना करें, या रोकें।",
   "err.already_inside": "इन्हें अभी दूसरे गेट से अंदर जाने दिया गया है। कुछ भी करने से पहले फ़ोटो फिर से जाँचें।",
   "err.not_found": "यह रिकॉर्ड अब उपलब्ध नहीं है। दोबारा खोजें।",
   "err.generic": "सेव नहीं हो पाया। कनेक्शन जाँचें, फिर दोबारा कोशिश करें। कुछ भी दर्ज नहीं हुआ।",
@@ -208,13 +235,13 @@ const hi: Record<Key, string> = {
   "title.flag": "रोकें और सूचित करें", "title.expected": "आज आने वाले", "title.inside": "अभी अंदर", "title.family": "परिवार की विज़िट",
   "title.cases": "रोके गए",
   "back.search": "खोज पर वापस", "back.inside": "अभी अंदर",
-  "fh.title": "विज़िटर को एडमिन के लिए रोकें",
-  "fh.sub": "एडमिन को अभी सूचना जाएगी। {m} मिनट में जवाब न आए तो आप होस्ट को कॉल करेंगे।",
+  "fh.title": "विज़िटर को रोकें और होस्ट को कॉल करें",
+  "fh.sub": "आप अभी होस्ट को कॉल करेंगे। {m} मिनट में होस्ट से संपर्क या पुष्टि न हो तो एडमिन फ़ैसला करेंगे।",
   "fh.name": "विज़िटर ने जो नाम बताया", "fh.says": "वे खुद को क्या बताते हैं", "fh.says.help": "बैच और विभाग, उनके अपने शब्दों में।",
   "fh.why": "आप उन्हें क्यों रोक रहे हैं?",
   "fh.why.1": "नाम नहीं मिला", "fh.why.2": "फ़ोटो मेल नहीं खाती", "fh.why.3": "फ़ोटो नहीं, जानकारी मेल नहीं खाती",
   "fh.why.4": "विज़िटिंग समय के बाहर", "fh.why.5": "कुछ और",
-  "fh.host": "वे किससे मिलने आए हैं?", "fh.host.help": "एडमिन का जवाब न आए तो आप इन्हें कॉल करेंगे।",
+  "fh.host": "वे किससे मिलने आए हैं?", "fh.host.help": "रोकने के तुरंत बाद आप इन्हें कॉल करेंगे।",
   "fh.hostphone": "होस्ट का फ़ोन", "fh.hostphone.help": "भरा न हो तो विज़िटर से पूछें।",
   "fh.visitorphone": "विज़िटर का फ़ोन (ज़रूरी नहीं)", "fh.visitorphone.help": "सिर्फ़ तब काम आएगा जब वे विज़िटिंग समय के बाद भी अंदर हों।",
   "fh.err.name": "विज़िटर ने जो नाम बताया, वह लिखें।", "fh.err.host": "वे किससे मिलने आए हैं, यह लिखें ताकि ज़रूरत हो तो आप कॉल कर सकें।",
@@ -290,6 +317,30 @@ const hi: Record<Key, string> = {
   "off.err.too_old": "इसे 4 घंटे से ज़्यादा पहले सेव किया गया था।", "off.err.no_shift": "उस समय ड्यूटी पर गार्ड की पुष्टि नहीं हो सकी।",
   "off.err.not_found": "यह रिकॉर्ड अब उपलब्ध नहीं है।", "off.err.other": "सिस्टम ने इसे नहीं माना। एडमिन ऑफ़िस को बताएँ।",
   "off.nostore": "यह iPad एंट्री सेव नहीं कर सका। इसे कागज़ पर लिखें और एडमिन ऑफ़िस को फ़ोन करें।",
+  "nav.home": "होम", "nav.insights": "आँकड़े", "nav.settings": "सेटिंग्स", "title.record": "विज़िटर रिकॉर्ड", "back": "वापस", "mini.in": "अंदर", "mini.held": "रोका", "mini.due": "आने का समय", "mini.arrived": "आ गए", "mini.callhost": "होस्ट को कॉल", "mini.withadmin": "एडमिन के पास",
+  "title.home": "होम", "title.insights": "आँकड़े", "title.settings": "सेटिंग्स",
+  "lists.label": "इस गेट पर आज", "lists.open": "खोलें",
+  "clock.label": "अभी का समय",
+  "lock.approve": "अनुमति बंद", "lock.check": "फ़ोटो फिर से जाँचें", "lock.next": "मना करें या रोकें",
+  "lock.hours": "समय के बाहर {open}–{close}", "chip.insidegate": "{t} से अंदर · {g}",
+  "back.home": "होम",
+  "ins.shift": "यह शिफ़्ट", "ins.since": "{n} · {t} से", "ins.approved": "अंदर जाने दिया", "ins.denied": "मना किया",
+  "ins.held": "रोके गए", "ins.passed": "एडमिन को भेजे", "ins.family": "परिवार की विज़िट", "ins.today": "आज {g} पर",
+  "ins.inside": "अभी अंदर", "ins.expected": "आज आने वाले", "ins.open": "खुले केस", "ins.visits": "आज की विज़िट",
+  "set.lang": "भाषा", "set.lang.sub": "इस iPad पर शब्द।", "set.theme": "डिस्प्ले", "set.theme.sub": "रात में डार्क मोड आँखों के लिए आसान है।",
+  "set.duty": "ड्यूटी पर गार्ड", "set.duty.sub": "{n}, {t} से। शिफ़्ट ख़त्म होने पर यहाँ से सौंपें।",
+  "set.device": "यह डिवाइस", "set.signout.sub": "सिर्फ़ डेमो: असली गेट iPad साइन इन रहता है।",
+  "case.s1": "आप होस्ट को कॉल करें", "case.s1.sub": "{h}: {t} तक पुष्टि",
+  "case.s2": "एडमिन फ़ैसला करेंगे", "case.s2.sub": "अगर होस्ट से संपर्क न हो, या {t} तक पुष्टि न हो",
+  "case.host.time": "होस्ट के पास · ", "case.host.now": "अभी होस्ट को कॉल करें।",
+  "case.after.text2": "होस्ट पुष्टि करें: अनुमति दें। होस्ट मना करें: मना करें। होस्ट से संपर्क न हो: एडमिन को भेजें।",
+  "case.pass": "होस्ट से संपर्क नहीं: एडमिन को भेजें", "case.nohost.reason": "होस्ट ने विज़िट की पुष्टि नहीं की",
+  "case.tell.host": "मैं आपकी विज़िट की पुष्टि के लिए {h} को कॉल कर रहा हूँ। कृपया यहीं रुकें।",
+  "case.adm.time": "एडमिन के पास · ", "case.adm.only": "अब सिर्फ़ एडमिन अंदर जाने की अनुमति दे सकते हैं।",
+  "case.adm.passed": "आपने {t} बजे एडमिन को भेजा।", "case.adm.timeout": "{m} मिनट में होस्ट ने पुष्टि नहीं की: {t} बजे एडमिन को भेजा गया।",
+  "case.tell.admin2": "होस्ट पुष्टि नहीं कर सके। आपकी विज़िट अब एडमिन के पास है; कृपया यहीं रुकें।",
+  "case.left": "विज़िटर चले गए? मना करके बंद करें", "case.left.reason": "फ़ैसले से पहले विज़िटर चले गए",
+  "err.with_admin": "अब सिर्फ़ एडमिन अनुमति दे सकते हैं: केस एडमिन के पास है।",
 };
 
 const DICT: Record<Lang, Record<Key, string>> = { en, hi };

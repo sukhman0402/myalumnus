@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { RecordPhoto } from "@/components/RecordPhoto";
 import { tr } from "@/lib/i18n";
 import { fmtMonth } from "@/lib/format";
@@ -26,9 +25,9 @@ export default async function FamilyLogPage({ params }: { params: Promise<{ id: 
   if (!s) notFound();
   const src = await photoSrc(s.photo_path);
   return (
-    <GateShell duty={duty} title={tr(lang, "title.family")} section="search">
+    <GateShell duty={duty} title={tr(lang, "title.family")}>
       <section className="ma-panel" aria-labelledby="lh">
-        <Link className="ma-link" href="/gate/family"><Icon name="arrow-left" />{tr(lang, "fam.lookup")}</Link>
+        <BackLink href={"/gate/family"} label={tr(lang, "back")} />
         <FamilyForm lang={lang} studentId={s.id} clientId={crypto.randomUUID()}
           photo={<RecordPhoto src={src} name={s.full_name}
             caption={s.photo_added_on ? tr(lang, "photo.added", { d: fmtMonth(s.photo_added_on, lang) }) : null}

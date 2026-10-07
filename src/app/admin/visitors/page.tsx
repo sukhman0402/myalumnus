@@ -3,12 +3,10 @@ import Link from "next/link";
 import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/photos";
-import { addDays, fmtDay, fmtTime, KIND_LABEL, localIso, nowMs, ymd } from "@/lib/format";
+import { addDays, fmtDay, fmtTime, localIso, ymd } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 import { AdminShell } from "../AdminShell";
-import { ConfirmButton } from "../ConfirmButton";
-import { Banner, Chip, Empty, PanelHead, PersonCell, Table } from "../ui";
-import { cancelExpected } from "./actions";
+import { Banner, Empty, PanelHead, PersonCell, RowLink, Table } from "../ui";
 
 export const metadata: Metadata = { title: "Visitors · Admin console" };
 
@@ -30,7 +28,6 @@ export default async function VisitorsPage({ searchParams }: { searchParams: Pro
   let rows = (data ?? []) as Row[];
   if (tab === "past") rows = [...rows].reverse();
   const urls = await signPhotos(rows.map((r) => r.person.photo_path));
-  const now = nowMs();
 
   return (
     <AdminShell me={me} title="Visitors" current="/admin/visitors"
@@ -43,29 +40,16 @@ export default async function VisitorsPage({ searchParams }: { searchParams: Pro
           {TABS.map(([t, l]) => <Link key={t} className="ma-tab" href={`/admin/visitors?tab=${t}`} aria-current={tab === t ? "page" : undefined}>{l}</Link>)}
         </nav>
         {rows.length ? (
-          <Table label="Expected visitors" heads={["When", "Visitor", "Type", "Visiting", "Gate", "Status", ""]}>
-            {rows.map((r) => {
-              const past = new Date(r.expected_at).getTime() < now;
-              return (
-                <tr key={r.id} style={{ cursor: "default" }}>
-                  <td className="ma-tabular">{tab === "today" ? "" : `${fmtDay(ymd(new Date(r.expected_at)))}, `}{fmtTime(r.expected_at)}</td>
-                  <td><Link className="ma-link" href={`/admin/alumni/${r.person.id}`}><PersonCell name={r.person.full_name} src={urls.get(r.person.photo_path ?? "")} /></Link></td>
-                  <td>{KIND_LABEL[r.person.kind]}{r.person.batch_year ? ` · ${r.person.batch_year}` : ""}</td>
-                  <td>{r.host_name ?? "—"}{r.host_phone ? <><br /><span className="ma-tabular ma-note">{r.host_phone}</span></> : null}{r.purpose ? <><br /><span className="ma-note">{r.purpose}</span></> : null}</td>
-                  <td>{r.gate ?? "Any gate"}</td>
-                  <td>{r.arrived_at ? <Chip icon="check" text={`Arrived ${fmtTime(r.arrived_at)}`} kind="success" />
-                    : tab === "past" || (past && tab === "today") ? <Chip icon="clock" text={tab === "past" ? "Didn't arrive" : "Not arrived yet"} kind={tab === "past" ? undefined : "hold"} />
-                    : <Chip icon="calendar-clock" text="Expected" />}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {tab !== "past" && !r.arrived_at ? (
-                      <ConfirmButton action={cancelExpected} fields={{ id: r.id, tab }} small label="Cancel" icon="x"
-                        title={`Cancel ${r.person.full_name}'s visit?`} confirmLabel="Cancel visit" keepLabel="Keep visit"
-                        body={<p>The visit is removed from the gate&apos;s Expected list. {r.person.full_name}&apos;s record stays, and they can still be checked in as a normal visitor.</p>} />
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
+          // Only when, who and whom they're visiting (owner, 2026-10-06); everything else is one click away on the visit page.
+          <Table label="Expected visitors" heads={["When", "Visitor", "Visiting", ""]}>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td className="ma-tabular">{tab === "today" ? "" : `${fmtDay(ymd(new Date(r.expected_at)))}, `}{fmtTime(r.expected_at)}</td>
+                <td><PersonCell name={r.person.full_name} src={urls.get(r.person.photo_path ?? "")} /></td>
+                <td>{r.host_name ?? "—"}</td>
+                <td style={{ textAlign: "right" }}><RowLink href={`/admin/visitors/${r.id}`} label="View" who={`${r.person.full_name}'s visit`} /></td>
+              </tr>
+            ))}
           </Table>
         ) : (
           <Empty title={tab === "today" ? "No visitors expected today" : tab === "upcoming" ? "No visitors expected in the next 30 days" : "No expected visitors in the past 7 days"}>

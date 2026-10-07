@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { tr } from "@/lib/i18n";
 import { requireOnDuty } from "@/lib/gate";
@@ -17,10 +18,10 @@ export default async function CasesPage() {
   const { data } = await supabase.rpc("gate_open_cases");
   const cases = (data ?? []) as { id: string; name_given: string; reason: string; status: "admin" | "host"; created_at: string }[];
   return (
-    <GateShell duty={duty} title={tr(lang, "title.cases")} section="search">
+    <GateShell duty={duty} title={tr(lang, "title.cases")}>
       <AutoRefresh seconds={10} />
       <section className="ma-panel" aria-labelledby="ch">
-        <Link className="ma-link" href="/gate"><Icon name="arrow-left" />{tr(lang, "nav.search")}</Link>
+        <BackLink href={"/gate"} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="ch">{tr(lang, "title.cases")}</h2>
         {cases.length ? (
           <ul className="ma-list">

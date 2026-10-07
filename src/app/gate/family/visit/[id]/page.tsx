@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { tr } from "@/lib/i18n";
 import { fmtTime } from "@/lib/format";
 import { requireOnDuty } from "@/lib/gate";
@@ -24,9 +23,9 @@ export default async function FamilyVisitPage({ params }: { params: Promise<{ id
   const f = data as F | null;
   if (!f) notFound();
   return (
-    <GateShell duty={duty} title={tr(lang, "title.inside")} section="inside">
+    <GateShell duty={duty} title={tr(lang, "title.inside")}>
       <section className="ma-panel" aria-labelledby="fx">
-        <Link className="ma-link" href="/gate/inside"><Icon name="arrow-left" />{tr(lang, "back.inside")}</Link>
+        <BackLink href={"/gate"} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="fx">{tr(lang, "fam.close.title", { s: f.student })}</h2>
         <dl className="ma-kv">
           <dt>{tr(lang, "kv.guests")}</dt><dd className="ma-tabular">{f.guests}</dd>

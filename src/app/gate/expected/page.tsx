@@ -22,7 +22,7 @@ export default async function ExpectedPage() {
   const rows = (data ?? []) as Row[];
   const urls = await signPhotos(rows.map((r) => r.photo_path));
   return (
-    <GateShell duty={duty} title={tr(lang, "title.expected")} section="expected">
+    <GateShell duty={duty} title={tr(lang, "title.expected")}>
       <section className="ma-panel" aria-labelledby="eh">
         <h2 className="ma-panel__title" id="eh">{tr(lang, "exp.title", { n: rows.length })}</h2>
         {rows.length ? (
@@ -32,7 +32,7 @@ export default async function ExpectedPage() {
                 const photo = urls.get(r.photo_path ?? "") ?? null;
                 return (
                   <li key={`${r.person_id}-${r.expected_at}`}>
-                    <Link className="ma-row" href={`/gate/person/${r.person_id}?picked=1`}>
+                    <Link className="ma-row" href={`/gate/person/${r.person_id}?picked=1&from=expected`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {photo ? <span className="ma-row__photo ma-row__photo--img"><img src={photo} alt="" /></span> : <span className="ma-row__photo"><Icon name="user" /></span>}
                       <span className="ma-row__text"><b>{r.full_name}</b>

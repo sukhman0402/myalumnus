@@ -4,11 +4,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
+import { BackLink } from "@/components/BackLink";
 import { HoldLink } from "@/components/HoldLink";
 import { tr } from "@/lib/i18n";
-import { gateNav, identity, requireOnDuty } from "@/lib/gate";
+import { requireOnDuty } from "@/lib/gate";
 import { Today } from "../Today";
-import { LangToggle } from "../LangToggle";
 
 export const metadata: Metadata = { title: "Same name · Guard console" };
 
@@ -34,11 +34,9 @@ export default async function SameNamePage({ searchParams }: { searchParams: Pro
   if (people.length === 1) redirect(`/gate/person/${people[0].id}?q=${encodeURIComponent(q)}&picked=1`);
 
   return (
-    <Shell lang={lang} showLabels={tr(lang, "rail.show")} hideLabels={tr(lang, "rail.hide")} skipLabel={tr(lang, "skip.main")} soonLabel={tr(lang, "soon")} nav={gateNav(lang, "search")}
-      title={tr(lang, "title.search")} identityIcon="shield-user" identity={identity(duty)}
-      actions={<LangToggle lang={lang} />} aside={<Today lang={lang} />}>
+    <Shell title={tr(lang, "title.record")} aside={<Today lang={lang} />}>
       <section className="ma-panel" aria-labelledby="dh">
-        <Link className="ma-link" href={back}><Icon name="arrow-left" />{tr(lang, "back.results")}</Link>
+        <BackLink href={back} label={tr(lang, "back")} />
         <h2 className="ma-panel__title" id="dh">{tr(lang, "dup.title", { c: people.length, n: people[0]?.full_name ?? name })}</h2>
         <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "dup.ask.small")}</small><q>{tr(lang, "dup.ask")}</q></span></p>
         <p className="ma-note">{tr(lang, "dup.tap")}</p>
