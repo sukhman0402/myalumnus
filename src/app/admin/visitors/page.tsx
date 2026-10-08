@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { AdminShell } from "../AdminShell";
 import { Banner, Empty, PanelHead, PersonCell, RowLink, Table } from "../ui";
 
-export const metadata: Metadata = { title: "Visitors · Admin console" };
+export const metadata: Metadata = { title: "Expected visits · Admin console" };
 
 type Row = {
   id: string; expected_at: string; purpose: string | null; host_name: string | null; host_phone: string | null; gate: string | null; arrived_at: string | null;
@@ -30,7 +30,7 @@ export default async function VisitorsPage({ searchParams }: { searchParams: Pro
   const urls = await signPhotos(rows.map((r) => r.person.photo_path));
 
   return (
-    <AdminShell me={me} title="Visitors" current="/admin/visitors"
+    <AdminShell me={me} title="Expected visits" current="/admin/visitors"
       banner={sp.added ? <Banner kind="success" icon="check"><b>Visitor added.</b> {tab === "today" ? "The gate sees them under Expected today now." : "The gate sees them on the day."}</Banner>
         : sp.cancelled ? <Banner kind="success" icon="check"><b>Visit cancelled.</b> It no longer shows at the gate.</Banner>
         : error ? <Banner kind="danger" icon="circle-alert" alert>Couldn&apos;t load the visitors. Refresh the page.</Banner> : null}>

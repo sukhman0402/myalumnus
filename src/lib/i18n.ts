@@ -20,6 +20,8 @@ const en = {
   "search.help.short": "Keep typing. Results appear after 3 letters.",
   "search.help.busy": "Searching…", "search.help.count": "{n} results. Open the one the visitor names.",
   "search.help.one": "1 result. Open it if it is the visitor's name.", "search.help.none": "No results.",
+  "search.help.close": "No exact match. {n} close spellings below.", "search.help.close1": "No exact match. 1 close spelling below.", // new 2026-10-08
+  "close.title": "Close spellings of “{q}”", "close.ask": "Not an exact match. Ask the visitor their batch and department before you open a record.", // new 2026-10-08
   "search.help.error": "Couldn't search. Check the connection, then type again.", // new
   "search.results": "{n} results for “{q}”", "search.result1": "1 result for “{q}”",
   "search.more": "Showing the first 25. Type more of the name to narrow it down.", // new
@@ -35,6 +37,7 @@ const en = {
   "close": "Close", "cancel": "Cancel",
   "back.results": "Search results",
   "purpose": "Purpose of visit", "purpose.ph": "e.g. Meeting Prof. Rao, Mechanical",
+  "purpose.quick": "Common reasons", "purpose.q1": "Meeting faculty", "purpose.q2": "Alumni office", "purpose.q3": "Campus event", "purpose.q4": "Placement drive", // new 2026-10-08
   "purpose.help.expected": "From today's expected list. Change it if the visitor says otherwise.",
   "purpose.help.walkin": "Ask where they're going. It's used to find them if they overstay.",
   "chip.expected": "Expected {t}", "chip.now": "Now {t}", "chip.inside": "Inside since {t}", // inside: new
@@ -169,7 +172,14 @@ const en = {
   "case.adm.time": "With the admin · ", "case.adm.only": "Only an admin can let them in now.",
   "case.adm.passed": "You passed it to the admin at {t}.", "case.adm.timeout": "The host didn't confirm in {m} minutes: passed to the admin at {t}.",
   "case.tell.admin2": "The host couldn't confirm. Your visit is with the admin now; please wait here.",
-  "case.left": "Visitor left? Close as denied", "case.left.reason": "Visitor left before a decision",
+  "case.left": "Visitor left", "case.left.reason": "Visitor left before a decision",
+  "case.left.title": "Did {n} leave?", "case.left.body": "This records that the visitor left before a decision. It is not counted as a denial.", // new 2026-10-08
+  "case.left.ok": "Yes, they left", "case.left.b": "Left before a decision · {t}.", "case.left.done": "Saved to the audit trail. Not counted as a denial.", // new 2026-10-08
+  "case.s2.none": "No admin is set up, so this stays with you and the host.", // new 2026-10-08
+  "case.after.noadmin": "Host confirms: Approve. Host says no, or can't be reached: Deny.", // new 2026-10-08
+  "err.no_admin": "No admin is set up to take this. Decide on the host's answer.", "mini.left": "Left", // new 2026-10-08
+  "fh.host.pick": "Pick the host", "fh.host.other": "Someone else (type the name)", "fh.host.name": "Host's name", // new 2026-10-08
+  "fh.host.nophone": "No number on the list: ask the visitor for the host's number.", "fh.more": "More details (optional)", // new 2026-10-08
   "err.with_admin": "Only an admin can approve now: the case is with the admin.",
 };
 type Key = keyof typeof en;
@@ -189,6 +199,8 @@ const hi: Record<Key, string> = {
   "search.help.short": "लिखते रहें। 3 अक्षरों के बाद नतीजे दिखेंगे।",
   "search.help.busy": "खोज रहे हैं…", "search.help.count": "{n} नतीजे। विज़िटर जो नाम बताए, वही खोलें।",
   "search.help.one": "1 नतीजा। अगर यही विज़िटर का नाम है तो खोलें।", "search.help.none": "कोई नतीजा नहीं।",
+  "search.help.close": "पूरा मेल नहीं मिला। नीचे {n} मिलते-जुलते नाम।", "search.help.close1": "पूरा मेल नहीं मिला। नीचे 1 मिलता-जुलता नाम।", // new 2026-10-08
+  "close.title": "“{q}” से मिलते-जुलते नाम", "close.ask": "पूरा मेल नहीं है। रिकॉर्ड खोलने से पहले विज़िटर से उनका बैच और विभाग पूछें।", // new 2026-10-08
   "search.help.error": "खोज नहीं हो पाई। कनेक्शन जाँचें, फिर दोबारा लिखें।",
   "search.results": "“{q}” के {n} नतीजे", "search.result1": "“{q}” का 1 नतीजा",
   "search.more": "पहले 25 नतीजे दिख रहे हैं। छाँटने के लिए नाम का और हिस्सा लिखें।",
@@ -204,6 +216,7 @@ const hi: Record<Key, string> = {
   "close": "बंद करें", "cancel": "रद्द करें",
   "back.results": "खोज के नतीजे",
   "purpose": "आने का कारण", "purpose.ph": "जैसे: प्रो. राव से मिलना, मैकेनिकल",
+  "purpose.quick": "आम कारण", "purpose.q1": "फ़ैकल्टी से मिलना", "purpose.q2": "एलुमनाई ऑफ़िस", "purpose.q3": "कैंपस कार्यक्रम", "purpose.q4": "प्लेसमेंट ड्राइव", // new 2026-10-08
   "purpose.help.expected": "आज की सूची से भरा गया है। विज़िटर कुछ और बताए तो बदलें।",
   "purpose.help.walkin": "पूछें कि वे कहाँ जा रहे हैं। समय से ज़्यादा रुकने पर उन्हें ढूँढने में काम आएगा।",
   "chip.expected": "{t} बजे आने वाले", "chip.now": "अभी {t}", "chip.inside": "{t} से अंदर",
@@ -335,7 +348,14 @@ const hi: Record<Key, string> = {
   "case.adm.time": "एडमिन के पास · ", "case.adm.only": "अब सिर्फ़ एडमिन अंदर जाने की अनुमति दे सकते हैं।",
   "case.adm.passed": "आपने {t} बजे एडमिन को भेजा।", "case.adm.timeout": "{m} मिनट में होस्ट ने पुष्टि नहीं की: {t} बजे एडमिन को भेजा गया।",
   "case.tell.admin2": "होस्ट पुष्टि नहीं कर सके। आपकी विज़िट अब एडमिन के पास है; कृपया यहीं रुकें।",
-  "case.left": "विज़िटर चले गए? मना करके बंद करें", "case.left.reason": "फ़ैसले से पहले विज़िटर चले गए",
+  "case.left": "विज़िटर चले गए", "case.left.reason": "फ़ैसले से पहले विज़िटर चले गए",
+  "case.left.title": "क्या {n} चले गए?", "case.left.body": "इससे दर्ज होगा कि विज़िटर फ़ैसले से पहले चले गए। इसे मना करना नहीं गिना जाएगा।", // new 2026-10-08
+  "case.left.ok": "हाँ, चले गए", "case.left.b": "फ़ैसले से पहले चले गए · {t}।", "case.left.done": "ऑडिट रिकॉर्ड में सेव हो गया। इसे मना करना नहीं गिना गया।", // new 2026-10-08
+  "case.s2.none": "कोई एडमिन सेट नहीं है, इसलिए यह आपके और होस्ट के पास रहेगा।", // new 2026-10-08
+  "case.after.noadmin": "होस्ट पुष्टि करें: अनुमति दें। होस्ट मना करें या संपर्क न हो: मना करें।", // new 2026-10-08
+  "err.no_admin": "इसे लेने के लिए कोई एडमिन सेट नहीं है। होस्ट के जवाब पर फ़ैसला करें।", "mini.left": "चले गए", // new 2026-10-08
+  "fh.host.pick": "होस्ट चुनें", "fh.host.other": "कोई और (नाम लिखें)", "fh.host.name": "होस्ट का नाम", // new 2026-10-08
+  "fh.host.nophone": "सूची में नंबर नहीं है: विज़िटर से होस्ट का नंबर पूछें।", "fh.more": "और जानकारी (ज़रूरी नहीं)", // new 2026-10-08
   "err.with_admin": "अब सिर्फ़ एडमिन अनुमति दे सकते हैं: केस एडमिन के पास है।",
 };
 

@@ -415,3 +415,35 @@ html[data-text="larger"] { font-size: 125%; }
 .ma-log li:first-child { border-top: 0; padding-top: 0; }
 .ma-log span { overflow-wrap: anywhere; }
 .ma-log small { color: var(--ma-color-text-secondary); font-size: 0.8125rem; }
+
+/* Iteration 3 · Set A (2026-10-08) */
+/* Small tags (owner: "make the quickpicks' tags smaller, so it does not disrupt the layout much"); 32px tall stays
+   above the 24px minimum target size (WCAG 2.2, 2.5.8). */
+.ma-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--ma-space-2); }
+.ma-quick__btn { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--ma-color-bg-card); box-shadow: inset 0 0 0 1px var(--ma-color-border-divider);
+  color: var(--ma-color-text-secondary); font: inherit; font-size: var(--ma-typography-label-font-size); font-weight: 500; }
+@media (hover: hover) { .ma-quick__btn:hover { box-shadow: inset 0 0 0 1px var(--ma-color-text-secondary); } }
+.ma-quick__btn[aria-pressed="true"] { background: var(--ma-color-accent-tint); color: var(--ma-color-accent-on-tint); box-shadow: inset 0 0 0 2px var(--ma-color-signal-500); font-weight: 600; }
+.ma-quick__btn:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+@media (forced-colors: active) { .ma-quick__btn { border: 1px solid buttontext; } .ma-quick__btn[aria-pressed="true"] { outline: 2px solid highlight; } }
+.ma-record__exit { margin-top: var(--ma-space-3); }
+
+/* Iteration 3 · Set C (2026-10-08): "Left before a decision" is neutral grey, not red; the hold form's optional fields. */
+.ma-chip--neutral, .ma-banner--neutral { --_bg: var(--ma-color-control-track); --_fg: var(--ma-color-text-primary); }
+.ma-more { border-top: 1px solid var(--ma-color-border-divider); padding-top: var(--ma-space-3); }
+.ma-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--ma-space-2);
+  font-weight: 600; color: var(--ma-color-accent); list-style: none; }
+.ma-more > summary::-webkit-details-marker { display: none; }
+.ma-more > summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg); transition: transform .15s; margin-right: 4px; }
+.ma-more[open] > summary::before { transform: rotate(45deg); }
+.ma-more > summary:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; border-radius: 8px; }
+.ma-more > .ma-form { margin-top: var(--ma-space-3); }
+@media (prefers-reduced-motion: reduce) { .ma-more > summary::before { transition: none; } }
+.ma-chart-seg--left { background: var(--ma-color-text-secondary); }
+
+/* Iteration 3 · Set D */
+.ma-filters__go { gap: var(--ma-space-4); }
+.ma-filters__clear { align-self: center; white-space: nowrap; }
+.ma-date-echo { margin: 6px 0 0; color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); }

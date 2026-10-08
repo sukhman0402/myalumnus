@@ -7,7 +7,7 @@ const MSG: Record<string, [string, string?]> = {
   batch_invalid: ["Enter a 4-digit year between 1950 and 2100, e.g. 2019.", "batch"],
   batch_required: ["Alumni need a batch (graduation year), e.g. 2019.", "batch"],
   roll_required: ["Current students need a roll number: the gate finds them by it.", "roll"],
-  roll_taken: ["Another record already has this roll number. Search for it in Alumni.", "roll"],
+  roll_taken: ["Another record already has this roll number. Search for it in People.", "roll"],
   row_invalid: ["A row is incomplete."],
   too_many: ["Too many rows in one go. Upload at most 5,000."],
   path_invalid: ["The photo couldn't be saved. Try again."],

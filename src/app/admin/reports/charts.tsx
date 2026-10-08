@@ -20,7 +20,7 @@ export function Kpi({ value, label, sub, tone }: { value: React.ReactNode; label
 }
 
 /** Part-to-whole as one thick stacked bar, each part labelled with its share; the legend carries counts. */
-export function Outcomes({ segs }: { segs: { label: string; n: number; kind: "approve" | "held" | "deny" }[] }) {
+export function Outcomes({ segs }: { segs: { label: string; n: number; kind: "approve" | "held" | "deny" | "left" }[] }) {
   const total = segs.reduce((t, x) => t + x.n, 0);
   const pct = (n: number) => (total ? Math.round(n * 100 / total) : 0);
   const shown = segs.filter((x) => x.n > 0);

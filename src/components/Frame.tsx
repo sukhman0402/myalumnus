@@ -12,7 +12,10 @@ export async function Frame({ consoleName, home, homeLabel, nav, tools, lang = "
   consoleName: "gate" | "admin"; home: string; homeLabel: string; nav: NavItem[]; tools: React.ReactNode; lang?: string;
   skipLabel?: string; soonLabel?: string; showLabels?: string; hideLabels?: string; children: React.ReactNode;
 }) {
-  const railOpen = (await cookies()).get(`ma-rail-${consoleName}`)?.value === "1";   // starts closed (icons only)
+  // The gate's side bar starts open with labels, so a guard on a touch screen reads the words, not only icons
+  // (Iteration 3, finding F11). Admin starts closed. The device's own choice (cookie) wins once made.
+  const saved = (await cookies()).get(`ma-rail-${consoleName}`)?.value;
+  const railOpen = saved ? saved === "1" : consoleName === "gate";
   return (
     <div lang={lang}>
       <a className="ma-skip" href="#main">{skipLabel}</a>

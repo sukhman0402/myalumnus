@@ -17,7 +17,10 @@ export function Clock({ lang, label, small, h24 }: { lang: "en" | "hi"; label: s
   const parts = new Intl.DateTimeFormat("en-IN", { timeZone: TZ, hour: h24 ? "2-digit" : "numeric", minute: "2-digit", hour12: !h24 }).formatToParts(now);
   const hm = parts.filter((p) => p.type === "hour" || p.type === "minute" || p.type === "literal").map((p) => p.value).join("").trim();
   const ampm = (parts.find((p) => p.type === "dayPeriod")?.value ?? "").toUpperCase();
-  const date = now.toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", { timeZone: TZ, weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  // Built from parts so the server and the browser print the same text (their locale data differ on commas).
+  const dp = new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { timeZone: TZ, weekday: "long", day: "numeric", month: "long", year: "numeric" }).formatToParts(now);
+  const part = (t: string) => dp.find((p) => p.type === t)?.value ?? "";
+  const date = `${part("weekday")}, ${part("day")} ${part("month")} ${part("year")}`;
   return (
     <div className={`ma-clock${small ? " ma-clock--small" : ""}`} role="group" aria-label={label}>
       <time className="ma-clock__time ma-tabular" dateTime={now.toISOString()} suppressHydrationWarning>

@@ -73,24 +73,61 @@ export function GateSearch({ lang, initialQuery, guard, hours, h24 }: {
   const status: Status = !term ? "idle" : term.length < 3 ? "short"
     : result?.term !== term ? "busy" : result.offline ? "offline" : result.ok ? "done" : "error";
   const offRows = status === "offline" && result?.offline ? result.offline : [];
-  const hits = status === "done" && result ? result.hits : [];
+  const all = status === "done" && result ? result.hits : [];
+  const hits = all.filter((h) => !h.close);
+  const close = all.filter((h) => h.close);   // only when nothing matched exactly (Iteration 3, F1)
   const n = hits.length;
   const help = status === "idle" ? tr(lang, "search.help.idle")
     : status === "short" ? tr(lang, "search.help.short")
     : status === "busy" ? tr(lang, "search.help.busy")
     : status === "error" ? tr(lang, "search.help.error")
     : status === "offline" ? tr(lang, "off.banner.b")
-    : n === 0 ? tr(lang, "search.help.none") : n === 1 ? tr(lang, "search.help.one") : tr(lang, "search.help.count", { n });
+    : n === 0 ? (close.length === 0 ? tr(lang, "search.help.none") : close.length === 1 ? tr(lang, "search.help.close1")
+      : tr(lang, "search.help.close", { n: close.length })) : n === 1 ? tr(lang, "search.help.one") : tr(lang, "search.help.count", { n });
 
   // People who share a name are never listed separately: the guard asks first (mockup g10).
-  const groups: SearchHit[][] = [];
-  const byName = new Map<string, SearchHit[]>();
-  for (const h of hits) {
-    const k = h.full_name.toLowerCase();
-    if (!byName.has(k)) { byName.set(k, []); groups.push(byName.get(k)!); }
-    byName.get(k)!.push(h);
-  }
+  const group = (list: SearchHit[]) => {
+    const groups: SearchHit[][] = [];
+    const byName = new Map<string, SearchHit[]>();
+    for (const h of list) {
+      const k = h.full_name.toLowerCase();
+      if (!byName.has(k)) { byName.set(k, []); groups.push(byName.get(k)!); }
+      byName.get(k)!.push(h);
+    }
+    return groups;
+  };
   const back = `?q=${encodeURIComponent(term)}`;
+  const rows = (groups: SearchHit[][]) => (
+          <ul className="ma-list">
+            {groups.map((g) => g.length > 1 ? (
+              <li key={g[0].id}>
+                <Link className="ma-row ma-row--prompt" href={`/gate/same-name?n=${encodeURIComponent(g[0].full_name)}&q=${encodeURIComponent(term)}`}>
+                  <span className="ma-row__photo"><Icon name="user-search" /></span>
+                  <span className="ma-row__text"><b>{tr(lang, "dup.title", { c: g.length, n: g[0].full_name })}</b><span>{tr(lang, "dup.prompt.sub")}</span></span>
+                  <span className="ma-row__chev"><Icon name="chevron-right" /></span>
+                </Link>
+              </li>
+            ) : (
+              <li key={g[0].id}>
+                <Link className="ma-row" href={`/gate/person/${g[0].id}${back}`}>
+                  {g[0].photo
+                    // eslint-disable-next-line @next/next/no-img-element -- tiny local SVG thumbnails
+                    ? <span className="ma-row__photo ma-row__photo--img"><img src={g[0].photo} alt="" /></span>
+                    : <span className="ma-row__photo"><Icon name="user" /></span>}
+                  <span className="ma-row__text">
+                    <b>{g[0].full_name}</b>
+                    <span>{personMeta(lang, g[0])}{g[0].has_photo ? "" : ` · ${tr(lang, "nophoto")}`}</span>
+                  </span>
+                  {g[0].expected_at ? (
+                    <span className="ma-row__end"><span className="ma-chip"><span className="ma-circle"><Icon name="calendar-clock" /></span>
+                      <span className="ma-tabular">{tr(lang, "chip.expected", { t: fmtTime(g[0].expected_at, h24) })}</span></span></span>
+                  ) : null}
+                  <span className="ma-row__chev"><Icon name="chevron-right" /></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+  );
 
   if (picked) {
     return <OfflineDecide lang={lang} row={picked} guard={guard} hours={hours} h24={h24} onBack={() => setPicked(null)}
@@ -139,36 +176,16 @@ export function GateSearch({ lang, initialQuery, guard, hours, h24 }: {
       {status === "done" && n > 0 ? (
         <section className="ma-panel" aria-labelledby="rh">
           <h2 className="ma-panel__title" id="rh">{n === 1 ? tr(lang, "search.result1", { q: term }) : tr(lang, "search.results", { n, q: term })}</h2>
-          <ul className="ma-list">
-            {groups.map((g) => g.length > 1 ? (
-              <li key={g[0].id}>
-                <Link className="ma-row ma-row--prompt" href={`/gate/same-name?n=${encodeURIComponent(g[0].full_name)}&q=${encodeURIComponent(term)}`}>
-                  <span className="ma-row__photo"><Icon name="user-search" /></span>
-                  <span className="ma-row__text"><b>{tr(lang, "dup.title", { c: g.length, n: g[0].full_name })}</b><span>{tr(lang, "dup.prompt.sub")}</span></span>
-                  <span className="ma-row__chev"><Icon name="chevron-right" /></span>
-                </Link>
-              </li>
-            ) : (
-              <li key={g[0].id}>
-                <Link className="ma-row" href={`/gate/person/${g[0].id}${back}`}>
-                  {g[0].photo
-                    // eslint-disable-next-line @next/next/no-img-element -- tiny local SVG thumbnails
-                    ? <span className="ma-row__photo ma-row__photo--img"><img src={g[0].photo} alt="" /></span>
-                    : <span className="ma-row__photo"><Icon name="user" /></span>}
-                  <span className="ma-row__text">
-                    <b>{g[0].full_name}</b>
-                    <span>{personMeta(lang, g[0])}{g[0].has_photo ? "" : ` · ${tr(lang, "nophoto")}`}</span>
-                  </span>
-                  {g[0].expected_at ? (
-                    <span className="ma-row__end"><span className="ma-chip"><span className="ma-circle"><Icon name="calendar-clock" /></span>
-                      <span className="ma-tabular">{tr(lang, "chip.expected", { t: fmtTime(g[0].expected_at, h24) })}</span></span></span>
-                  ) : null}
-                  <span className="ma-row__chev"><Icon name="chevron-right" /></span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {rows(group(hits))}
           {n >= 25 ? <p className="ma-note">{tr(lang, "search.more")}</p> : null}
+        </section>
+      ) : null}
+
+      {status === "done" && n === 0 && close.length > 0 ? (
+        <section className="ma-panel" aria-labelledby="ch">
+          <h2 className="ma-panel__title" id="ch">{tr(lang, "close.title", { q: term })}</h2>
+          <p className="ma-say"><Icon name="message-circle" /><span>{tr(lang, "close.ask")}</span></p>
+          {rows(group(close))}
         </section>
       ) : null}
 

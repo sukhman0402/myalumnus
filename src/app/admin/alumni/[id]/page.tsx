@@ -50,7 +50,7 @@ export default async function PersonPage({ params, searchParams }: { params: Pro
         </section>
       </>}>
       <section className="ma-panel" aria-labelledby="fh">
-        <Link className="ma-link" href="/admin/alumni"><Icon name="arrow-left" />Alumni</Link>
+        <Link className="ma-link" href="/admin/alumni"><Icon name="arrow-left" />People</Link>
         <h2 className="ma-panel__title" id="fh">{p.full_name} · {KIND_LABEL[p.kind]}</h2>
         {!p.active ? <Banner kind="escalation" icon="triangle-alert"><b>Hidden from the gate.</b> Guards can&apos;t find this record. Tick “Show at the gate” below to bring it back.</Banner> : null}
         <PhotoEditor personId={p.id} src={src} name={p.full_name} caption={p.photo_added_on ? `Photo added ${fmtMonth(p.photo_added_on)}` : null} />

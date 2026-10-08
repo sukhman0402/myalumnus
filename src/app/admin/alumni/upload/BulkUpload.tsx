@@ -122,7 +122,7 @@ export function BulkUpload() {
         {error ? <Note kind="danger" icon="circle-alert">{error}</Note> : null}
         {done ? (
           <Note kind="success" icon="check">
-            <b>Saved.</b> {done.inserted.toLocaleString("en-IN")} new, {done.updated.toLocaleString("en-IN")} updated{done.skipped ? `, ${done.skipped} skipped` : ""}. The gate can search them now. Add their photos below, or <Link className="ma-link" href="/admin/alumni">go to Alumni</Link>.
+            <b>Saved.</b> {done.inserted.toLocaleString("en-IN")} new, {done.updated.toLocaleString("en-IN")} updated{done.skipped ? `, ${done.skipped} skipped` : ""}. The gate can search them now. Add their photos below, or <Link className="ma-link" href="/admin/alumni">go to People</Link>.
           </Note>
         ) : null}
 

@@ -10,12 +10,12 @@ import { InsideList, MiniTime, type InsideRow } from "./inside/InsideList";
 type ExpRow = { person_id: string; full_name: string; kind: Kind; program: string | null; photo_path: string | null;
   expected_at: string; purpose: string | null; host_name: string | null; arrived_at: string | null };
 type CaseRow = { id: string; name_given: string; person_id: string | null; photo_path: string | null; status: "admin" | "host"; created_at: string };
-type DeniedRow = { id: string; name_given: string; person_id: string | null; photo_path: string | null; decided_at: string; by_admin: boolean };
+type DeniedRow = { id: string; name_given: string; person_id: string | null; photo_path: string | null; status: "denied" | "left"; decided_at: string; by_admin: boolean };
 
 async function load() {
   const supabase = await createClient();
   const [exp, ins, cases, denied] = await Promise.all([supabase.rpc("gate_expected"), supabase.rpc("gate_inside"), supabase.rpc("gate_on_hold"),
-    supabase.rpc("gate_denied_today")]);
+    supabase.rpc("gate_closed_today")]);   // denied or left today (Iteration 3, NEW-5)
   return { expected: (exp.data ?? []) as ExpRow[], inside: (ins.data ?? []) as InsideRow[], open: (cases.data ?? []) as CaseRow[],
     denied: (denied.data ?? []) as DeniedRow[] };
 }
@@ -79,7 +79,9 @@ export async function homeLists(lang: Lang) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {photo ? <span className="ma-mini__photo"><img src={photo} alt="" /></span> : <span className="ma-mini__photo"><Icon name="user" size={18} /></span>}
               <span className="ma-mini__text"><b>{c.name_given}</b></span>
-              <span className="ma-chip ma-chip--danger"><span className="ma-circle"><Icon name="ban" /></span><span>{tr(lang, "mini.denied")}</span></span>
+              {c.status === "left"
+                ? <span className="ma-chip ma-chip--neutral"><span className="ma-circle"><Icon name="door-open" /></span><span>{tr(lang, "mini.left")}</span></span>
+                : <span className="ma-chip ma-chip--danger"><span className="ma-circle"><Icon name="ban" /></span><span>{tr(lang, "mini.denied")}</span></span>}
             </Link>
           </li>
         );
@@ -87,12 +89,14 @@ export async function homeLists(lang: Lang) {
     </ul>
   ) : empty(tr(lang, "cases.none"));
 
+  // Inside now counts people (Iteration 3, F19): a family visit is its guests, not one row.
+  const people = inside.reduce((n, r) => n + (r.kind === "family" ? Math.max(1, r.guests ?? 1) : 1), 0);
   const count = (n: number, urgent?: boolean) => <span className={`ma-tab__count${urgent && n > 0 ? " is-urgent" : ""}`}>{n}</span>;
   return {
     main: (
       <div className="ma-home-pair">
         <section className="ma-panel" aria-labelledby="h-inside">
-          <h2 className="ma-panel__title" id="h-inside"><span>{tr(lang, "tile.inside")} {count(inside.length)}</span></h2>
+          <h2 className="ma-panel__title" id="h-inside"><span>{tr(lang, "tile.inside")} {count(people)}</span></h2>
           {inside.length ? <InsideList lang={lang} rows={inside} urls={urls} /> : empty(tr(lang, "in.none"))}
         </section>
         <section className="ma-panel" aria-labelledby="h-flag">

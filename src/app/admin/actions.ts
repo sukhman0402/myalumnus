@@ -28,3 +28,15 @@ export async function decideHeldCase(_prev: AdminFormState, form: FormData): Pro
   revalidatePath("/admin", "layout");
   redirect(`/admin/case/${id.data}`);
 }
+
+/** "This is them" (Iteration 3, CW4): link a held case to one of the similar records before deciding. */
+export async function linkCasePerson(form: FormData) {
+  await requireRole("admin");
+  const id = z.uuid().safeParse(form.get("case"));
+  const person = z.uuid().safeParse(form.get("person"));
+  if (!id.success || !person.success) return;
+  const supabase = await createClient();
+  await supabase.rpc("admin_link_person", { p_case: id.data, p_person: person.data });
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/case/${id.data}?linked=1`);
+}

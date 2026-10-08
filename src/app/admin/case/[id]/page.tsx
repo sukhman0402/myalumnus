@@ -10,6 +10,7 @@ import { fmtTime, personMeta, type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { AdminShell } from "../../AdminShell";
 import { AdminDecide } from "./AdminDecide";
+import { linkCasePerson } from "../../actions";
 import { adminSince, handoffAt, isLegacy, passedByGuard, stageOf } from "@/lib/cases";
 
 export const metadata: Metadata = { title: "Escalation · Admin console" };
@@ -17,15 +18,16 @@ export const metadata: Metadata = { title: "Escalation · Admin console" };
 type Person = { id: string; full_name: string; kind: Kind; program: string | null; batch_year: number | null; photo_path: string | null };
 type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string; host_phone: string | null;
-  status: "admin" | "host" | "approved" | "denied"; created_at: string; passed_to_host_at: string | null; passed_to_admin_at: string | null; decided_at: string | null; note: string | null;
+  status: "admin" | "host" | "approved" | "denied" | "left"; created_at: string; passed_to_host_at: string | null; passed_to_admin_at: string | null; decided_at: string | null; note: string | null;
   gate: { name: string; campus_id: string } | null; held: { name: string } | null; decider: { name: string; role: string } | null; person: Person | null;
 };
 
 /** One held visitor, from the admin's side. Host first (0017): the guard calls the host; the case reaches the admins if
  *  the host can't be reached or hasn't confirmed in time. An admin may decide at either stage. */
-export default async function AdminCasePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminCasePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ linked?: string }> }) {
   const me = await requireRole("admin");
   const { id } = await params;
+  const { linked } = await searchParams;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createClient();
   const { data } = await supabase.from("cases")
@@ -55,12 +57,15 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
     : stage === "host"
       ? <span className="ma-chip"><span className="ma-circle"><Icon name="phone" /></span><span className="ma-tabular">Guard calling host · <Timer since={c.created_at} /></span></span>
       : null;
-  if (!open) {
+  if (!open && c.status === "left") {
+    banner = <Banner kind="neutral" icon="door-open"><b>Visitor left before a decision · {c.decided_at ? fmtTime(c.decided_at) : ""}.</b>{" "}
+      Recorded at {c.gate?.name ?? "the gate"}. Not counted as a denial.</Banner>;
+  } else if (!open) {
     const ok = c.status === "approved";
     const byYou = c.decider?.name === me.name && c.decider?.role === "admin";
-    const who = byYou ? "You" : c.decider?.role === "admin" ? c.decider.name : "The guard, after the host call,";
+    const who = byYou ? "You" : c.decider?.role === "admin" ? c.decider.name : "The gate, after the host call,";
     banner = <Banner kind={ok ? "success" : "danger"} icon={ok ? "check" : "ban"}><b>{who} {ok ? "approved" : "denied"} · {c.decided_at ? fmtTime(c.decided_at) : ""}.</b>{" "}
-      {ok ? `${guard} at ${c.gate?.name} sees it now and lets ${c.name_given} in.` : `${guard} at ${c.gate?.name} sees it now.`}</Banner>;
+      {ok ? `${guard} sees it now and lets ${c.name_given} in.` : `${guard} sees it now.`}</Banner>;
   }
 
   const urls = await signPhotos([c.person?.photo_path, ...sims.map((s) => s.photo_path)]);
@@ -85,7 +90,8 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
     trail.push([fmtTime(c.created_at), `${guard} called the host, ${firstHost}`]);
     if (since) trail.push([fmtTime(since), byGuard ? "Host not reached: passed to admins" : `No confirmation in ${minutes} min: passed to admins`]);
   }
-  if (c.decided_at) trail.push([fmtTime(c.decided_at), `${c.status === "approved" ? "Approved" : "Denied"} by ${c.decider?.role === "admin" ? c.decider.name : "the guard"}${c.note ? `: ${c.note}` : ""}`]);
+  if (c.decided_at && c.status === "left") trail.push([fmtTime(c.decided_at), `Visitor left before a decision · recorded at ${c.gate?.name ?? "the gate"}`]);
+  else if (c.decided_at) trail.push([fmtTime(c.decided_at), `${c.status === "approved" ? "Approved" : "Denied"} by ${c.decider?.role === "admin" ? c.decider.name : "the guard"}${c.note ? `: ${c.note}` : ""}`]);
   else if (stage === "host" && !legacy) trail.push([fmtTime(handoff), "Comes to admins if the host hasn't confirmed", true]);
   else trail.push(["Next", stage === "admin" ? "An admin decides" : "The guard or an admin decides", true]);
 
@@ -119,12 +125,18 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
         {c.person ? (
           <div className="ma-sub" role="group" aria-labelledby="rec">
             <h3 className="ma-sub__title" id="rec">Their record on file</h3>
+            {linked && open ? <p className="ma-note" role="status"><Icon name="user-check" size={16} /> Linked to this record. Check the photo with the gate, then decide.</p> : null}
             <div className="ma-list">{row(c.person)}</div>
           </div>
         ) : sims.length ? (
           <div className="ma-sub" role="group" aria-labelledby="sim">
             <h3 className="ma-sub__title" id="sim">Similar names in the alumni list</h3>
-            <ul className="ma-list">{sims.map((p) => <li key={p.id}>{row(p)}</li>)}</ul>
+            {/* "This is them" links the case to that record first, so the approval is logged against the right person
+                (Iteration 3, CW4). Only while the case is open. */}
+            <ul className="ma-list">{sims.map((p) => <li key={p.id}>{row(p, open ? (
+              <form action={linkCasePerson}><input type="hidden" name="case" value={c.id} /><input type="hidden" name="person" value={p.id} />
+                <button type="submit" className="ma-btn ma-btn--row"><Icon name="user-check" />This is them<span className="ma-visually-hidden"> · {p.full_name}</span></button></form>
+            ) : undefined)}</li>)}</ul>
           </div>
         ) : open ? <p className="ma-note">No similar names in the alumni list.</p> : null}
         {!open && c.note ? <dl className="ma-kv"><dt>Note</dt><dd>{c.note}</dd></dl> : null}
@@ -136,6 +148,6 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
   );
 }
 
-function Banner({ kind, icon, children }: { kind: "escalation" | "success" | "danger"; icon: string; children: React.ReactNode }) {
+function Banner({ kind, icon, children }: { kind: "escalation" | "success" | "danger" | "neutral"; icon: string; children: React.ReactNode }) {
   return <div className={`ma-banner ma-banner--${kind}`} role="status"><span className="ma-circle"><Icon name={icon} /></span><span className="ma-banner__text">{children}</span></div>;
 }

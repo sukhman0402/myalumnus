@@ -5,7 +5,7 @@ import { KIND_LABEL } from "@/lib/format";
 // Small building blocks shared by the admin pages (design system: Banner, Chip, Panel head, Table, Empty state).
 
 export function Banner({ kind, icon, children, alert }: {
-  kind: "escalation" | "success" | "danger"; icon: string; children: React.ReactNode; alert?: boolean;
+  kind: "escalation" | "success" | "danger" | "neutral"; icon: string; children: React.ReactNode; alert?: boolean;
 }) {
   return (
     <div className={`ma-banner ma-banner--${kind}`} role={alert ? "alert" : "status"}>
@@ -14,7 +14,7 @@ export function Banner({ kind, icon, children, alert }: {
   );
 }
 
-export function Chip({ icon, text, kind }: { icon: string; text: React.ReactNode; kind?: "hold" | "success" | "danger" }) {
+export function Chip({ icon, text, kind }: { icon: string; text: React.ReactNode; kind?: "hold" | "success" | "danger" | "neutral" }) {
   return (
     <span className={`ma-chip${kind ? ` ma-chip--${kind}` : ""}`}>
       <span className="ma-circle"><Icon name={icon} /></span><span className="ma-tabular">{text}</span>

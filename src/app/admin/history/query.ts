@@ -3,13 +3,13 @@ import { addDays, isYmd, localIso, ymd } from "@/lib/format";
 export type HistorySP = { range?: string; from?: string; to?: string; outcome?: string; kind?: string; gate?: string; q?: string; page?: string };
 export type HistoryRow = {
   type: "visit" | "family"; id: string; at: string; name: string; kind: string; program: string | null; batch_year: number | null;
-  photo_path: string | null; outcome: "approved" | "denied" | "logged"; held: boolean; gate: string; reason: string | null;
+  photo_path: string | null; outcome: "approved" | "denied" | "left" | "logged"; held: boolean; gate: string; reason: string | null;
   purpose: string | null; entered_at: string | null; exited_at: string | null; guests: number | null; by_name: string | null;
   by_role: string | null; offline: boolean;
 };
 
 export const RANGES: [string, string][] = [["today", "Today"], ["7", "Last 7 days"], ["30", "Last 30 days"], ["90", "Last 90 days"], ["custom", "Custom dates"]];
-export const OUTCOMES: [string, string][] = [["all", "All decisions"], ["approved", "Approved"], ["denied", "Denied"], ["held", "On hold"]];
+export const OUTCOMES: [string, string][] = [["all", "All decisions"], ["approved", "Approved"], ["denied", "Denied"], ["left", "Left before a decision"], ["held", "On hold"]];
 export const TYPES: [string, string][] = [["all", "All visitors"], ["alumnus", "Alumni"], ["faculty", "Visiting faculty"], ["placement", "Placement visitors"],
   ["walkin", "Walk-ins, no record"], ["family", "Student families"]];
 

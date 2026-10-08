@@ -42,7 +42,9 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
           <FilterSelect id="hd" name="outcome" label="Decision" value={h.outcome} options={OUTCOMES} />
           <FilterSelect id="ht" name="kind" label="Visitor type" value={h.kind} options={TYPES} />
           {res.gates.length > 1 ? <FilterSelect id="hg" name="gate" label="Gate" value={h.gate} options={[["", "All gates"], ...res.gates.map((g): [string, string] => [g.id, g.name])]} /> : null}
-          <div className="ma-filters__go"><button className="ma-btn ma-btn--secondary" type="submit"><Icon name="search" />Show</button></div>
+          <div className="ma-filters__go"><button className="ma-btn ma-btn--secondary" type="submit"><Icon name="search" />Show</button>
+            {/* A way back to the default view (Iteration 3, CW5). Filters still apply on Show, not on change (WCAG 3.2.2). */}
+            {h.q || h.range !== "today" || h.outcome !== "all" || h.kind !== "all" || h.gate ? <Link className="ma-link ma-filters__clear" href="/admin/history">Clear filters</Link> : null}</div>
         </FilterForm>
         {error ? <Empty title="Couldn't load the history">Refresh the page. If it keeps happening, check the connection.</Empty>
           : res.rows.length ? (
@@ -56,6 +58,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                   <td>
                     {r.outcome === "approved" ? <Chip icon="check" text={r.held ? "Approved after hold" : "Approved"} kind="success" />
                       : r.outcome === "denied" ? <Chip icon="ban" text={r.held ? "Denied after hold" : "Denied"} kind="danger" />
+                      : r.outcome === "left" ? <Chip icon="door-open" text="Left before a decision" kind="neutral" />
                       : <Chip icon="users" text="Logged" />}
                     {r.offline ? <> <Chip icon="cloud-off" text="Recorded offline" /></> : null}
                   </td>

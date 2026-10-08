@@ -7,8 +7,10 @@ import { DenyReason } from "@/components/DenyReason";
 import { tr, type Lang } from "@/lib/i18n";
 import { approveVisit, denyVisit, type DecideState } from "../../actions";
 
+const QUICK = ["purpose.q1", "purpose.q2", "purpose.q3", "purpose.q4"] as const;
+
 /**
- * Purpose field + Approve / Deny / Flag & Hold (mockups g05–g09, g12). The database makes the final call
+ * Purpose field + Approve / Deny / Put on hold (mockups g05–g09, g12). The database makes the final call
  * (hours, already inside, guard on shift); this component only mirrors those rules so the guard sees them first.
  * clientId is fixed for this screen, so a double tap or a retry after a dropped connection records once.
  */
@@ -44,6 +46,13 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
           <input id="pv" value={value} maxLength={200} placeholder={tr(lang, "purpose.ph")}
             onChange={(e) => setValue(e.target.value)} />
         </div>
+        {/* One tap for the usual reasons (Iteration 3, F13): the purpose is what the guard checks if they overstay. */}
+        {locked ? null : <div className="ma-quick" role="group" aria-label={tr(lang, "purpose.quick")}>
+          {QUICK.map((k) => {
+            const text = tr(lang, k);
+            return <button key={k} type="button" className="ma-quick__btn" aria-pressed={value === text} onClick={() => setValue(text)}>{text}</button>;
+          })}
+        </div>}
       </div>
           {/* The three decisions sit right under the purpose field (owner, 2026-10-08), not below the photo. */}
         {error ? (

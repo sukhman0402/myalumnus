@@ -9,9 +9,9 @@ export type CaseTimes = { status: string; created_at: string; passed_to_host_at?
 export const handoffAt = (c: CaseTimes, minutes: number) => new Date(new Date(c.created_at).getTime() + minutes * 60000).toISOString();
 export const isLegacy = (c: CaseTimes) => Boolean(c.passed_to_host_at);
 
-export function stageOf(c: CaseTimes, minutes: number, now = Date.now()): "host" | "admin" | "approved" | "denied" {
+export function stageOf(c: CaseTimes, minutes: number, now = Date.now()): "host" | "admin" | "approved" | "denied" | "left" {
   if (c.status === "host" && !c.passed_to_host_at && !c.passed_to_admin_at && now >= new Date(handoffAt(c, minutes)).getTime()) return "admin";
-  return c.status as "host" | "admin" | "approved" | "denied";
+  return c.status as "host" | "admin" | "approved" | "denied" | "left";
 }
 
 /** When the case reached the admins, or null if it never did. */

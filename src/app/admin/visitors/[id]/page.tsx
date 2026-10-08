@@ -38,7 +38,7 @@ export default async function ExpectedVisitPage({ params }: { params: Promise<{ 
   return (
     <AdminShell me={me} title="Expected visit" current="/admin/visitors">
       <section className="ma-panel" aria-labelledby="vh">
-        <Link className="ma-link" href={`/admin/visitors?tab=${tab}`}><Icon name="arrow-left" />Visitors</Link>
+        <Link className="ma-link" href={`/admin/visitors?tab=${tab}`}><Icon name="arrow-left" />Expected visits</Link>
         <h2 className="ma-record__name" id="vh">{p.full_name}</h2>
         <div className="ma-record__chips">
           {v.arrived_at ? <Chip icon="check" text={`Arrived ${fmtTime(v.arrived_at)}`} kind="success" />

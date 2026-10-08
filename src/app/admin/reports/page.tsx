@@ -59,7 +59,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         {quiet ? <p className="ma-note"><b>No visits recorded in this week.</b></p> : null}
         <div className="ma-chart-grid4">
           <Kpi value={total} label="Visits" sub={`${people} ${people === 1 ? "person" : "people"} · ${r.family_groups} family ${r.family_groups === 1 ? "group" : "groups"}`} />
-          <Kpi value={r.held} label="On hold" sub={`${r.held_approved} approved · ${r.held_denied} denied${r.held_open ? ` · ${r.held_open} open` : ""}`} tone={r.held ? "hold" : undefined} />
+          <Kpi value={r.held} label="On hold" sub={`${r.held_approved} approved · ${r.held_denied} denied${r.held_left ? ` · ${r.held_left} left` : ""}${r.held_open ? ` · ${r.held_open} open` : ""}`} tone={r.held ? "hold" : undefined} />
           <Kpi value={median} label="Admin decision time" sub={r.admin_decided ? `median of ${r.admin_decided} ${r.admin_decided === 1 ? "case" : "cases"}` : "no case reached an admin"} />
           <Kpi value={r.overstays} label="Overstays" sub="inside after visiting hours" tone={r.overstays ? "deny" : undefined} />
         </div>
@@ -75,6 +75,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               { label: "Approved at the gate", n: r.outcomes.gate_approved, kind: "approve" },
               { label: "Held, then approved", n: r.outcomes.held_approved, kind: "held" },
               { label: "Denied", n: r.outcomes.gate_denied + r.outcomes.held_denied, kind: "deny" },
+              { label: "Left before a decision", n: r.outcomes.held_left ?? 0, kind: "left" },
             ]} />
           </div>
           <div className="ma-chart-card"><h3>Who visited</h3>{types.length ? <TypeBars rows={types} note={r.family_groups ? `Student family counts groups (${r.family_guests} guests).` : undefined} /> : <p className="ma-note">No visits this week.</p>}</div>

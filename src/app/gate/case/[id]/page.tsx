@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "On hold · Guard console" };
 
 type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string;
-  host_phone: string | null; status: "admin" | "host" | "approved" | "denied"; created_at: string; handoff_at: string;
+  host_phone: string | null; status: "admin" | "host" | "approved" | "denied" | "left"; created_at: string; handoff_at: string;
   admin_since: string | null; passed_by_guard: boolean; legacy: boolean;
   decided_at: string | null; note: string | null; decided_by_name: string | null; decided_by_role: "admin" | "guard" | null;
   admins: number; first_admin: string | null; alerted: number; first_alerted: string | null; escalate_minutes: number;
@@ -69,6 +69,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
   );
 
   let body: React.ReactNode;
+  const noAdmin = c.admins === 0;   // no admin set up: the case stays with the guard and the host (Iteration 3, NEW-2)
   if (c.status === "host" && !c.legacy) {
     body = (
       <>
@@ -77,13 +78,13 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
           <li className="ma-step" aria-current="step"><span className="ma-step__n">1</span>
             <div><b>{tr(lang, "case.s1")}</b><span>{tr(lang, "case.s1.sub", { h: hostShort, t: handoff })}</span></div></li>
           <li className="ma-step"><span className="ma-step__n">2</span>
-            <div><b>{tr(lang, "case.s2")}</b><span>{tr(lang, "case.s2.sub", { t: handoff })}</span></div></li>
+            <div><b>{tr(lang, "case.s2")}</b><span>{noAdmin ? tr(lang, "case.s2.none") : tr(lang, "case.s2.sub", { t: handoff })}</span></div></li>
         </ol>
         {callCard}
         <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.tell")}</small><q>{tr(lang, "case.tell.host", { h: hostShort })}</q></span></p>
-        <p className="ma-say"><Icon name="info" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, "case.after.text2")}</span></p>
+        <p className="ma-say"><Icon name="info" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, noAdmin ? "case.after.noadmin" : "case.after.text2")}</span></p>
         {kv}
-        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="host" defaultReason={tr(lang, "case.nohost.reason")} />
+        <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="host" defaultReason={tr(lang, "case.nohost.reason")} noAdmin={noAdmin} />
       </>
     );
   } else if (c.status === "admin") {
@@ -112,6 +113,15 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
         <p className="ma-say"><Icon name="message-circle" /><span><small>{tr(lang, "case.after")}</small>{tr(lang, "case.after.text")}</span></p>
         {kv}
         <CaseDecide lang={lang} caseId={c.id} name={c.name_given} stage="legacy" defaultReason={tr(lang, "case.unreachable")} />
+      </>
+    );
+  } else if (c.status === "left") {
+    // Walked away before anyone decided: not a denial (Iteration 3, NEW-5).
+    body = (
+      <>
+        <Banner kind="neutral" icon="door-open"><b>{tr(lang, "case.left.b", { t: c.decided_at ? fmtTime(c.decided_at) : "" })}</b> {tr(lang, "case.left.done")}</Banner>
+        {kv}
+        <div className="ma-actions"><Link className="ma-btn ma-btn--primary" href="/gate"><Icon name="house" />{tr(lang, "back.home")}</Link></div>
       </>
     );
   } else {
@@ -147,7 +157,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
   );
 }
 
-function Banner({ kind, icon, children }: { kind: "escalation" | "success" | "danger"; icon: string; children: React.ReactNode }) {
+function Banner({ kind, icon, children }: { kind: "escalation" | "success" | "danger" | "neutral"; icon: string; children: React.ReactNode }) {
   return (
     <div className={`ma-banner ma-banner--${kind}`} role="status">
       <span className="ma-circle"><Icon name={icon} /></span><span className="ma-banner__text">{children}</span>

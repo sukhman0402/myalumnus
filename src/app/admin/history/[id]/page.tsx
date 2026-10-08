@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Visit detail · Admin console" };
 
 type Person = { id: string; full_name: string; kind: string; program: string | null; batch_year: number | null; roll_no: string | null; photo_path: string | null };
 type Visit = {
-  type: "visit" | "family"; id: string; outcome?: "approved" | "denied"; reason?: string | null; purpose: string | null; gate: string;
+  type: "visit" | "family"; id: string; outcome?: "approved" | "denied" | "left"; reason?: string | null; purpose: string | null; gate: string;
   decided_at?: string; entered_at: string | null; exited_at: string | null; offline?: boolean; synced_at?: string | null; walkin_name?: string | null; guests?: number;
   by_name: string | null; by_role: string | null; closes_at: string | null; person: Person | null;
   case?: { id: string; name_given: string; says: string | null; reason: string; host_name: string; host_phone: string | null; created_at: string;
@@ -48,7 +48,8 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
       trail.push([c.created_at, `The guard called the host, ${c.host_name}${c.host_phone ? ` (${c.host_phone})` : ""}`]);
       if (c.passed_to_admin_at) trail.push([c.passed_to_admin_at, c.passed_by_guard ? "Host not reached: passed to admins" : "The host didn't confirm in time: passed to admins"]);
     }
-    if (c.decided_at) trail.push([c.decided_at, `${c.status === "approved" ? "Approved" : "Denied"} by ${by}${c.note ? `: ${c.note}` : ""}`]);
+    if (c.decided_at) trail.push([c.decided_at, c.status === "left" ? `Visitor left before a decision · recorded at ${v.gate}`
+      : `${c.status === "approved" ? "Approved" : "Denied"} by ${by}${c.note ? `: ${c.note}` : ""}`]);
   } else if (v.type === "visit" && v.decided_at) {
     trail.push([v.decided_at, `${v.outcome === "approved" ? "Approved" : "Denied"} at ${v.gate}${v.by_role === "admin" ? ` by ${by}` : ""}${v.reason ? ` · reason: ${v.reason}` : ""}${v.offline ? ` · saved on the iPad while offline${v.synced_at ? `, recorded ${fmtDate(v.synced_at) === fmtDate(v.decided_at) ? "" : `${fmtDate(v.synced_at)} `}at ${fmtTime(v.synced_at)}` : ""}` : ""}`]);
   } else if (v.type === "family") {
@@ -66,6 +67,7 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
         <div className="ma-record__chips">
           {v.type === "family" ? <Chip icon="users" text={`${v.guests} ${v.guests === 1 ? "guest" : "guests"}`} />
             : v.outcome === "approved" ? <Chip icon="check" text={c ? `Approved by ${c && v.by_role === "admin" ? "admin" : "guard"}` : "Approved"} kind="success" />
+            : v.outcome === "left" ? <Chip icon="door-open" text="Left before a decision" kind="neutral" />
             : <Chip icon="ban" text="Denied" kind="danger" />}
           {c ? <Chip icon="flag" text="Was on hold" kind="hold" /> : null}
           {v.offline ? <Chip icon="cloud-off" text="Recorded offline" /> : null}

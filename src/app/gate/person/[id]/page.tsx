@@ -10,6 +10,7 @@ import { fmtMonth, personMeta, type Kind } from "@/lib/format";
 import { photoSrc, requireOnDuty, timeFns } from "@/lib/gate";
 import { Today } from "../../Today";
 import { Decide } from "./Decide";
+import { ExitButton } from "../../inside/ExitButton";
 
 export const metadata: Metadata = { title: "Record · Guard console" };
 
@@ -60,9 +61,15 @@ export default async function PersonPage({ params, searchParams }: {
     </>
   );
   const hasChips = Boolean(p.expected || p.inside || outside);
+  // Already inside at this gate: Mark exit right here (Iteration 3, F8), so the guard doesn't hunt for the row.
+  let insideVisit: string | null = null;
+  if (p.inside) {
+    const { data: rows } = await supabase.rpc("gate_inside");
+    insideVisit = ((rows ?? []) as { kind: string; id: string; person_id: string | null }[])
+      .find((r) => r.kind === "visit" && r.person_id === p.id)?.id ?? null;
+  }
   // Where "back" goes: the search results the guard came from, the Expected list, or Home.
   const back = q ? { href: `/gate?q=${encodeURIComponent(q)}`, label: tr(lang, "back.results") }
-    : sp.from === "expected" ? { href: "/gate/expected", label: tr(lang, "title.expected") }
     : { href: "/gate", label: tr(lang, "back.home") };
 
   return (
@@ -87,6 +94,9 @@ export default async function PersonPage({ params, searchParams }: {
               <h2 className="ma-record__name" id="who">{p.full_name}</h2>
               <p className="ma-record__meta">{meta}</p>
               {hasChips ? <div className="ma-record__chips" id="who-chips">{chips}</div> : null}
+              {insideVisit ? <div className="ma-actions ma-record__exit">
+                <ExitButton lang={lang} id={insideVisit} kind="visit" name={p.full_name} meta={meta} thumb={src} rowLabel={tr(lang, "in.exit")} variant="primary" />
+              </div> : null}
             </div>
           }
         />

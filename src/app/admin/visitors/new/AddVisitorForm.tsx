@@ -13,6 +13,15 @@ const TYPES: [string, string][] = [["faculty", "Visiting faculty or guest speake
  * Add an expected visitor (mockup a19). Typing a name shows existing records to pick, so the guard sees one
  * record with its photo; otherwise a new record is made from the name and type.
  */
+/** "Thu, 5 Oct 2026" from "2026-10-05", built from parts so the server and the browser print the same text. */
+function spellDate(d: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return undefined;
+  const parts = new Intl.DateTimeFormat("en-IN", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", year: "numeric" })
+    .formatToParts(new Date(`${d}T00:00:00Z`));
+  const p = (t: string) => parts.find((x) => x.type === t)?.value ?? "";
+  return `${p("weekday")}, ${p("day")} ${p("month")} ${p("year")}`;
+}
+
 export type HostOption = { id: string; name: string; department: string | null; phone: string | null };
 
 export function AddVisitorForm({ gates, today, hosts }: { gates: { id: string; name: string }[]; today: string; hosts: HostOption[] }) {
@@ -24,6 +33,7 @@ export function AddVisitorForm({ gates, today, hosts }: { gates: { id: string; n
   const [picked, setPicked] = useState<{ id: string; label: string } | null>(v("person") ? { id: v("person"), label: v("person_label") } : null);
   const [hits, setHits] = useState<{ q: string; rows: PersonHit[] }>({ q: "", rows: [] });
   const [hostId, setHostId] = useState(v("host_id"));
+  const [date, setDate] = useState(v("date", today));
   const host = hosts.find((h) => h.id === hostId);
   const q = name.trim();
 
@@ -79,7 +89,10 @@ export function AddVisitorForm({ gates, today, hosts }: { gates: { id: string; n
         </>
       )}
       <div className="ma-form__2">
-        <Field id="v-date" name="date" label="Date" type="date" min={today} defaultValue={v("date", today)} error={err.date} />
+        {/* The browser shows the date in its own order (2026-10-05, 05/10/2026, 10/05/2026); the line under it says it
+            plainly (Iteration 3, F22). */}
+        <Field id="v-date" name="date" label="Date" type="date" min={today} defaultValue={v("date", today)} error={err.date}
+          help={spellDate(date)} onChange={(e) => setDate(e.target.value)} />
         <Field id="v-time" name="time" label="Expected time" type="time" defaultValue={v("time")} error={err.time} help="Campus time." />
       </div>
       <Select id="v-gate" name="gate" label="Gate" options={[["", "Any gate"], ...gates.map((g): [string, string] => [g.id, g.name])]} defaultValue={v("gate")} />

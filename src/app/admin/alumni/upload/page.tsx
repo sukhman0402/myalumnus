@@ -11,7 +11,7 @@ export default async function BulkUploadPage() {
   const me = await requireRole("admin");
   return (
     <AdminShell me={me} title="Bulk upload" current="/admin/alumni">
-      <p><Link className="ma-link" href="/admin/alumni"><Icon name="arrow-left" />Alumni</Link></p>
+      <p><Link className="ma-link" href="/admin/alumni"><Icon name="arrow-left" />People</Link></p>
       <BulkUpload />
     </AdminShell>
   );

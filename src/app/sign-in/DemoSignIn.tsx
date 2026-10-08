@@ -43,6 +43,8 @@ export function DemoSignIn({ initial = "guard" }: { initial?: DemoRole }) {
       <button type="submit" className="ma-btn ma-btn--primary ma-btn--block" disabled={pending}>
         <Icon name="arrow-right" />{pending ? "Signing in…" : `Sign in as ${role === "guard" ? "Guard" : "Admin"}`}
       </button>
+      {/* Demo viewers in the evening or abroad saw Approve locked and thought it was broken (Iteration 3, F15). */}
+      <p className="ma-note ma-demo__hours"><Icon name="clock" size={16} /> The sample campus is open 10 AM–6 PM India time. Outside those hours the guard&apos;s Approve is locked, as it would be at a real gate.</p>
     </form>
   );
 }

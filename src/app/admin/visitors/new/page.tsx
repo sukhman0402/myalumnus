@@ -17,7 +17,7 @@ export default async function AddVisitorPage() {
   return (
     <AdminShell me={me} title="Add visitor" current="/admin/visitors">
       <section className="ma-panel" aria-labelledby="avh">
-        <Link className="ma-link" href="/admin/visitors"><Icon name="arrow-left" />Visitors</Link>
+        <Link className="ma-link" href="/admin/visitors"><Icon name="arrow-left" />Expected visits</Link>
         <h2 className="ma-panel__title" id="avh">Add an expected visitor</h2>
         <AddVisitorForm gates={(data ?? []) as { id: string; name: string }[]} today={ymd()} hosts={hosts} />
       </section>

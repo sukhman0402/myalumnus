@@ -7,7 +7,7 @@ import { Banner, Chip, Empty, PanelHead, RowLink, Table, UUID } from "../ui";
 import { getStaff, type StaffRow } from "./data";
 import { Avatar } from "@/components/Avatar";
 
-export const metadata: Metadata = { title: "Security · Admin console" };
+export const metadata: Metadata = { title: "Staff & devices · Admin console" };
 
 // The same four columns in every section, so Status lines up down the page (owner, 2026-10-07).
 const GROUPS: [StaffRow["role"], string, string[]][] = [
@@ -35,7 +35,7 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
   const active = accounts.filter((s) => s.active && s.signed_in).length;
 
   return (
-    <AdminShell me={me} title="Security" current="/admin/security"
+    <AdminShell me={me} title="Staff & devices" current="/admin/security"
       banner={saved ? <Banner kind="success" icon="check"><b>Saved: {saved}.</b></Banner>
         : off ? <Banner kind="success" icon="check"><b>{off} is deactivated.</b> They can&apos;t use the console any more; their past decisions stay in History.</Banner>
         : on ? <Banner kind="success" icon="check"><b>{on} is active again.</b></Banner>

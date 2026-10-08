@@ -27,6 +27,8 @@ export default async function HoldPage({ searchParams }: { searchParams: Promise
     p = data as Person | null;
   }
   const q = (sp.q ?? "").slice(0, 80);
+  const { data: hostRows } = await supabase.rpc("gate_hosts");
+  const hosts = (hostRows ?? []) as { id: string; name: string; department: string | null; phone: string | null }[];
   const back = p ? `/gate/person/${p.id}?q=${encodeURIComponent(q)}&picked=1` : `/gate?q=${encodeURIComponent(q)}`;
   const why = p ? (p.hours.in_hours ? 2 : 4) : 1;
 
@@ -37,7 +39,7 @@ export default async function HoldPage({ searchParams }: { searchParams: Promise
         <h2 className="ma-panel__title" id="fh">{tr(lang, "fh.title")}</h2>
         <HoldForm lang={lang} clientId={crypto.randomUUID()} back={back} personId={p?.id ?? ""}
           name={p?.full_name ?? (sp.name ?? "").slice(0, 120)} says={p ? personMeta(lang, p) : ""} why={why}
-          purpose={(sp.purpose ?? p?.expected?.purpose ?? "").slice(0, 200)} host={p?.expected?.host ?? ""} />
+          purpose={(sp.purpose ?? p?.expected?.purpose ?? "").slice(0, 200)} host={p?.expected?.host ?? ""} hosts={hosts} />
       </section>
     </GateShell>
   );

@@ -36,7 +36,7 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
       aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Logs</h2>
         <ChangeLog rows={(changes ?? []) as Change[]} labels={LABELS} added="Added this account" /></section>}>
       <section className="ma-panel" aria-labelledby="sh">
-        <Link className="ma-link" href="/admin/security"><Icon name="arrow-left" />Security</Link>
+        <Link className="ma-link" href="/admin/security"><Icon name="arrow-left" />Staff & devices</Link>
         <h2 className="ma-panel__title" id="sh">{s.name} · {ROLE_LABEL[s.role]}</h2>
         {!s.active ? <Banner kind="escalation" icon="user-x"><b>Deactivated.</b> Past decisions stay in History.</Banner> : null}
         <StaffForm gates={gates} initial={{ id: s.id, role: s.role, name: s.name, email: s.email ?? "", gate: s.gate_id ?? "", shift: s.shift_label ?? "", signedIn: s.signed_in }} />

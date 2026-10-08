@@ -4,10 +4,10 @@ import { requireRole } from "@/lib/profile";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: "gauge" },   // not the grid icon: it looked like the logo (owner, 2026-10-06)
-  { href: "/admin/alumni", label: "Alumni", icon: "graduation-cap" },
-  { href: "/admin/visitors", label: "Visitors", icon: "id-card" },
+  { href: "/admin/alumni", label: "People", icon: "graduation-cap" },
+  { href: "/admin/visitors", label: "Expected visits", icon: "id-card" },
   { href: "/admin/history", label: "History", icon: "history" },
-  { href: "/admin/security", label: "Security", icon: "shield-user" },
+  { href: "/admin/security", label: "Staff & devices", icon: "shield-user" },
   { href: "/admin/campus", label: "Settings", icon: "settings" },   // renamed from Campus (owner, 2026-10-06); address unchanged
   { href: "/admin/reports", label: "Reports", icon: "chart-column" },
 ];

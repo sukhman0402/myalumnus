@@ -8,7 +8,7 @@ import { AdminShell } from "../AdminShell";
 import { FilterForm } from "../FilterForm";
 import { Banner, Chip, Empty, FilterSelect, KindChip, Pager, PanelHead, PersonCell, RowLink, Table, withParams } from "../ui";
 
-export const metadata: Metadata = { title: "Alumni · Admin console" };
+export const metadata: Metadata = { title: "People · Admin console" };
 
 type Row = { id: string; kind: string; full_name: string; program: string | null; batch_year: number | null; roll_no: string | null; photo_path: string | null; active: boolean };
 type Res = { total: number; rows: Row[]; all: number; no_photo: number; batches: number[] };
@@ -34,7 +34,7 @@ export default async function AlumniPage({ searchParams }: { searchParams: Promi
   const ins = Number(sp.ins ?? "NaN"), upd = Number(sp.upd ?? "NaN");
 
   return (
-    <AdminShell me={me} title="Alumni" current="/admin/alumni"
+    <AdminShell me={me} title="People" current="/admin/alumni"
       banner={Number.isFinite(ins) && Number.isFinite(upd)
         ? <Banner kind="success" icon="check"><b>Upload saved.</b> {ins.toLocaleString("en-IN")} new {ins === 1 ? "record" : "records"}, {upd.toLocaleString("en-IN")} updated. The gate can search them now.</Banner>
         : error ? <Banner kind="danger" icon="circle-alert" alert>Couldn&apos;t load the records. Refresh the page.</Banner> : null}>
@@ -44,7 +44,7 @@ export default async function AlumniPage({ searchParams }: { searchParams: Promi
           <Link className="ma-btn ma-btn--primary" href="/admin/alumni/new"><Icon name="plus" />Add record</Link>
         </>} />
         <p className="ma-note">
-          {res.no_photo ? <>{res.no_photo.toLocaleString("en-IN")} alumni and student records have no photo yet.</> : "Every alumni and student record has a photo."}
+          {res.no_photo ? <>{res.no_photo.toLocaleString("en-IN")} {res.no_photo === 1 ? "record has" : "records have"} no photo yet.</> : "Every record has a photo."}
         </p>
         <FilterForm action="/admin/alumni" label="Filter records">
           <div className="ma-field">
@@ -55,7 +55,8 @@ export default async function AlumniPage({ searchParams }: { searchParams: Promi
           <FilterSelect id="ak" name="kind" label="Type" value={kind} options={KINDS} />
           <FilterSelect id="ab" name="batch" label="Batch" value={batch ? String(batch) : ""} options={[["", "All batches"], ...res.batches.map((b): [string, string] => [String(b), String(b)])]} />
           <FilterSelect id="as" name="status" label="Status" value={status} options={[["active", "Shown at the gate"], ["hidden", "Hidden from the gate"]]} />
-          <div className="ma-filters__go"><button className="ma-btn ma-btn--secondary" type="submit"><Icon name="search" />Search</button></div>
+          <div className="ma-filters__go"><button className="ma-btn ma-btn--secondary" type="submit"><Icon name="search" />Show</button>
+            {q || kind !== "all" || batch || status !== "active" ? <Link className="ma-link ma-filters__clear" href="/admin/alumni">Clear filters</Link> : null}</div>
         </FilterForm>
         {res.rows.length ? (
           <>

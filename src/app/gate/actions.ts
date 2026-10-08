@@ -41,6 +41,7 @@ export type SearchHit = {
   id: string; full_name: string; kind: "alumnus" | "faculty" | "placement" | "student";
   program: string | null; batch_year: number | null; has_photo: boolean; expected_at: string | null;
   photo: string | null; // thumbnail address: a sample face or a 5-minute signed link (planning/02 D8)
+  close?: boolean;      // a close spelling, not an exact match (Iteration 3, F1)
 };
 
 /** Live search as the guard types (planning/02 D10). The database applies the 3-letter rule and the gate checks. */
@@ -51,7 +52,13 @@ export async function searchPeople(q: string): Promise<{ ok: true; hits: SearchH
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("gate_search", { p_q: query.data });
   if (error) return { ok: false };
-  const hits = (data ?? []) as Omit<SearchHit, "photo">[];
+  let hits = (data ?? []) as Omit<SearchHit, "photo">[];
+  // Nothing matches exactly: offer up to 5 close spellings (Iteration 3, F1; trigram word similarity ≥ 0.5, 0022).
+  // Exact search is unchanged; a failed close search just means "no results", never an error.
+  if (hits.length === 0) {
+    const { data: near } = await supabase.rpc("gate_search_close", { p_q: query.data });
+    hits = ((near ?? []) as Omit<SearchHit, "photo">[]).map((h) => ({ ...h, close: true }));
+  }
   const withPhoto = hits.filter((h) => h.has_photo).map((h) => h.id);
   const paths = new Map<string, string | null>();
   if (withPhoto.length) {
@@ -107,7 +114,7 @@ export async function denyVisit(_prev: DecideState, form: FormData) { return dec
 // gate_* database function that checks this gate, its guard on shift and the university.
 
 const HINTS = new Set(["no_shift", "outside_hours", "already_inside", "not_found", "reason_required", "with_admin", "name_required",
-  "host_required", "student_required", "not_allowed"]);
+  "host_required", "student_required", "not_allowed", "no_admin"]);
 async function errorText(hint: string | undefined) {
   const lang = await getLang();
   return tr(lang, (hint && HINTS.has(hint) ? `err.${hint}` : "err.generic") as TKey);
@@ -125,6 +132,7 @@ const Hold = z.object({
   says: z.string().trim().max(160),
   why: z.coerce.number().int().min(1).max(5),
   purpose: z.string().trim().max(200),
+  host_id: z.union([z.uuid(), z.literal(""), z.literal("other")]),
   host: z.string().trim().max(120),
   host_phone: Phone,
   visitor_phone: Phone,
@@ -133,11 +141,18 @@ const Hold = z.object({
 export async function holdVisitor(_prev: FormState, form: FormData): Promise<FormState> {
   await requireRole("gate");
   const lang = await getLang();
-  const raw = Object.fromEntries(["client", "person", "name", "says", "why", "purpose", "host", "host_phone", "visitor_phone"]
+  const raw = Object.fromEntries(["client", "person", "name", "says", "why", "purpose", "host_id", "host", "host_phone", "visitor_phone"]
     .map((k) => [k, String(form.get(k) ?? "")]));
   const fields: Record<string, string> = {};
   if (!raw.name.trim()) fields.name = tr(lang, "fh.err.name");
-  if (!raw.host.trim()) fields.host = tr(lang, "fh.err.host");
+  // A host picked from the list (Iteration 3, NEW-3): the name and number come from the database, never the browser.
+  const supabaseH = await createClient();
+  if (raw.host_id && raw.host_id !== "other") {
+    const { data: hosts } = await supabaseH.rpc("gate_hosts");
+    const h = ((hosts ?? []) as { id: string; name: string; department: string | null; phone: string | null }[]).find((x) => x.id === raw.host_id);
+    if (h) { raw.host = h.department ? `${h.name}, ${h.department}` : h.name; raw.host_phone = h.phone ?? ""; }
+    else fields.host_id = tr(lang, "fh.err.host");
+  } else if (!raw.host.trim()) fields[raw.host_id === "other" ? "host" : "host_id"] = tr(lang, "fh.err.host");
   if (!Phone.safeParse(raw.host_phone).success) fields.host_phone = tr(lang, "fh.err.phone");
   if (!Phone.safeParse(raw.visitor_phone).success) fields.visitor_phone = tr(lang, "fh.err.phone");
   if (Object.keys(fields).length) return { fields, values: raw };
@@ -197,6 +212,18 @@ export async function decideCase(_prev: FormState, form: FormData): Promise<Form
   redirect(`/gate/case/${id.data}`);
 }
 
+/** The held visitor walked away before anyone decided (Iteration 3, NEW-5): closed as "left", not as a denial. */
+export async function caseLeft(_prev: FormState, form: FormData): Promise<FormState> {
+  await requireRole("gate");
+  const id = z.uuid().safeParse(form.get("case"));
+  if (!id.success) return { error: await errorText(undefined) };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("gate_case_left", { p_case: id.data });
+  if (error) return { error: await errorText(error.hint) };
+  revalidatePath("/gate", "layout");
+  redirect(`/gate/case/${id.data}`);
+}
+
 /** Mark exit (a visit) or close a family visit. Repeating it changes nothing. */
 export async function markExit(_prev: FormState, form: FormData): Promise<FormState> {
   await requireRole("gate");
@@ -209,7 +236,7 @@ export async function markExit(_prev: FormState, form: FormData): Promise<FormSt
     : await supabase.rpc("gate_exit", { p_visit: id.data });
   if (error) return { error: await errorText(error.hint) };
   revalidatePath("/gate", "layout");
-  redirect(`/gate/inside?${family ? "closed" : "exited"}=${id.data}`);
+  redirect(`/gate?${family ? "closed" : "exited"}=${id.data}`);   // back to Home (Iteration 3, NEW-4)
 }
 
 export type StudentHit = { id: string; full_name: string; program: string | null; roll_no: string | null; photo: string | null };

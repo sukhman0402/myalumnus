@@ -24,7 +24,7 @@ type Person = { full_name: string; kind: Kind; program: string | null; batch_yea
 type CaseRow = { id: string; name_given: string; reason: string; status: "admin" | "host"; created_at: string;
   passed_to_host_at: string | null; passed_to_admin_at: string | null; gate_id: string;
   gate: { name: string; campus_id: string } | null; held: { name: string } | null; person: Person };
-type VisitRow = { id: string; outcome: "approved" | "denied"; reason: string | null; decided_at: string; walkin_name: string | null;
+type VisitRow = { id: string; outcome: "approved" | "denied" | "left"; reason: string | null; decided_at: string; walkin_name: string | null;
   person: Person; decider: { name: string; role: string } | null };
 type InsideRow = { id: string; entered_at: string; walkin_name: string | null; gate_id: string; person: Person; gate: { name: string; campus_id: string } | null };
 
@@ -134,12 +134,13 @@ export default async function AdminDashboard() {
           <ul className="ma-list">
             {recent.map((v) => {
               const ok = v.outcome === "approved";
+              const left = v.outcome === "left";   // walked away while on hold: not a denial (Iteration 3)
               const by = v.decider ? (v.decider.role === "admin" ? (v.decider.name === me.name ? "you" : v.decider.name) : "guard") : "—";
               return (
                 <li key={v.id}><Link className="ma-row" href={`/admin/history/${v.id}`}>{thumb(v.person)}
                   <span className="ma-row__text"><b>{name(v.person, v.walkin_name)}</b>
-                    <span>{ok ? "Approved" : "Denied"} by {by} · {fmtTime(v.decided_at)}{v.reason ? ` · ${v.reason}` : ""}</span></span>
-                  <span className="ma-row__end"><Chip kind={ok ? "success" : "danger"} icon={ok ? "check" : "ban"} text={ok ? "Approved" : "Denied"} /></span>
+                    <span>{ok ? "Approved" : left ? "Left before a decision ·" : "Denied"}{left ? "" : ` by ${by}`} · {fmtTime(v.decided_at)}{v.reason && !left ? ` · ${v.reason}` : ""}</span></span>
+                  <span className="ma-row__end"><Chip kind={ok ? "success" : left ? "neutral" : "danger"} icon={ok ? "check" : left ? "door-open" : "ban"} text={ok ? "Approved" : left ? "Left" : "Denied"} /></span>
                   <span className="ma-row__chev"><Icon name="chevron-right" /></span>
                 </Link></li>
               );
@@ -171,6 +172,6 @@ function Count({ n, urgent }: { n: number; urgent?: boolean }) {
   return <span className={`ma-tab__count${urgent && n > 0 ? " is-urgent" : ""}`}>{n}</span>;
 }
 
-function Chip({ icon, text, kind }: { icon: string; text: string; kind?: "hold" | "success" | "danger" }) {
+function Chip({ icon, text, kind }: { icon: string; text: string; kind?: "hold" | "success" | "danger" | "neutral" }) {
   return <span className={`ma-chip${kind ? ` ma-chip--${kind}` : ""}`}><span className="ma-circle"><Icon name={icon} /></span><span className="ma-tabular">{text}</span></span>;
 }
