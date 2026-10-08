@@ -9,33 +9,27 @@ import { z } from "zod";
 import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { asLang, LANG_COOKIE, tr, type TKey } from "@/lib/i18n";
-import { getLang, isAfterDuty } from "@/lib/gate";
+import { asTextSize, getLang, HOURS_COOKIE, TEXT_COOKIE } from "@/lib/gate";
 import { DEMO_MODE } from "@/lib/demo";
 import { signPhotos } from "@/lib/photos";
+import { WHY_EN } from "@/lib/reasons";
 
-/** A guard taps their name: the database ends any open shift on this device and opens theirs (planning/02 Q1). */
-export async function startShift(form: FormData) {
+/** Text size and 12/24-hour time for this device (guard Settings, owner 2026-10-08). Cookies, a year long. */
+export async function setTextSize(form: FormData) {
   await requireRole("gate");
-  const guardId = z.uuid().parse(form.get("guard_id"));
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("gate_start_shift", { p_guard: guardId });
-  if (error) throw new Error("Couldn't start the shift. Try again.");
-  revalidatePath("/gate", "layout");   // the layout's profile badge shows the new guard
-  // Came from a side-bar page before anyone was on duty: open that page now.
-  const next = form.get("next");
-  if (isAfterDuty(next)) redirect(`/gate/${next}`);
+  const v = asTextSize(form.get("text"));
+  const jar = await cookies();
+  if (v === "default") jar.delete(TEXT_COOKIE); else jar.set(TEXT_COOKIE, v, { path: "/", maxAge: 31536000, sameSite: "lax", secure: true });
+  revalidatePath("/", "layout");
+}
+export async function setHours(form: FormData) {
+  await requireRole("gate");
+  const v = form.get("hours") === "24" ? "24" : "12";
+  (await cookies()).set(HOURS_COOKIE, v, { path: "/", maxAge: 31536000, sameSite: "lax", secure: true });
+  revalidatePath("/", "layout");
 }
 
-/** "Change guard": ends the current shift so the next guard can tap their name. */
-export async function endShift() {
-  await requireRole("gate");
-  const supabase = await createClient();
-  await supabase.rpc("gate_end_shift");
-  revalidatePath("/gate", "layout");
-  redirect("/gate");   // from Settings too: straight to the name list
-}
-
-/** English ⇄ Hindi for this device (a cookie, so it survives reloads and guard changes). */
+/** English ⇄ Hindi for this device (a cookie, so it survives reloads). */
 export async function setLang(form: FormData) {
   await requireRole("gate");
   const lang = asLang(String(form.get("lang") ?? ""));
@@ -122,8 +116,6 @@ async function errorText(hint: string | undefined) {
 // values: what was typed, so a form shows it again after an error (React resets a form after its action runs).
 export type FormState = { error?: string; fields?: Record<string, string>; values?: Record<string, string> };
 
-/** The reason labels are stored in English, so the admin console reads the same words whatever the guard's language. */
-const WHY_EN = ["Name not found", "Photo doesn't match", "No photo, details don't match", "Outside visiting hours", "Something else"];
 
 const Phone = z.string().trim().max(24).regex(/^$|^[+0-9 ()-]{7,24}$/);
 const Hold = z.object({

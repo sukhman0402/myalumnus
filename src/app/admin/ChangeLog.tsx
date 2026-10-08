@@ -2,7 +2,8 @@ import { fmtDate, fmtTime } from "@/lib/format";
 
 export type Change = { at: string; action: string; actor: string; changed: Record<string, [unknown, unknown]> | null };
 
-/** "Changes" panel: the audit log for one row, in words (planning/02 D7). */
+/** "Logs" panel (renamed from Changes, owner 2026-10-08): the audit log for one row, in words (planning/02 D7).
+ *  Simplified: what changed on the first line, who and when underneath in small grey text. */
 export function ChangeLog({ rows, labels, added }: { rows: Change[]; labels: Record<string, string>; added: string }) {
   const show = (key: string, v: unknown) => {
     if (key === "photo_path") return v ? "a photo" : "none";
@@ -20,11 +21,11 @@ export function ChangeLog({ rows, labels, added }: { rows: Change[]; labels: Rec
         : `${labels[k]}: ${show(k, a)} → ${show(k, b)}`);
     return parts.length ? [{ r, text: parts.join(" · ") }] : [];
   });
-  if (!lines.length) return <p className="ma-note">No changes yet.</p>;
+  if (!lines.length) return <p className="ma-note">Nothing logged yet.</p>;
   return (
-    <ol className="ma-trail">
+    <ol className="ma-log">
       {lines.map(({ r, text }, i) => (
-        <li key={i}><time>{fmtDate(r.at)}, {fmtTime(r.at)}</time><span><b>{r.actor}</b>: {text}</span></li>
+        <li key={i}><span>{text}</span><small>{r.actor} · <time className="ma-tabular" dateTime={r.at}>{fmtDate(r.at)}, {fmtTime(r.at)}</time></small></li>
       ))}
     </ol>
   );

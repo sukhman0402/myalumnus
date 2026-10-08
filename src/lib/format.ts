@@ -4,12 +4,13 @@ import { tr, type Lang, type TKey } from "@/lib/i18n";
 export const TZ = "Asia/Kolkata"; // the sample university's timezone (universities.timezone)
 
 /** 11:42 AM, in the university's timezone. */
-export function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-IN", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: true }).toUpperCase();
+export function fmtTime(iso: string, h24 = false) {
+  return new Date(iso).toLocaleTimeString("en-IN", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: !h24 }).toUpperCase();
 }
 /** "10:00" (from campus_rules) to "10:00 AM". */
-export function fmtClock(hhmm: string) {
+export function fmtClock(hhmm: string, h24 = false) {
   const [h, m] = hhmm.split(":").map(Number);
+  if (h24) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; // as in the mockups: "6:00 PM"
 }
 /** "Jun 2019" (Hindi: "जून 2019") */

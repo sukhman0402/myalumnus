@@ -27,13 +27,13 @@ export default async function StaffPage({ params, searchParams }: { params: Prom
   const { data: changes } = await supabase.rpc("admin_changes", { p_table: "staff", p_row: id });
   const err = sp.error ? fromHint({ hint: sp.error }).error : null;
   const what = s.role === "guard" ? "They disappear from the gate's name list and any shift they have open ends."
-    : s.role === "gate" ? "The iPad loses access to the guard console at once, and its open shift ends."
+    : s.role === "gate" ? "The device loses access to the guard console at once. To use it again, sign it in afresh."
     : "They lose access to this console at once.";
 
   return (
     <AdminShell me={me} title="Manage account" current="/admin/security"
       banner={err ? <Banner kind="danger" icon="circle-alert" alert>{err}</Banner> : null}
-      aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Changes</h2>
+      aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Logs</h2>
         <ChangeLog rows={(changes ?? []) as Change[]} labels={LABELS} added="Added this account" /></section>}>
       <section className="ma-panel" aria-labelledby="sh">
         <Link className="ma-link" href="/admin/security"><Icon name="arrow-left" />Security</Link>

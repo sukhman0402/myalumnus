@@ -7,7 +7,7 @@ import { requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 import { HoldForm } from "./HoldForm";
 
-export const metadata: Metadata = { title: "Flag & Hold · Guard console" };
+export const metadata: Metadata = { title: "Put on hold · Guard console" };
 
 type Person = { id: string; full_name: string; kind: Kind; program: string | null; batch_year: number | null;
   expected: { purpose: string | null; host: string | null } | null; hours: { in_hours: boolean } };

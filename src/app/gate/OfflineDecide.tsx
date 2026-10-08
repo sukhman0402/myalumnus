@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
+import { DenyReason } from "@/components/DenyReason";
 import { tr, type Lang } from "@/lib/i18n";
-import { personMeta } from "@/lib/format";
+import { fmtClock, personMeta } from "@/lib/format";
 import { putQueued, type RosterRow } from "@/lib/offline";
 
 /** Campus time now as "HH:MM" (the iPad's clock; the server re-checks the hours when it records the entry). */
 function nowHHMM() {
   return new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false });
 }
-const clock = (hhmm: string) => { const [h, m] = hhmm.split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
 
 /**
  * Deciding with no internet (planning/02 D11): no photo, so the guard checks ID. The decision is saved on the iPad
  * with its time and guard, and recorded when the network returns. Flag & Hold isn't possible offline.
  */
-export function OfflineDecide({ lang, row, guard, hours, onBack, onSaved }: {
-  lang: Lang; row: RosterRow; guard: string; hours: { open: string; close: string };
+export function OfflineDecide({ lang, row, guard, hours, h24, onBack, onSaved }: {
+  lang: Lang; row: RosterRow; guard: string; hours: { open: string; close: string }; h24: boolean;
   onBack: () => void; onSaved: (name: string, at: string) => void;
 }) {
   const [purpose, setPurpose] = useState("");
@@ -58,15 +58,10 @@ export function OfflineDecide({ lang, row, guard, hours, onBack, onSaved }: {
         </div>
       </div>
       {outside ? <div className="ma-banner ma-banner--escalation" role="status" id="off-why"><span className="ma-circle"><Icon name="clock" /></span>
-        <span className="ma-banner__text">{tr(lang, "off.hours", { o: clock(hours.open), c: clock(hours.close) })}</span></div> : null}
+        <span className="ma-banner__text">{tr(lang, "off.hours", { o: fmtClock(hours.open, h24), c: fmtClock(hours.close, h24) })}</span></div> : null}
       {err && !denying ? <div className="ma-banner ma-banner--danger" role="alert"><span className="ma-circle"><Icon name="circle-alert" /></span><span className="ma-banner__text">{err}</span></div> : null}
       {denying ? (
-        <div className={`ma-field${err ? " is-error" : ""}`}>
-          <label className="ma-field__label" htmlFor="off-r">{tr(lang, "deny.reason")}</label>
-          <div className="ma-field__box"><input id="off-r" value={reason} onChange={(e) => { setReason(e.target.value); setErr(null); }} maxLength={300} autoFocus
-            placeholder={tr(lang, "deny.ph")} aria-invalid={err ? true : undefined} aria-describedby={err ? "off-r-h" : undefined} /></div>
-          {err ? <p className="ma-field__help" id="off-r-h"><Icon name="circle-alert" size={16} />{err}</p> : null}
-        </div>
+        <DenyReason lang={lang} id="off-r" autoFocus error={err ?? undefined} onChange={(r) => { setReason(r); setErr(null); }} />
       ) : null}
       <div className="ma-decide" role="group" aria-label={tr(lang, "dec.group")}>
         <button type="button" className="ma-decision ma-decision--approve" aria-disabled={outside || saving ? "true" : undefined} aria-describedby={outside ? "off-why" : undefined}

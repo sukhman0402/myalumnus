@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const r = data as Report;
   const lines = [
     `Weekly review,${from} to ${addDays(from, 6)}`, "",
-    "Visitor type,Visits,Flag & Hold,Denied,Overstays",
+    "Visitor type,Visits,On hold,Denied,Overstays",
     ...r.by_type.map((t) => [KIND_LABEL[t.type] ?? t.type, t.visits, t.held, t.denied, t.overstays].join(",")),
     `Student family (groups),${r.family_groups},,,${r.family_overstays}`,
     `Student family (guests),${r.family_guests},,,`, "",

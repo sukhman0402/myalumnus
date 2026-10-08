@@ -4,10 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { Icon } from "@/components/Icon";
 import { tr } from "@/lib/i18n";
-import { fmtTime } from "@/lib/format";
-import { decidedRecently, getDuty, getLang, getRules, isAfterDuty } from "@/lib/gate";
+import { decidedRecently, getDuty, getLang, getRules, timeFns } from "@/lib/gate";
 import { OfflineSync } from "./OfflineSync";
-import { startShift } from "./actions";
 import { homeLists } from "./HomeLists";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { GateSearch } from "./GateSearch";
@@ -15,48 +13,17 @@ import { Today } from "./Today";
 
 export const metadata: Metadata = { title: "Home · Guard console" };
 
-export default async function GatePage({ searchParams }: { searchParams: Promise<{ q?: string; done?: string; family?: string; next?: string }> }) {
+export default async function GatePage({ searchParams }: { searchParams: Promise<{ q?: string; done?: string; family?: string }> }) {
+  const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
   const [me, duty, lang, sp] = await Promise.all([requireRole("gate"), getDuty(), getLang(), searchParams]);
   const supabase = await createClient();
 
-  // No guard on shift yet: the device shows the name picker (planning/02 Q1).
-  if (!duty) {
-    const next = isAfterDuty(sp.next) ? sp.next : null;
-    const { data } = await supabase.rpc("gate_guards");
-    const guards = data as { id: string; name: string; shift_label: string | null }[] | null;
-    return (
-      <Shell title={tr(lang, "title.duty")}>
-        <section className="ma-panel" aria-labelledby="pick">
-          <h2 className="ma-panel__title" id="pick">{tr(lang, "duty.title")}</h2>
-          {next ? (
-            <div className="ma-banner ma-banner--escalation" role="status">
-              <span className="ma-circle"><Icon name="user-check" /></span>
-              <span className="ma-banner__text"><b>{tr(lang, "duty.next", { p: tr(lang, ({ expected: "nav.expected", inside: "nav.inside", insights: "nav.insights", settings: "nav.settings" } as const)[next]) })}</b></span>
-            </div>
-          ) : null}
-          {guards && guards.length ? (
-            <ul className="ma-list">
-              {guards.map((g) => (
-                <li key={g.id}>
-                  <form action={startShift}>
-                    <input type="hidden" name="guard_id" value={g.id} />
-                    {next ? <input type="hidden" name="next" value={next} /> : null}
-                    <button className="ma-row">
-                      <span className="ma-row__photo"><Icon name="shield-user" /></span>
-                      <span className="ma-row__text"><b>{g.name}</b>{g.shift_label ? <span className="ma-tabular">{tr(lang, "duty.shift", { s: g.shift_label })}</span> : null}</span>
-                      <span className="ma-row__chev"><Icon name="chevron-right" /></span>
-                    </button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="ma-list"><div className="ma-empty"><b>{tr(lang, "duty.none.t")}</b><span>{tr(lang, "duty.none.d", { g: me.gate_name ?? "" })}</span></div></div>
-          )}
-        </section>
-      </Shell>
-    );
-  }
+  // The device couldn't open its gate's post (no gate set up for this device): nothing to decide with, say so.
+  if (!duty) return (
+    <Shell title={tr(lang, "title.home")}>
+      <section className="ma-panel"><div className="ma-empty"><b>{tr(lang, "duty.none.t")}</b><span>{tr(lang, "duty.none.d", { g: me.gate_name ?? "" })}</span></div></section>
+    </Shell>
+  );
 
   // After Approve / Deny the record page comes back here with ?done=<visit id>: confirm what was saved.
   let banner: React.ReactNode = null;
@@ -96,7 +63,7 @@ export default async function GatePage({ searchParams }: { searchParams: Promise
     <Shell title={tr(lang, "title.home")} banner={banner} aside={<><Today lang={lang} />{lists.aside}</>}>
       <OfflineSync lang={lang} />
       <AutoRefresh seconds={15} />
-      <GateSearch lang={lang} initialQuery={sp.done || sp.family ? "" : (sp.q ?? "").slice(0, 80)} guard={duty.guard.id} hours={rules} />
+      <GateSearch lang={lang} initialQuery={sp.done || sp.family ? "" : (sp.q ?? "").slice(0, 80)} guard={duty.guard.id} hours={rules} h24={(await timeFns()).h24} />
       {lists.main}
     </Shell>
   );

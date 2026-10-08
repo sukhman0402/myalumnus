@@ -54,3 +54,10 @@ export async function signOut() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/sign-in");
 }
+
+/** Demo only: leave this console and land on sign-in with the other profile picked (Settings → "Switch to …"). */
+export async function switchConsole(to: "guard" | "admin") {
+  const supabase = await createClient();
+  await supabase.auth.signOut({ scope: "local" });
+  redirect(`/sign-in?as=${to}`);
+}

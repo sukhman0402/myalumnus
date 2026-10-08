@@ -42,7 +42,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
   const byGuard = passedByGuard(c, minutes);
   const open = stage === "admin" || stage === "host";
   const firstHost = c.host_name.split(",")[0];
-  const guard = c.held?.name ?? "The guard";
+  const guard = c.gate?.name ?? "The gate";   // one gate, one device: the gate, not a guard's name (owner, 2026-10-08)
 
   // When the guard found no record, suggest close spellings (pg_trgm; planning/02 D10).
   const { data: similar } = !c.person && open ? await supabase.rpc("admin_similar_names", { p_name: c.name_given }) : { data: [] };
@@ -77,7 +77,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
   };
 
   // Case trail: each time stands out (owner: "highlight timings"); the next step is marked, not timed.
-  const trail: [string, string, boolean?][] = [[fmtTime(c.created_at), `${guard} held the visitor at ${c.gate?.name}`]];
+  const trail: [string, string, boolean?][] = [[fmtTime(c.created_at), `${guard} held the visitor`]];
   if (legacy) {
     trail.push([fmtTime(c.created_at), "Admins were alerted"]);
     trail.push([fmtTime(c.passed_to_host_at!), `Passed to the host: ${guard} called ${firstHost}`]);
@@ -114,7 +114,7 @@ export default async function AdminCasePage({ params }: { params: Promise<{ id: 
           <dt>Says</dt><dd>{c.says || "—"}</dd>
           <dt>Why held</dt><dd>{c.reason}</dd>
           <dt>Purpose</dt><dd>{c.purpose || "—"}</dd>
-          <dt>Held by</dt><dd>{c.held?.name ?? "—"} · {c.gate?.name} · {fmtTime(c.created_at)}</dd>
+          <dt>Held at</dt><dd>{c.gate?.name ?? "—"} · {fmtTime(c.created_at)}</dd>
         </dl>
         {c.person ? (
           <div className="ma-sub" role="group" aria-labelledby="rec">

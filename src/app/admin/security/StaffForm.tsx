@@ -7,12 +7,11 @@ import { saveStaff, type FormState } from "./actions";
 
 export type StaffValues = { id: string; role: string; name: string; email: string; gate: string; shift: string; signedIn: boolean };
 const ROLES: [string, string, string][] = [
-  ["guard", "Guard", "Taps their name on the gate iPad at the start of a shift. No email or password."],
-  ["gate", "Gate device", "The iPad at a gate. It stays signed in with this email; guards take turns on it."],
+  ["gate", "Gate device", "The device at a gate. Signed in once with this email when it is set up; it stays signed in."],
   ["admin", "Admin", "Uses this console. Signs in with a code sent to their email."],
 ];
 
-/** Add or edit a console account. The role is fixed once created; a signed-in account's email is fixed too. */
+/** Add or edit a console account: gate devices and admins (no guard accounts: owner, 2026-10-08). The role is fixed once created; a signed-in account's email is fixed too. */
 export function StaffForm({ initial, gates }: { initial: StaffValues; gates: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveStaff, {});
   const err = state.fields ?? {};
@@ -39,7 +38,7 @@ export function StaffForm({ initial, gates }: { initial: StaffValues; gates: { i
       )}
       <div className="ma-form__2">
         <Field id="s-name" name="name" label={role === "gate" ? "Device name" : "Name"} defaultValue={v("name")} maxLength={80} autoComplete="off" error={err.name}
-          help={role === "guard" ? "e.g. R. Sharma" : role === "gate" ? "e.g. Gate 1 iPad" : undefined} />
+          help={role === "gate" ? "e.g. Gate 1 iPad" : undefined} />
         {role !== "admin" ? (
           <Select id="s-gate" name="gate" label="Gate" options={[["", "Pick a gate"], ...gates.map((g): [string, string] => [g.id, g.name])]}
             defaultValue={v("gate")} error={err.gate} />

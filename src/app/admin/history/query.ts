@@ -9,7 +9,7 @@ export type HistoryRow = {
 };
 
 export const RANGES: [string, string][] = [["today", "Today"], ["7", "Last 7 days"], ["30", "Last 30 days"], ["90", "Last 90 days"], ["custom", "Custom dates"]];
-export const OUTCOMES: [string, string][] = [["all", "All decisions"], ["approved", "Approved"], ["denied", "Denied"], ["held", "Flag & Hold"]];
+export const OUTCOMES: [string, string][] = [["all", "All decisions"], ["approved", "Approved"], ["denied", "Denied"], ["held", "On hold"]];
 export const TYPES: [string, string][] = [["all", "All visitors"], ["alumnus", "Alumni"], ["faculty", "Visiting faculty"], ["placement", "Placement visitors"],
   ["walkin", "Walk-ins, no record"], ["family", "Student families"]];
 

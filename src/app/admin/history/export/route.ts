@@ -19,11 +19,11 @@ export async function GET(request: Request) {
   const { data, error } = await supabase.rpc("admin_visits", { ...h.args, p_limit: 10000, p_offset: 0 });
   if (error) return new Response("Couldn't export. Try again.", { status: 500 });
   const { rows, total } = data as { rows: HistoryRow[]; total: number };
-  const head = ["Date", "Time", "Visitor", "Type", "Programme", "Batch", "Decision", "After Flag & Hold", "Recorded offline", "Decided by",
+  const head = ["Date", "Time", "Visitor", "Type", "Programme", "Batch", "Decision", "After on hold", "Recorded offline", "Decided by",
     "Role", "Gate", "Purpose", "Reason", "Entered", "Exited", "Family guests"];
   const lines = rows.map((r) => [
     fmtDate(r.at), fmtTime(r.at), r.name, r.type === "family" ? "Student family" : KIND_LABEL[r.kind], r.program, r.batch_year,
-    r.outcome, r.held ? "yes" : "no", r.offline ? "yes" : "no", r.by_name, r.by_role === "admin" ? "admin" : r.by_role ? "guard" : "",
+    r.outcome, r.held ? "yes" : "no", r.offline ? "yes" : "no", r.by_role === "admin" ? r.by_name : r.by_role ? r.gate : "", r.by_role === "admin" ? "admin" : r.by_role ? "gate" : "",
     r.gate, r.purpose, r.reason, r.entered_at ? fmtTime(r.entered_at) : "", r.exited_at ? fmtTime(r.exited_at) : "", r.guests,
   ].map(cell).join(","));
   const note = total > rows.length

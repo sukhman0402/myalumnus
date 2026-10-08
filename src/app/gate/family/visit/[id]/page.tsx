@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { BackLink } from "@/components/BackLink";
 import { tr } from "@/lib/i18n";
-import { fmtTime } from "@/lib/format";
-import { requireOnDuty } from "@/lib/gate";
+import { requireOnDuty, timeFns } from "@/lib/gate";
 import { GateShell } from "../../../GateShell";
 import { ExitButton } from "../../../inside/ExitButton";
 
@@ -14,6 +13,7 @@ type F = { id: string; guests: number; purpose: string | null; entered_at: strin
 
 /** Close a family visit when the whole group has left (mockup g28). */
 export default async function FamilyVisitPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
   const duty = await requireOnDuty();
   const { lang } = duty;
   const { id } = await params;

@@ -59,7 +59,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                       : <Chip icon="users" text="Logged" />}
                     {r.offline ? <> <Chip icon="cloud-off" text="Recorded offline" /></> : null}
                   </td>
-                  <td>{r.by_name ? `${r.by_name}${r.by_role === "admin" ? " (admin)" : ""}` : "—"}</td>
+                  <td>{r.by_role === "admin" ? `${r.by_name} (admin)` : r.by_role ? r.gate : "—"}</td>
                   <td>{r.gate}</td>
                   <td style={{ textAlign: "right" }}><RowLink href={`/admin/history/${r.id}`} label="View" who={r.name} /></td>
                 </tr>

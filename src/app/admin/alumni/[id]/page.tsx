@@ -45,7 +45,7 @@ export default async function PersonPage({ params, searchParams }: { params: Pro
           {p.visits ? <Link className="ma-link" href={`/admin/history?q=${encodeURIComponent(p.full_name)}&range=90`}><Icon name="history" size={16} />See them in History</Link> : null}
         </section>
         <section className="ma-panel" aria-labelledby="ch">
-          <h2 className="ma-panel__title" id="ch">Changes</h2>
+          <h2 className="ma-panel__title" id="ch">Logs</h2>
           <ChangeLog rows={(changes ?? []) as Change[]} labels={LABELS} added="Added this record" />
         </section>
       </>}>

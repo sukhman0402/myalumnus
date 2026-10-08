@@ -3,9 +3,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { tr, type TKey } from "@/lib/i18n";
-import { fmtTime, type Kind } from "@/lib/format";
+import { type Kind } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
-import { requireOnDuty } from "@/lib/gate";
+import { requireOnDuty, timeFns } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 
 export const metadata: Metadata = { title: "Expected today · Guard console" };
@@ -15,7 +15,8 @@ type Row = { person_id: string; full_name: string; kind: Kind; program: string |
 
 /** Today's expected visitors at this gate, in time order (mockups g18, g19). */
 export default async function ExpectedPage() {
-  const duty = await requireOnDuty("expected");
+  const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
+  const duty = await requireOnDuty();
   const { lang } = duty;
   const supabase = await createClient();
   const { data } = await supabase.rpc("gate_expected");
@@ -36,9 +37,13 @@ export default async function ExpectedPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {photo ? <span className="ma-row__photo ma-row__photo--img"><img src={photo} alt="" /></span> : <span className="ma-row__photo"><Icon name="user" /></span>}
                       <span className="ma-row__text"><b>{r.full_name}</b>
-                        <span>{tr(lang, "exp.meta", { k: tr(lang, `kind.${r.kind}` as TKey), t: fmtTime(r.expected_at), h: r.host_name || "—" })}</span></span>
-                      {r.arrived_at ? <span className="ma-row__end"><span className="ma-chip ma-chip--success"><span className="ma-circle"><Icon name="check" /></span>
-                        <span className="ma-tabular">{tr(lang, "chip.arrived", { t: fmtTime(r.arrived_at) })}</span></span></span> : null}
+                        <span>{tr(lang, "exp.meta", { k: tr(lang, `kind.${r.kind}` as TKey), h: r.host_name || "—" })}</span></span>
+                      {/* Every row the same shape (owner, 2026-10-08): who, then one status with its time. */}
+                      <span className="ma-row__end">{r.arrived_at
+                        ? <span className="ma-chip ma-chip--success"><span className="ma-circle"><Icon name="check" /></span>
+                            <span className="ma-tabular">{tr(lang, "chip.arrived", { t: fmtTime(r.arrived_at) })}</span></span>
+                        : <span className="ma-chip"><span className="ma-circle"><Icon name="clock" /></span>
+                            <span className="ma-tabular">{tr(lang, "chip.due", { t: fmtTime(r.expected_at) })}</span></span>}</span>
                       <span className="ma-row__chev"><Icon name="chevron-right" /></span>
                     </Link>
                   </li>

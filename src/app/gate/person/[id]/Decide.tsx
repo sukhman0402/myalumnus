@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { HoldLink } from "@/components/HoldLink";
+import { DenyReason } from "@/components/DenyReason";
 import { tr, type Lang } from "@/lib/i18n";
 import { approveVisit, denyVisit, type DecideState } from "../../actions";
 
@@ -22,13 +23,11 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
   const [denyState, deny, denying] = useActionState<DecideState, FormData>(denyVisit, {});
   const dialog = useRef<HTMLDialogElement>(null);
   const denyBtn = useRef<HTMLButtonElement>(null);
-  const reason = useRef<HTMLInputElement>(null);
   const busy = approving || denying;
 
   // A deny that failed for a non-reason problem closes the dialog so the message under the buttons is seen.
   useEffect(() => {
     if (denyState.error && denyState.field !== "reason") dialog.current?.close();
-    if (denyState.field === "reason") reason.current?.focus();
   }, [denyState]);
 
   const error = approveState.error ?? (denyState.field === "reason" ? undefined : denyState.error);
@@ -46,9 +45,7 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
             onChange={(e) => setValue(e.target.value)} />
         </div>
       </div>
-        </div>
-      </div>
-
+          {/* The three decisions sit right under the purpose field (owner, 2026-10-08), not below the photo. */}
         {error ? (
           <div className="ma-banner ma-banner--danger" role="alert">
             <span className="ma-circle"><Icon name="circle-alert" /></span><span className="ma-banner__text">{error}</span>
@@ -73,6 +70,8 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
           </button>
           <HoldLink lang={lang} href={`${holdHref}&purpose=${encodeURIComponent(value)}`} />
         </div>
+        </div>
+      </div>
 
       <dialog ref={dialog} className={`ma-dialog${denying ? " is-saving" : ""}`} aria-labelledby="deny-t"
         onCancel={(e) => { if (denying) e.preventDefault(); }} onClose={() => denyBtn.current?.focus()}>
@@ -92,16 +91,8 @@ export function Decide({ lang, personId, clientId, name, meta, thumb, purpose, l
           <input type="hidden" name="person" value={personId} />
           <input type="hidden" name="client" value={clientId} />
           <input type="hidden" name="purpose" value={value} />
-          <div className={`ma-field${denyState.field === "reason" ? " is-error" : ""}`}>
-            <label className="ma-field__label" htmlFor="r">{tr(lang, "deny.reason")}</label>
-            <div className="ma-field__box">
-              <input ref={reason} id="r" name="reason" value={reasonText} onChange={(e) => setReasonText(e.target.value)} maxLength={300} placeholder={tr(lang, "deny.ph")} autoFocus
-                aria-describedby={denyState.field === "reason" ? "r-help" : undefined} aria-invalid={denyState.field === "reason" || undefined} />
-            </div>
-            {denyState.field === "reason" ? (
-              <p className="ma-field__help" id="r-help"><Icon name="circle-alert" size={16} />{denyState.error}</p>
-            ) : null}
-          </div>
+          <input type="hidden" name="reason" value={reasonText} />
+          <DenyReason lang={lang} id="r" autoFocus onChange={setReasonText} stamp={denyState} error={denyState.field === "reason" ? denyState.error : undefined} />
           <div className="ma-dialog__actions">
             <button type="button" className="ma-btn ma-btn--secondary" aria-disabled={denying ? "true" : undefined}
               onClick={() => { if (!denying) dialog.current?.close(); }}>{tr(lang, "cancel")}</button>

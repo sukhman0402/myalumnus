@@ -9,6 +9,6 @@ export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 export type DemoRole = "guard" | "admin";
 
 export const DEMO_PROFILES: Record<DemoRole, { name: string; detail: string; icon: string; userId: string }> = {
-  guard: { name: "P. Singh", detail: "Guard · Gate 1", icon: "shield-user", userId: "guard.demo" },
+  guard: { name: "Gate 1", detail: "Guard device", icon: "university", userId: "guard.demo" },
   admin: { name: "Campus Admin", detail: "Admin", icon: "user-check", userId: "admin.demo" },
 };

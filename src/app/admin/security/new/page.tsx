@@ -16,7 +16,7 @@ export default async function NewStaffPage() {
       <section className="ma-panel" aria-labelledby="sh">
         <Link className="ma-link" href="/admin/security"><Icon name="arrow-left" />Security</Link>
         <h2 className="ma-panel__title" id="sh">Add an account</h2>
-        <StaffForm gates={gates} initial={{ id: "", role: "guard", name: "", email: "", gate: gates.length === 1 ? gates[0].id : "", shift: "", signedIn: false }} />
+        <StaffForm gates={gates} initial={{ id: "", role: "gate", name: "", email: "", gate: gates.length === 1 ? gates[0].id : "", shift: "", signedIn: false }} />
       </section>
     </AdminShell>
   );

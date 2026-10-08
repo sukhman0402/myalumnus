@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/Icon";
 import { tr } from "@/lib/i18n";
-import { fmtTime } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
-import { decidedRecently, requireOnDuty } from "@/lib/gate";
+import { decidedRecently, requireOnDuty, timeFns } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 import { InsideList, type InsideRow } from "./InsideList";
 
@@ -22,7 +21,8 @@ function duration(fromIso: string, toIso: string) {
  * Overstay = still inside after visiting hours end (planning/02 Q4).
  */
 export default async function InsidePage({ searchParams }: { searchParams: Promise<{ exited?: string; closed?: string }> }) {
-  const duty = await requireOnDuty("inside");
+  const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
+  const duty = await requireOnDuty();
   const { lang } = duty;
   const sp = await searchParams;
   const supabase = await createClient();

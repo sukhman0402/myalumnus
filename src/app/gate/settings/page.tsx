@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
 import { getTheme } from "@/components/Frame";
-import { Icon } from "@/components/Icon";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_MODE } from "@/lib/demo";
 import { tr } from "@/lib/i18n";
-import { fmtTime } from "@/lib/format";
-import { requireOnDuty } from "@/lib/gate";
-import { signOut } from "../../sign-in/actions";
-import { endShift } from "../actions";
+import { asTextSize, requireOnDuty, TEXT_COOKIE, timeFns } from "@/lib/gate";
+import { cookies } from "next/headers";
+import { ChoiceGroup } from "@/components/ChoiceGroup";
+import { setHours, setTextSize } from "../actions";
+import { switchConsole } from "../../sign-in/actions";
 import { GateShell } from "../GateShell";
 import { LangToggle } from "../LangToggle";
 
 export const metadata: Metadata = { title: "Settings · Guard console" };
 
-/** Everything that isn't a visitor decision (owner, 2026-10-06): language, dark mode, change guard, sign out. */
+/** Everything that isn't a visitor decision (owner, 2026-10-08): language, display, text size, time format.
+ *  No change guard, no sign-out (one gate, one device). */
 export default async function GateSettingsPage() {
-  const [duty, theme] = await Promise.all([requireOnDuty("settings"), getTheme()]);
+  const [duty, theme, { h24 }, jar] = await Promise.all([requireOnDuty(), getTheme(), timeFns(), cookies()]);
+  const text = asTextSize(jar.get(TEXT_COOKIE)?.value);
   const { lang } = duty;
   const row = (id: string, title: string, sub: string, control: React.ReactNode) => (
     <section className="ma-panel ma-setting" aria-labelledby={id}>
@@ -26,13 +28,17 @@ export default async function GateSettingsPage() {
   );
   return (
     <GateShell duty={duty} title={tr(lang, "title.settings")}>
-      {row("s-duty", tr(lang, "set.duty"), tr(lang, "set.duty.sub", { n: duty.guard.name, t: fmtTime(duty.since) }),
-        <form action={endShift} className="ma-inline-form"><button className="ma-btn ma-btn--primary"><Icon name="users" />{tr(lang, "duty.change")}</button></form>)}
       {row("s-lang", tr(lang, "set.lang"), tr(lang, "set.lang.sub"), <LangToggle lang={lang} />)}
       {row("s-theme", tr(lang, "set.theme"), tr(lang, "set.theme.sub"),
         <ThemeToggle variant="row" initial={theme} darkLabel={tr(lang, "theme.dark")} lightLabel={tr(lang, "theme.light")} />)}
-      {row("s-device", tr(lang, "set.device"), `${duty.me.gate_name ?? ""} · ${duty.me.university_name}`,
-        DEMO_MODE ? <SignOutButton signOut={signOut} label={tr(lang, "signout")} /> : null)}
+      {row("s-text", tr(lang, "set.text"), tr(lang, "set.text.sub"),
+        <ChoiceGroup action={setTextSize} name="text" value={text} label={tr(lang, "set.text")}
+          options={[["default", tr(lang, "text.default")], ["large", tr(lang, "text.large")], ["larger", tr(lang, "text.larger")]]} />)}
+      {row("s-hours", tr(lang, "set.hours"), tr(lang, "set.hours.sub"),
+        <ChoiceGroup action={setHours} name="hours" value={h24 ? "24" : "12"} label={tr(lang, "set.hours")}
+          options={[["12", tr(lang, "hours.12")], ["24", tr(lang, "hours.24")]]} />)}
+      {/* No sign-out on a gate device: it is signed in once, at setup (owner, 2026-10-08). The demo keeps a way across. */}
+      {DEMO_MODE ? row("s-demo", tr(lang, "set.device"), tr(lang, "set.signout.sub"), <SignOutButton signOut={switchConsole.bind(null, "admin")} label={tr(lang, "signout")} />) : null}
     </GateShell>
   );
 }

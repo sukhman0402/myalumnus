@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
+import { hostLabel } from "@/lib/hosts";
 import { isYmd, localIso, ymd } from "@/lib/format";
 import { signPhotos } from "@/lib/photos";
 import { fromHint, GENERIC } from "../errors";
@@ -27,7 +28,7 @@ export async function lookupPeople(q: string): Promise<PersonHit[]> {
 /** Add an expected visitor (mockup a19). Guards see them under "Expected today" on the day. */
 export async function addExpected(_prev: FormState, form: FormData): Promise<FormState> {
   await requireRole("admin");
-  const raw = Object.fromEntries(["person", "person_label", "name", "kind", "program", "date", "time", "gate", "host", "host_phone", "purpose"]
+  const raw = Object.fromEntries(["person", "person_label", "name", "kind", "program", "date", "time", "gate", "host_id", "purpose"]
     .map((k) => [k, String(form.get(k) ?? "").trim()]));
   const fields: Record<string, string> = {};
   const person = z.uuid().safeParse(raw.person);
@@ -38,15 +39,19 @@ export async function addExpected(_prev: FormState, form: FormData): Promise<For
   if (!isYmd(raw.date)) fields.date = "Pick a date.";
   else if (raw.date < ymd()) fields.date = "Pick today or a later date.";
   if (!/^\d{2}:\d{2}$/.test(raw.time)) fields.time = "Enter the expected time, e.g. 10:30 AM.";
-  if (!raw.host) fields.host = "Enter who they are visiting: the guard calls this person if needed.";
-  if (raw.host_phone && !/^[+0-9 ()-]{7,24}$/.test(raw.host_phone)) fields.host_phone = "Check the number: digits, spaces, brackets, - and + only.";
+  // The host comes from the directory; name and phone are read here, never trusted from the browser.
+  const hostId = z.uuid().safeParse(raw.host_id);
+  const supabase = await createClient();
+  const { data: host } = hostId.success
+    ? await supabase.from("hosts").select("name, department, phone").eq("id", hostId.data).eq("active", true).maybeSingle()
+    : { data: null };
+  if (!host) fields.host = "Pick who they are visiting: the guard calls this person if needed.";
   if (Object.keys(fields).length) return { fields, values: raw };
   const gate = z.uuid().safeParse(raw.gate);
-  const supabase = await createClient();
   const { error } = await supabase.rpc("admin_add_expected", {
     p_person: person.success ? person.data : null, p_name: raw.name || null, p_kind: raw.kind || null, p_program: raw.program || null,
     p_at: localIso(raw.date, raw.time), p_gate: gate.success ? gate.data : null, p_purpose: raw.purpose || null,
-    p_host: raw.host, p_host_phone: raw.host_phone || null,
+    p_host: hostLabel(host!), p_host_phone: host!.phone || null,
   });
   if (error) return { ...fromHint(error), values: raw };
   revalidatePath("/admin/visitors");

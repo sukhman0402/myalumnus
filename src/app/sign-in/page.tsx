@@ -9,8 +9,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ reason?: string }> }) {
-  const { reason } = await searchParams;
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ reason?: string; as?: string }> }) {
+  const { reason, as } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const signedInButNotInvited = !DEMO_MODE && reason === "not-invited" && Boolean(data?.claims?.sub);
@@ -23,7 +23,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           <div className="ma-rail__logo" aria-hidden="true"><BrandMark /></div>
           <h1>{DEMO_MODE ? "My Alumnus" : "Sign in to My Alumnus"}</h1>
         </div>
-        {DEMO_MODE ? <DemoSignIn /> : signedInButNotInvited ? (
+        {DEMO_MODE ? <DemoSignIn initial={as === "admin" ? "admin" : "guard"} /> : signedInButNotInvited ? (
           <>
             <div className="ma-banner ma-banner--danger" role="alert">
               <span className="ma-banner__text">This account isn&apos;t set up for any university yet. Ask your admin to add your email, then sign in again.</span>

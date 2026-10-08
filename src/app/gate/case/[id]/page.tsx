@@ -7,12 +7,11 @@ import { BackLink } from "@/components/BackLink";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { Timer } from "@/components/Timer";
 import { tr, type Lang } from "@/lib/i18n";
-import { fmtTime } from "@/lib/format";
-import { requireOnDuty } from "@/lib/gate";
+import { requireOnDuty, timeFns } from "@/lib/gate";
 import { GateShell } from "../../GateShell";
 import { CaseDecide } from "./CaseDecide";
 
-export const metadata: Metadata = { title: "Flag & Hold · Guard console" };
+export const metadata: Metadata = { title: "On hold · Guard console" };
 
 type Case = {
   id: string; name_given: string; says: string | null; reason: string; purpose: string | null; host_name: string;
@@ -31,6 +30,7 @@ function whyText(lang: Lang, reason: string) {
 
 /** A held visitor, from the guard's side (mockups g14–g17). It refreshes itself until someone decides. */
 export default async function CasePage({ params }: { params: Promise<{ id: string }> }) {
+  const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
   const duty = await requireOnDuty();
   const { lang } = duty;
   const { id } = await params;

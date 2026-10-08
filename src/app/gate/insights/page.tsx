@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { tr } from "@/lib/i18n";
 import { Icon } from "@/components/Icon";
-import { fmtTime } from "@/lib/format";
 import { getToday, requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 
@@ -10,10 +9,11 @@ export const metadata: Metadata = { title: "Insights · Guard console" };
 
 type Shift = { since: string | null; approved: number; denied: number; held: number; passed: number; family: number };
 
-/** This shift's numbers for the guard on duty, and today's at this gate, as simple charts (owner, 2026-10-06/07).
+/** Today's decisions at this gate and who is inside, as simple charts (owner, 2026-10-06/07; per gate, not per guard:
+ *  owner, 2026-10-08).
  *  Nothing here needs a decision, so it never competes with Home. */
 export default async function InsightsPage() {
-  const duty = await requireOnDuty("insights");
+  const duty = await requireOnDuty();
   const { lang } = duty;
   const supabase = await createClient();
   const [{ data }, today] = await Promise.all([supabase.rpc("gate_insights"), getToday()]);
@@ -30,7 +30,6 @@ export default async function InsightsPage() {
     <GateShell duty={duty} title={tr(lang, "title.insights")}>
       <section className="ma-panel" aria-labelledby="sh">
         <h2 className="ma-panel__title" id="sh">{tr(lang, "ins.shift")}</h2>
-        <p className="ma-note">{tr(lang, "ins.since", { n: duty.guard.name, t: fmtTime(s?.since ?? duty.since) })}</p>
         <ul className="ma-ins-bars">
           {shift.map(([label, n, kind]) => (
             <li key={label}>

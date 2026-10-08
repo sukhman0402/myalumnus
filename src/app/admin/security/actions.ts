@@ -14,7 +14,7 @@ export async function saveStaff(_prev: FormState, form: FormData): Promise<FormS
   await requireRole("admin");
   const raw = Object.fromEntries(["id", "role", "name", "email", "gate", "shift"].map((k) => [k, String(form.get(k) ?? "").trim()]));
   const fields: Record<string, string> = {};
-  if (!["guard", "gate", "admin"].includes(raw.role)) fields.role = "Pick what this account is for.";
+  if (!["gate", "admin"].includes(raw.role) && !raw.id) fields.role = "Pick what this account is for.";
   if (!raw.name) fields.name = raw.role === "gate" ? "Name the device, e.g. Gate 1 iPad." : "Enter the person's name as the guards know it.";
   if (raw.role !== "guard" && !z.email().safeParse(raw.email).success) fields.email = raw.email ? "Check the email address, e.g. name@university.edu." : "Enter an email address: this account signs in with a code sent there.";
   if (raw.role !== "admin" && !z.uuid().safeParse(raw.gate).success) fields.gate = "Pick a gate.";

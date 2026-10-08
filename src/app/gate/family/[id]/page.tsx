@@ -32,7 +32,7 @@ export default async function FamilyLogPage({ params }: { params: Promise<{ id: 
           photo={<RecordPhoto src={src} name={s.full_name}
             caption={s.photo_added_on ? tr(lang, "photo.added", { d: fmtMonth(s.photo_added_on, lang) }) : null}
             enlargeLabel={tr(lang, "photo.enlarge", { n: s.full_name })} altText={tr(lang, "photo.alt", { n: s.full_name })}
-            closeLabel={tr(lang, "close")} noneTitle={tr(lang, "photo.none.t")} noneText={tr(lang, "photo.none.d")} />}
+            closeLabel={tr(lang, "close")} noneTitle={tr(lang, "photo.none.t")} />}
           heading={<div><h2 className="ma-record__name" id="lh">{s.full_name}</h2>
             <p className="ma-record__meta">{[tr(lang, "kind.student"), s.program, s.roll_no ? tr(lang, "kv.roll", { r: s.roll_no }) : null].filter(Boolean).join(" · ")}</p></div>} />
       </section>

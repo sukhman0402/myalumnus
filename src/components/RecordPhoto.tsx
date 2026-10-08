@@ -7,9 +7,9 @@ import { Icon } from "./Icon";
  * The record photo (design system: Photo, record size). Tapping it opens a larger copy, because the guard
  * compares it with the face in front of them. No photo: says so and what to do instead (never initials).
  */
-export function RecordPhoto({ src, name, caption, enlargeLabel, altText, closeLabel, noneTitle, noneText }: {
+export function RecordPhoto({ src, name, caption, enlargeLabel, altText, closeLabel, noneTitle }: {
   src: string | null; name: string; caption: string | null; enlargeLabel: string; altText: string;
-  closeLabel: string; noneTitle: string; noneText: string;
+  closeLabel: string; noneTitle: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
@@ -18,7 +18,8 @@ export function RecordPhoto({ src, name, caption, enlargeLabel, altText, closeLa
     return (
       <figure className="ma-photo ma-photo--record is-none">
         <div className="ma-photo__frame"><Icon name="user" /></div>
-        <p className="ma-photo__note"><b>{noneTitle}</b>{noneText}</p>
+        {/* No caption under the empty frame (owner, 2026-10-08); screen readers still hear that there is no photo. */}
+        <span className="ma-visually-hidden">{noneTitle}</span>
       </figure>
     );
   }

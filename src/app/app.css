@@ -266,13 +266,7 @@ a.ma-banner--link:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma
 .ma-chart-card--wide { padding: var(--ma-space-5) var(--ma-space-6); }
 .ma-chart-hours { stroke: var(--ma-color-text-secondary); stroke-width: 1.5; stroke-dasharray: 3 4; }
 .ma-chart-ax--strong { fill: var(--ma-color-text-primary); font-weight: 600; }
-.ma-chart-name { fill: var(--ma-color-text-primary); font: 600 14px var(--ma-font-family-sans); }
-.ma-chart-esc .ma-chart-val { font-size: 14px; }
-.ma-chart-bar--admin { fill: var(--ma-chart-bar-out); stroke: var(--ma-color-status-hold-border); stroke-width: 1; }
-.ma-chart-bar--admin-key { background: var(--ma-chart-bar-out); box-shadow: inset 0 0 0 1px var(--ma-color-status-hold-border); }
-.ma-chart-bar--legacy { fill: var(--ma-color-neutral-400); }
-.ma-chart-esc .ma-chart-limit { stroke-width: 2.5; }
-@media (forced-colors: active) { .ma-chart-bar--admin, .ma-chart-bar--legacy, .ma-chart-hours { forced-color-adjust: none; } }
+@media (forced-colors: active) { .ma-chart-hours { forced-color-adjust: none; } }
 /* "Show as a table": room between the summary, the table and the totals (owner: spacing). */
 details.ma-chart-table { display: grid; gap: var(--ma-space-4); padding-top: var(--ma-space-2); border-top: 1px solid var(--ma-color-border-divider); }
 details.ma-chart-table[open] > summary { margin-bottom: var(--ma-space-1); }
@@ -326,9 +320,13 @@ a.ma-decision { text-decoration: none; }
 .ma-case-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ma-space-3) var(--ma-space-4); }
 /* Security: same column widths in every section, so Status lines up. */
 .ma-sec-group .ma-table { table-layout: fixed; }
-.ma-sec-group .ma-table th:nth-child(1) { width: 32%; }
+/* The last column holds "Manage": it was left ~35px wide, so the word wrapped letter by letter and the rows grew
+   tall with no visible link (owner, 2026-10-08: "the manage icon … needs to be fixed"). */
+.ma-sec-group .ma-table th:nth-child(1) { width: 30%; }
 .ma-sec-group .ma-table th:nth-child(2) { width: 38%; }
 .ma-sec-group .ma-table th:nth-child(3) { width: 18%; }
+.ma-sec-group .ma-table th:nth-child(4) { width: 14%; }
+.ma-sec-group .ma-view { white-space: nowrap; }
 .ma-sec-group .ma-table td { overflow-wrap: anywhere; }
 .ma-ins-bars__fill.is-zero { min-width: 0; }
 /* Home lists, compact (owner, 2026-10-07): photo · name over one time · status or action. Nothing else. */
@@ -353,3 +351,67 @@ a.ma-decision { text-decoration: none; }
 .ma-mini__time { white-space: nowrap; }
 .ma-mini__time.is-ok, .ma-mini__time.is-ok b { color: var(--ma-color-status-success-text); }
 .ma-mini .ma-chip, .ma-mini .ma-btn { white-space: nowrap; }
+.ma-sec-group .ma-table .ma-view { opacity: 1; }   /* few rows: always show Manage, not only on hover */
+
+/* ---------- Iteration 2, Set 2: Guard Home (owner, 2026-10-08) ---------- */
+/* Today's visits large on top, the clock small under it (sizes and order swapped). */
+.ma-today { display: grid; gap: var(--ma-space-1); padding: var(--ma-space-5); border-radius: var(--ma-radius-card);
+  background: var(--ma-color-bg-card); box-shadow: var(--ma-elevation-card); }
+.ma-today__value { font-size: clamp(2.75rem, 5cqi + 1.5rem, 3.75rem); line-height: 1; font-weight: 600; letter-spacing: -0.02em; color: var(--ma-color-text-primary); }
+.ma-today__label { color: var(--ma-color-text-secondary); font-weight: 500; }
+.ma-clock--small { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: var(--ma-space-3); row-gap: 2px; padding: var(--ma-space-4) var(--ma-space-5); }
+.ma-clock--small .ma-clock__time { font-size: 1.25rem; letter-spacing: 0; }
+.ma-clock--small .ma-clock__ampm { font-size: 0.7em; vertical-align: baseline; margin-left: 0.2em; }
+.ma-clock--small .ma-clock__date { font-size: var(--ma-typography-label-font-size); }
+
+/* Home rows: a lighter hover (owner: "too heavy"). */
+@media (hover: hover) { .ma-mini__row--link:hover { background: color-mix(in srgb, var(--ma-color-bg-canvas) 40%, var(--ma-color-bg-card)); } }
+.ma-mini__row--link { color: inherit; text-decoration: none; }
+
+/* Search: while results are open, everything behind them is blurred; the search box and results stay sharp. */
+.ma-search__scrim { position: fixed; inset: 0; z-index: 2; background: color-mix(in srgb, var(--ma-color-bg-canvas) 35%, transparent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+@media (prefers-reduced-transparency: reduce) { .ma-search__scrim { backdrop-filter: none; background: color-mix(in srgb, var(--ma-color-bg-canvas) 85%, transparent); } }
+
+/* ---------- Iteration 2, Set 4: guard Settings (owner, 2026-10-08) ---------- */
+/* Text size for this device: every rem-based size scales from the root. */
+html[data-text="large"] { font-size: 112.5%; }
+html[data-text="larger"] { font-size: 125%; }
+/* A row of choices that each save on tap (text size, time format). */
+.ma-choices { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: var(--ma-color-control-track); }
+.ma-choice { min-height: 44px; padding: 0 var(--ma-space-4); border: 0; border-radius: 999px; background: transparent; color: var(--ma-color-text-primary);
+  font: inherit; font-weight: 600; cursor: pointer; }
+.ma-choice.is-on { background: var(--ma-color-bg-card); color: var(--ma-color-accent-on-tint); box-shadow: var(--ma-elevation-1); }
+@media (hover: hover) { .ma-choice:not(.is-on):hover { background: color-mix(in srgb, var(--ma-color-bg-card) 55%, transparent); } }
+.ma-choice:focus-visible { outline: var(--ma-stroke-focus) solid var(--ma-color-interactive-focus-strong); outline-offset: 2px; }
+@media (forced-colors: active) { .ma-choice.is-on { outline: 2px solid Highlight; } }
+
+/* ---------- Iteration 2, Set 6: Reports redesign (owner, 2026-10-08) ---------- */
+/* Headline numbers: label, big value, one line of context; a coloured top edge only when it needs attention. */
+.ma-chart-kpi { gap: 6px; padding: var(--ma-space-5); box-shadow: var(--ma-elevation-card); border-top: 4px solid transparent; }
+.ma-chart-kpi--hold { border-top-color: var(--ma-color-decision-hold); }
+.ma-chart-kpi--deny { border-top-color: var(--ma-color-decision-deny); }
+.ma-chart-kpi__l { color: var(--ma-color-text-secondary); font-weight: 600; }
+.ma-chart-kpi__v { font-size: 2.5rem; line-height: 1.1; letter-spacing: -0.02em; }
+.ma-chart-kpi__s { color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); }
+/* Per-day columns: one solid (busiest), the rest a lighter step of the same hue; a baseline instead of gridlines. */
+.ma-chart-bar--soft { fill: var(--ma-color-signal-200); }
+:root[data-theme="dark"] .ma-chart-bar--soft { fill: var(--ma-color-signal-800); }
+.ma-chart-base { stroke: var(--ma-color-border-divider); stroke-width: 1.5; }
+.ma-chart-val--big { font-size: 16px; }
+/* Outcomes: one thick bar, each part labelled with its share. */
+.ma-chart-stack { height: 44px; border-radius: 10px; }
+.ma-chart-seg { display: grid; place-items: center; }
+.ma-chart-seg__v { font-weight: 700; font-size: 0.875rem; color: var(--ma-color-decision-on-approve); }
+.ma-chart-seg--held .ma-chart-seg__v { padding: 1px 6px; border-radius: 6px; background: var(--ma-color-bg-card); color: var(--ma-color-text-primary); }
+.ma-chart-legend--rows { display: grid; gap: 8px; }
+.ma-chart-legend--rows li { display: grid; grid-template-columns: 12px 1fr auto; }
+.ma-chart-hbar__p { color: var(--ma-color-text-secondary); font-weight: 500; }
+.ma-chart-hbar { grid-template-columns: 8.5rem minmax(0, 1fr) 5rem; }
+
+/* Logs (renamed from Changes, owner 2026-10-08): a plain list; who and when small and grey under each line. */
+.ma-log { list-style: none; margin: 0; padding: 0; display: grid; }
+.ma-log li { display: grid; gap: 2px; padding: var(--ma-space-3) 0; border-top: 1px solid var(--ma-color-border-divider); }
+.ma-log li:first-child { border-top: 0; padding-top: 0; }
+.ma-log span { overflow-wrap: anywhere; }
+.ma-log small { color: var(--ma-color-text-secondary); font-size: 0.8125rem; }

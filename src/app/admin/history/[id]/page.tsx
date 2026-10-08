@@ -33,13 +33,14 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
   const src = (await signPhotos([v.person?.photo_path])).get(v.person?.photo_path ?? "") ?? null;
   const name = v.type === "family" ? `Family of ${v.person?.full_name}` : v.person?.full_name ?? v.walkin_name ?? "—";
   const day = v.entered_at ?? v.decided_at ?? v.case?.created_at ?? "";
-  const by = v.by_name ? `${v.by_name}${v.by_role === "admin" ? " (admin)" : " (guard)"}` : "—";
+  // One gate, one device (owner, 2026-10-08): a gate decision reads as the gate, never a guard's name.
+  const by = v.by_role === "admin" ? `${v.by_name} (admin)` : v.by_role ? v.gate : "—";
   const over = v.entered_at && v.closes_at && new Date(v.exited_at ?? nowMs()) > new Date(v.closes_at);
 
   const trail: [string, string][] = [];
   const c = v.case;
   if (c) {
-    trail.push([c.created_at, `${c.held_by ?? "The guard"} held “${c.name_given}” at ${v.gate} · reason: ${c.reason}${c.says ? ` · says: ${c.says}` : ""}`]);
+    trail.push([c.created_at, `${v.gate} held “${c.name_given}” · reason: ${c.reason}${c.says ? ` · says: ${c.says}` : ""}`]);
     if (c.passed_to_host_at) {   // held before 0017: admins first, then the host
       trail.push([c.created_at, "Admins were alerted"]);
       trail.push([c.passed_to_host_at, `No admin decided in time: passed to the host, ${c.host_name}${c.host_phone ? ` (${c.host_phone})` : ""}`]);
@@ -49,13 +50,13 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
     }
     if (c.decided_at) trail.push([c.decided_at, `${c.status === "approved" ? "Approved" : "Denied"} by ${by}${c.note ? `: ${c.note}` : ""}`]);
   } else if (v.type === "visit" && v.decided_at) {
-    trail.push([v.decided_at, `${v.outcome === "approved" ? "Approved" : "Denied"} at ${v.gate} by ${by}${v.reason ? ` · reason: ${v.reason}` : ""}${v.offline ? ` · saved on the iPad while offline${v.synced_at ? `, recorded ${fmtDate(v.synced_at) === fmtDate(v.decided_at) ? "" : `${fmtDate(v.synced_at)} `}at ${fmtTime(v.synced_at)}` : ""}` : ""}`]);
+    trail.push([v.decided_at, `${v.outcome === "approved" ? "Approved" : "Denied"} at ${v.gate}${v.by_role === "admin" ? ` by ${by}` : ""}${v.reason ? ` · reason: ${v.reason}` : ""}${v.offline ? ` · saved on the iPad while offline${v.synced_at ? `, recorded ${fmtDate(v.synced_at) === fmtDate(v.decided_at) ? "" : `${fmtDate(v.synced_at)} `}at ${fmtTime(v.synced_at)}` : ""}` : ""}`]);
   } else if (v.type === "family") {
-    trail.push([v.entered_at!, `${v.by_name ?? "The guard"} logged ${v.guests} ${v.guests === 1 ? "guest" : "guests"} for ${v.person?.full_name} at ${v.gate}`]);
+    trail.push([v.entered_at!, `${v.gate} logged ${v.guests} ${v.guests === 1 ? "guest" : "guests"} for ${v.person?.full_name}`]);
   }
   if (v.type === "visit" && v.entered_at) trail.push([v.entered_at, "Entry recorded"]);
   if (v.exited_at) trail.push([v.exited_at, `${v.type === "family" ? "Visit closed" : "Exit marked"} at the gate${v.entered_at ? ` · ${fmtDuration(new Date(v.exited_at).getTime() - new Date(v.entered_at).getTime())} inside` : ""}`]);
-  else if (v.entered_at) trail.push(["", over ? "Still inside after visiting hours: the gate follows up (overstay)" : "Still inside"]);
+  // No "Now · still inside" line at the end (owner, 2026-10-08): the trail lists what happened, with its time.
 
   return (
     <AdminShell me={me} title="Visit detail" current="/admin/history">
@@ -66,7 +67,7 @@ export default async function VisitPage({ params }: { params: Promise<{ id: stri
           {v.type === "family" ? <Chip icon="users" text={`${v.guests} ${v.guests === 1 ? "guest" : "guests"}`} />
             : v.outcome === "approved" ? <Chip icon="check" text={c ? `Approved by ${c && v.by_role === "admin" ? "admin" : "guard"}` : "Approved"} kind="success" />
             : <Chip icon="ban" text="Denied" kind="danger" />}
-          {c ? <Chip icon="flag" text="Was Flag & Hold" kind="hold" /> : null}
+          {c ? <Chip icon="flag" text="Was on hold" kind="hold" /> : null}
           {v.offline ? <Chip icon="cloud-off" text="Recorded offline" /> : null}
           {over ? <Chip icon="triangle-alert" text="Overstay" kind="hold" /> : null}
         </div>

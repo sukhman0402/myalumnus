@@ -6,8 +6,8 @@ import { Icon } from "@/components/Icon";
 import { BackLink } from "@/components/BackLink";
 import { RecordPhoto } from "@/components/RecordPhoto";
 import { tr } from "@/lib/i18n";
-import { fmtClock, fmtMonth, fmtTime, personMeta, type Kind } from "@/lib/format";
-import { photoSrc, requireOnDuty } from "@/lib/gate";
+import { fmtMonth, personMeta, type Kind } from "@/lib/format";
+import { photoSrc, requireOnDuty, timeFns } from "@/lib/gate";
 import { Today } from "../../Today";
 import { Decide } from "./Decide";
 
@@ -25,6 +25,7 @@ type Person = {
 export default async function PersonPage({ params, searchParams }: {
   params: Promise<{ id: string }>; searchParams: Promise<{ q?: string; picked?: string; from?: string }>;
 }) {
+  const { c: fmtClock, t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
   const duty = await requireOnDuty();
   const { lang } = duty;
   const [{ id }, sp] = await Promise.all([params, searchParams]);
@@ -79,7 +80,7 @@ export default async function PersonPage({ params, searchParams }: {
               caption={p.photo_added_on ? tr(lang, "photo.added", { d: fmtMonth(p.photo_added_on, lang) }) : null}
               enlargeLabel={tr(lang, "photo.enlarge", { n: p.full_name })}
               altText={`${tr(lang, "photo.alt", { n: p.full_name })}${p.photo_path?.startsWith("sample/") ? " (sample)" : ""}`}
-              closeLabel={tr(lang, "close")} noneTitle={tr(lang, "photo.none.t")} noneText={tr(lang, "photo.none.d")} />
+              closeLabel={tr(lang, "close")} noneTitle={tr(lang, "photo.none.t")} />
           }
           heading={
             <div>

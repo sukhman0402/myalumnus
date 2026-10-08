@@ -8,8 +8,8 @@ import { demoSignIn, type DemoState } from "./demo-actions";
 const start: DemoState = {};
 
 /** Two demo profiles. The User ID and Password boxes accept anything and are never sent (no name attribute). */
-export function DemoSignIn() {
-  const [role, setRole] = useState<DemoRole>("guard");
+export function DemoSignIn({ initial = "guard" }: { initial?: DemoRole }) {
+  const [role, setRole] = useState<DemoRole>(initial);
   const [state, action, pending] = useActionState(demoSignIn, start);
   const profile = DEMO_PROFILES[role];
   return (

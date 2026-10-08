@@ -13,7 +13,9 @@ const TYPES: [string, string][] = [["faculty", "Visiting faculty or guest speake
  * Add an expected visitor (mockup a19). Typing a name shows existing records to pick, so the guard sees one
  * record with its photo; otherwise a new record is made from the name and type.
  */
-export function AddVisitorForm({ gates, today }: { gates: { id: string; name: string }[]; today: string }) {
+export type HostOption = { id: string; name: string; department: string | null; phone: string | null };
+
+export function AddVisitorForm({ gates, today, hosts }: { gates: { id: string; name: string }[]; today: string; hosts: HostOption[] }) {
   const [state, action, pending] = useActionState<FormState, FormData>(addExpected, {});
   const err = state.fields ?? {};
   const count = Object.keys(err).length;
@@ -21,6 +23,8 @@ export function AddVisitorForm({ gates, today }: { gates: { id: string; name: st
   const [name, setName] = useState(v("name"));
   const [picked, setPicked] = useState<{ id: string; label: string } | null>(v("person") ? { id: v("person"), label: v("person_label") } : null);
   const [hits, setHits] = useState<{ q: string; rows: PersonHit[] }>({ q: "", rows: [] });
+  const [hostId, setHostId] = useState(v("host_id"));
+  const host = hosts.find((h) => h.id === hostId);
   const q = name.trim();
 
   useEffect(() => {
@@ -79,11 +83,14 @@ export function AddVisitorForm({ gates, today }: { gates: { id: string; name: st
         <Field id="v-time" name="time" label="Expected time" type="time" defaultValue={v("time")} error={err.time} help="Campus time." />
       </div>
       <Select id="v-gate" name="gate" label="Gate" options={[["", "Any gate"], ...gates.map((g): [string, string] => [g.id, g.name])]} defaultValue={v("gate")} />
+      {/* Host from the hosts list (owner, 2026-10-08); the phone comes with them. The list lives in the database only:
+          set up once, people added or removed there by hand, no screen in the console. */}
       <div className="ma-form__2">
-        <Field id="v-host" name="host" label="Host on campus" defaultValue={v("host")} maxLength={120} autoComplete="off" error={err.host}
-          help="e.g. Prof. S. Rao, Mechanical" />
-        <Field id="v-hostp" name="host_phone" label="Host's phone (optional)" type="tel" inputMode="tel" defaultValue={v("host_phone")} maxLength={24}
-          error={err.host_phone} />
+        <Select id="v-host" name="host_id" label="Host on campus" value={hostId} onChange={(e) => setHostId(e.target.value)} error={err.host}
+          options={[["", "Pick a host"], ...hosts.map((h): [string, string] => [h.id, h.department ? `${h.name} · ${h.department}` : h.name])]}
+          help={hosts.length ? undefined : "The hosts list is empty. Ask the system administrator to add the faculty."} />
+        <Field id="v-hostp" label="Host's phone" type="tel" value={host?.phone ?? ""} readOnly aria-readonly placeholder="Filled in from the host"
+          help={host ? "From the hosts list." : undefined} />
       </div>
       <Field id="v-purpose" name="purpose" label="Purpose (optional)" defaultValue={v("purpose")} maxLength={200} autoComplete="off" help="e.g. Guest lecture, Room 204" />
       <div className="ma-actions">

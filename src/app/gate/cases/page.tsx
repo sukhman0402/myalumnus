@@ -8,7 +8,7 @@ import { tr } from "@/lib/i18n";
 import { requireOnDuty } from "@/lib/gate";
 import { GateShell } from "../GateShell";
 
-export const metadata: Metadata = { title: "Flagged & hold · Guard console" };
+export const metadata: Metadata = { title: "On hold · Guard console" };
 
 /** Visitors held at this gate and not yet decided. */
 export default async function CasesPage() {

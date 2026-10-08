@@ -17,8 +17,8 @@ const ROSTER_MAX_AGE = 60 * 60 * 1000; // refreshed at least hourly, and wheneve
  * The guard's search box (mockups g01, g03, g04, g11). Results appear after 3 letters, 250 ms after the
  * last key press. The query is kept in the address (?q=) so "Search results" on a record comes back here.
  */
-export function GateSearch({ lang, initialQuery, guard, hours }: {
-  lang: Lang; initialQuery: string; guard: string; hours: { open: string; close: string };
+export function GateSearch({ lang, initialQuery, guard, hours, h24 }: {
+  lang: Lang; initialQuery: string; guard: string; hours: { open: string; close: string }; h24: boolean;
 }) {
   const [q, setQ] = useState(initialQuery);
   const [result, setResult] = useState<{ term: string; ok: boolean; hits: SearchHit[]; offline?: RosterRow[] } | null>(null);
@@ -93,7 +93,7 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
   const back = `?q=${encodeURIComponent(term)}`;
 
   if (picked) {
-    return <OfflineDecide lang={lang} row={picked} guard={guard} hours={hours} onBack={() => setPicked(null)}
+    return <OfflineDecide lang={lang} row={picked} guard={guard} hours={hours} h24={h24} onBack={() => setPicked(null)}
       onSaved={(name, at) => { setPicked(null); setSaved({ name, at }); setQ(""); }} />;
   }
 
@@ -102,10 +102,11 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
       {saved ? (
         <div className="ma-banner ma-banner--success" role="status">
           <span className="ma-circle"><Icon name="check" /></span>
-          <span className="ma-banner__text"><b>{tr(lang, "off.saved.b", { n: saved.name, t: fmtTime(saved.at) })}</b> {tr(lang, "off.saved")}</span>
+          <span className="ma-banner__text"><b>{tr(lang, "off.saved.b", { n: saved.name, t: fmtTime(saved.at, h24) })}</b> {tr(lang, "off.saved")}</span>
         </div>
       ) : null}
-      {/* Results open as a layer over the Home lists (owner, 2026-10-06), so the lists stay where they are. */}
+      {/* Results open as a layer over the Home lists (owner, 2026-10-06); everything behind is blurred (owner, 2026-10-08). */}
+      {open && term.length >= 3 ? <div className="ma-search__scrim" aria-hidden="true" /> : null}
       <div className="ma-search" ref={wrap}>
       <section className="ma-panel" aria-label={tr(lang, "search.label")}>
         <div className={`ma-field${status === "busy" ? " is-busy" : ""}${status === "error" ? " is-error" : ""}`}>
@@ -160,7 +161,7 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
                   </span>
                   {g[0].expected_at ? (
                     <span className="ma-row__end"><span className="ma-chip"><span className="ma-circle"><Icon name="calendar-clock" /></span>
-                      <span className="ma-tabular">{tr(lang, "chip.expected", { t: fmtTime(g[0].expected_at) })}</span></span></span>
+                      <span className="ma-tabular">{tr(lang, "chip.expected", { t: fmtTime(g[0].expected_at, h24) })}</span></span></span>
                   ) : null}
                   <span className="ma-row__chev"><Icon name="chevron-right" /></span>
                 </Link>
@@ -187,7 +188,7 @@ export function GateSearch({ lang, initialQuery, guard, hours }: {
           <div className="ma-banner ma-banner--escalation" role="status">
             <span className="ma-circle"><Icon name="cloud-off" /></span>
             <span className="ma-banner__text"><b>{tr(lang, "off.banner.b")}</b>{" "}
-              {roster ? tr(lang, "off.banner", { t: fmtTime(roster.at), n: roster.rows.length }) : tr(lang, "off.none")}</span>
+              {roster ? tr(lang, "off.banner", { t: fmtTime(roster.at, h24), n: roster.rows.length }) : tr(lang, "off.none")}</span>
           </div>
           {roster ? (
             <>

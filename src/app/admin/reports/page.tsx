@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
-import { addDays, fmtDuration, isYmd, KIND_LABEL, mondayOf, nowMs, ymd } from "@/lib/format";
+import { addDays, fmtDuration, isYmd, KIND_LABEL, mondayOf, ymd } from "@/lib/format";
 import { Icon } from "@/components/Icon";
 import { AdminShell } from "../AdminShell";
 import { Banner, PanelHead } from "../ui";
 import { ChartTips } from "./ChartTips";
-import { DayBars, Escalations, HourBars, Kpi, Outcomes, TypeBars, type EscItem } from "./charts";
+import { DayBars, HourBars, Kpi, Outcomes, TypeBars } from "./charts";
 import type { Report } from "./types";
 
 export const metadata: Metadata = { title: "Reports · Admin console" };
@@ -40,25 +40,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     );
   }
 
-  const limit = r.hours?.escalate_minutes ?? 10;
   const open = Number((r.hours?.open ?? "10:00").slice(0, 2)), close = Number((r.hours?.close ?? "18:00").slice(0, 2));
   const people = r.visits, total = people + r.family_groups;
   const types = [
     ...r.by_type.filter((t) => t.visits > 0).map((t) => ({ label: KIND_LABEL[t.type] ?? t.type, n: t.visits })),
     ...(r.family_groups ? [{ label: "Student family", n: r.family_groups }] : []),
   ];
-  const now = nowMs();
-  const mins = (a: string, b?: string | null) => Math.max(0, ((b ? new Date(b).getTime() : now) - new Date(a).getTime()) / 60000);
-  const esc: EscItem[] = r.escalations.map((e) => {
-    const legacy = Boolean(e.passed_at);             // held before host-first: one bar, no split
-    const toAdmin = legacy ? null : e.to_admin_at ?? null;
-    const host = toAdmin ? mins(e.created_at, toAdmin) : mins(e.created_at, e.decided_at);
-    const admin = toAdmin ? mins(toAdmin, e.decided_at) : 0;
-    const by = e.by_role === "admin" ? "admin" : "guard";
-    const result = !e.decided_at ? "still open"
-      : `${e.status === "approved" ? "approved" : "denied"} by ${by}${toAdmin ? " after the host couldn't confirm" : by === "guard" ? " after the host call" : ""}, ${fmtDuration((host + admin) * 60000, true)}`;
-    return { name: e.name, host, admin, open: !e.decided_at, legacy, result };
-  });
   // Decision time: a dash when no admin decided this week (owner, 2026-10-07: "–" rather than "0 cases").
   const median = r.median_admin_seconds !== null ? fmtDuration(r.median_admin_seconds * 1000, true) : "–";
   const quiet = total === 0 && r.held === 0;
@@ -71,14 +58,13 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         {from === thisWeek ? <p className="ma-note">This week so far.</p> : null}
         {quiet ? <p className="ma-note"><b>No visits recorded in this week.</b></p> : null}
         <div className="ma-chart-grid4">
-          <Kpi value={total} label="Visits" sub={`${people} ${people === 1 ? "person" : "people"} + ${r.family_groups} family ${r.family_groups === 1 ? "group" : "groups"}`} icon="users" />
-          <Kpi value={r.held} label="Flag & Hold" sub={`${r.held_approved} approved · ${r.held_denied} denied${r.held_open ? ` · ${r.held_open} open` : ""}`} icon="flag" />
-          <Kpi value={median} label="Admin decision time" sub={r.admin_decided ? `median of ${r.admin_decided} ${r.admin_decided === 1 ? "case" : "cases"}, from reaching admins` : "no case needed an admin this week"} icon="hourglass" />
-          <Kpi value={r.overstays} label="Overstays" sub="still inside after visiting hours" icon="triangle-alert" />
+          <Kpi value={total} label="Visits" sub={`${people} ${people === 1 ? "person" : "people"} · ${r.family_groups} family ${r.family_groups === 1 ? "group" : "groups"}`} />
+          <Kpi value={r.held} label="On hold" sub={`${r.held_approved} approved · ${r.held_denied} denied${r.held_open ? ` · ${r.held_open} open` : ""}`} tone={r.held ? "hold" : undefined} />
+          <Kpi value={median} label="Admin decision time" sub={r.admin_decided ? `median of ${r.admin_decided} ${r.admin_decided === 1 ? "case" : "cases"}` : "no case reached an admin"} />
+          <Kpi value={r.overstays} label="Overstays" sub="inside after visiting hours" tone={r.overstays ? "deny" : undefined} />
         </div>
-        {/* Fewer, larger charts, one per row (owner, 2026-10-06: "overall infographics needs to be changed"). */}
-        <div className="ma-chart-card ma-chart-card--wide"><h3>Escalations against the {limit}-minute limit</h3><Escalations items={esc} limit={limit} /></div>
-        <div className="ma-chart-card ma-chart-card--wide"><h3>Visits per day</h3><DayBars days={r.by_day} /></div>
+        {/* Redesign (owner, 2026-10-08): escalation chart removed; every chart redrawn. */}
+        <div className="ma-chart-card ma-chart-card--wide"><h3>Visits per day</h3><DayBars days={r.by_day} today={ymd()} /></div>
         <div className="ma-chart-card ma-chart-card--wide"><h3>When visitors arrive</h3><HourBars hours={r.by_hour} open={open} close={close} />
           <ul className="ma-chart-legend"><li><span className="ma-chart-key" style={{ background: "var(--ma-chart-bar)" }} />Within visiting hours</li>
             <li><span className="ma-chart-key" style={{ background: "var(--ma-chart-bar-out)" }} />Outside visiting hours</li></ul></div>
@@ -97,7 +83,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <summary>Show as a table</summary>
           <div className="ma-tablecard"><div className="ma-table-wrap" tabIndex={0} role="region" aria-label="Weekly review as a table">
             <table className="ma-table">
-              <thead><tr><th>Visitor type</th><th>Visits</th><th>Flag &amp; Hold</th><th>Denied</th><th>Overstays</th></tr></thead>
+              <thead><tr><th>Visitor type</th><th>Visits</th><th>On hold</th><th>Denied</th><th>Overstays</th></tr></thead>
               <tbody>
                 {r.by_type.map((t) => <tr key={t.type} style={{ cursor: "default" }}><td>{KIND_LABEL[t.type] ?? t.type}</td><td className="ma-tabular">{t.visits}</td><td className="ma-tabular">{t.held}</td><td className="ma-tabular">{t.denied}</td><td className="ma-tabular">{t.overstays}</td></tr>)}
                 <tr style={{ cursor: "default" }}><td>Student family</td><td className="ma-tabular">{r.family_groups} {r.family_groups === 1 ? "group" : "groups"} ({r.family_guests} guests)</td><td>—</td><td>—</td><td className="ma-tabular">{r.family_overstays}</td></tr>

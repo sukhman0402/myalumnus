@@ -16,9 +16,12 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 /** Light unless this device chose dark with the moon button (cookie `ma-theme`, set by components/ThemeToggle). */
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const theme = (await cookies()).get("ma-theme")?.value === "dark" ? "dark" : "light";
+  const jar = await cookies();
+  const theme = jar.get("ma-theme")?.value === "dark" ? "dark" : "light";
+  // Text size chosen in guard Settings (owner, 2026-10-08): scales every rem-based size on this device.
+  const text = jar.get("ma-text")?.value;
   return (
-    <html lang="en" data-theme={theme}>
+    <html lang="en" data-theme={theme} data-text={text === "large" || text === "larger" ? text : undefined}>
       <body>{children}</body>
     </html>
   );

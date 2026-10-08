@@ -8,6 +8,9 @@ import { Banner } from "../ui";
 import { RulesForm } from "./RulesForm";
 import { getTheme } from "@/components/Frame";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { SignOutButton } from "@/components/SignOutButton";
+import { DEMO_MODE } from "@/lib/demo";
+import { signOut, switchConsole } from "../../sign-in/actions";
 
 export const metadata: Metadata = { title: "Settings · Admin console" };
 
@@ -15,7 +18,7 @@ type Rule = { campus_id: string; campus: string; open_time: string; close_time: 
 const LABELS = { open_time: "Hours start", close_time: "Hours end", escalate_minutes: "Escalation minutes" };
 
 /** Settings (renamed from Campus, owner 2026-10-06): campus rules (only two, on purpose; changes are logged),
- *  and this computer's display. */
+ *  this computer's display, and the account (sign-out moved here from the top bar, owner 2026-10-08). */
 export default async function CampusPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const [me, sp, theme] = await Promise.all([requireRole("admin"), searchParams, getTheme()]);
   const supabase = await createClient();
@@ -27,7 +30,7 @@ export default async function CampusPage({ searchParams }: { searchParams: Promi
   return (
     <AdminShell me={me} title="Settings" current="/admin/campus"
       banner={savedAt ? <Banner kind="success" icon="check"><b>Saved · <span className="ma-tabular">{savedAt}</span>.</b> Guards see the new rules from their next search.</Banner> : null}
-      aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Changes</h2>
+      aside={<section className="ma-panel" aria-labelledby="ch"><h2 className="ma-panel__title" id="ch">Logs</h2>
         {rules.map((r, i) => <ChangeLog key={r.campus_id} rows={(logs[i].data ?? []) as Change[]} labels={LABELS} added="Rules created" />)}</section>}>
       {rules.map((r) => (
         <section key={r.campus_id} className="ma-panel" aria-labelledby={`h-${r.campus_id}`}>
@@ -37,8 +40,16 @@ export default async function CampusPage({ searchParams }: { searchParams: Promi
       ))}
       <section className="ma-panel ma-setting" aria-labelledby="disp">
         <div className="ma-setting__text"><h2 className="ma-panel__title" id="disp">Display</h2>
-          <p className="ma-note">Light or dark, for this computer only. Also the moon button at the top right.</p></div>
+          <p className="ma-note">Light or dark, for this computer only.</p></div>
         <div className="ma-actions"><ThemeToggle variant="row" initial={theme} darkLabel="Dark mode" lightLabel="Light mode" /></div>
+      </section>
+      {/* Sign-out lives here, not in the top bar: signing in is a one-time setup (owner, 2026-10-08). */}
+      <section className="ma-panel ma-setting" aria-labelledby="acct">
+        <div className="ma-setting__text"><h2 className="ma-panel__title" id="acct">Account</h2>
+          <p className="ma-note">{me.name} · {me.university_name}{DEMO_MODE ? ". Demo: switch to the guard console." : ". This computer stays signed in until you sign out."}</p></div>
+        <div className="ma-actions">{DEMO_MODE
+          ? <SignOutButton signOut={switchConsole.bind(null, "guard")} label="Switch to Guard console" />
+          : <SignOutButton signOut={signOut} />}</div>
       </section>
     </AdminShell>
   );

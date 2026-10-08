@@ -23,6 +23,8 @@ const MSG: Record<string, [string, string?]> = {
   minutes_invalid: ["Enter a whole number of minutes from 1 to 60.", "minutes"],
   demo_locked: ["This demo account can't be changed or deactivated."],
   demo_photo: ["Photos can't be changed in the demo."],
+  outside_hours: ["That time is outside visiting hours. Pick a time within them.", "time"],   // was the generic "check the connection"
+  phone_invalid: ["Check the number: digits, spaces, brackets, - and + only.", "phone"],
 };
 
 export const GENERIC = "Couldn't save. Check the connection and try again. Nothing was changed.";
