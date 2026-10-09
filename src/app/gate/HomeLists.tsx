@@ -26,7 +26,9 @@ async function load() {
  */
 export async function homeLists(lang: Lang) {
   const { t: fmtTime } = await timeFns();   // this device's 12/24-hour choice
-  const { expected, inside, open, denied } = await load();
+  const { expected: all, inside, open, denied } = await load();
+  // Once let in, a visitor leaves Expected today and shows only in Inside now (owner, 2026-10-09).
+  const expected = all.filter((r) => !r.arrived_at);
   const urls = await signPhotos([...expected.map((r) => r.photo_path), ...inside.map((r) => (r.kind === "visit" ? r.photo_path : null)),
     ...open.map((r) => r.photo_path), ...denied.map((r) => r.photo_path)]);
   const empty = (t: string, d?: string) => <div className="ma-list"><div className="ma-empty"><b>{t}</b>{d ? <span>{d}</span> : null}</div></div>;
@@ -41,16 +43,14 @@ export async function homeLists(lang: Lang) {
             <Link className="ma-mini__row ma-mini__row--link" href={`/gate/person/${r.person_id}?picked=1`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {photo ? <span className="ma-mini__photo"><img src={photo} alt="" /></span> : <span className="ma-mini__photo"><Icon name="user" size={18} /></span>}
-              {/* Not here yet: when they're due. Arrived: when they arrived, in green. */}
-              <span className="ma-mini__text"><b>{r.full_name}</b>{r.arrived_at
-                ? <MiniTime label={tr(lang, "mini.arrived")} time={fmtTime(r.arrived_at)} ok />
-                : <MiniTime label={tr(lang, "mini.due")} time={fmtTime(r.expected_at)} />}</span>
+              {/* Only visitors not yet let in are listed, so each row shows when they're due. */}
+              <span className="ma-mini__text"><b>{r.full_name}</b><MiniTime label={tr(lang, "mini.due")} time={fmtTime(r.expected_at)} /></span>
             </Link>
           </li>
         );
       })}
     </ul>
-  ) : empty(tr(lang, "exp.none"));
+  ) : all.length ? empty(tr(lang, "exp.allin")) : empty(tr(lang, "exp.none"));
 
   // On hold (owner, 2026-10-08): people still on hold first, then those denied today, by the gate or an admin (an
   // admin's deny used to never reach the gate). No times, no group label: the status chip says it all.

@@ -94,7 +94,7 @@ const en = {
   "cases.none": "No visitors are on hold", "cases.none.sub": "Put a visitor on hold from their record, or from a search with no match.", // new
   "kv.visitor": "Visitor", "kv.says": "Says", "kv.why": "Why held", "kv.purpose": "Purpose", "kv.host": "Host", "kv.asgiven": "(name as given)",
   "exp.title": "{n} expected today", "exp.sub": "Added by admin. Open a row when the visitor arrives; walk-ins are searched as usual.",
-  "exp.none": "No visits expected today", "exp.none.sub": "Admin hasn't added anyone for today.",
+  "exp.none": "No visits expected today", "exp.none.sub": "Admin hasn't added anyone for today.", "exp.allin": "Everyone expected today has arrived", // new 2026-10-09
   "exp.meta": "{k} · Host: {h}", "chip.due": "Due {t}", "chip.arrived": "Arrived {t}",
   "in.title": "{n} people inside", "in.title1": "1 person inside", // title1: new
   "in.sub": "Mark the exit when they leave the gate. Anyone still inside after visiting hours shows as Overstay.", // reworded for Q4
@@ -272,7 +272,7 @@ const hi: Record<Key, string> = {
   "cases.none": "कोई विज़िटर रुका हुआ नहीं है", "cases.none.sub": "विज़िटर के रिकॉर्ड से, या कोई मेल न मिलने पर खोज से, उन्हें रोकें और सूचित करें।",
   "kv.visitor": "विज़िटर", "kv.says": "बताते हैं", "kv.why": "रोकने का कारण", "kv.purpose": "आने का कारण", "kv.host": "होस्ट", "kv.asgiven": "(बताया गया नाम)",
   "exp.title": "आज {n} लोग आने वाले", "exp.sub": "एडमिन ने जोड़ा है। विज़िटर के आने पर पंक्ति खोलें; बिना सूचना आने वालों को सामान्य तरह खोजें।",
-  "exp.none": "आज कोई आने वाला नहीं", "exp.none.sub": "एडमिन ने आज के लिए किसी को नहीं जोड़ा।",
+  "exp.none": "आज कोई आने वाला नहीं", "exp.none.sub": "एडमिन ने आज के लिए किसी को नहीं जोड़ा।", "exp.allin": "आज आने वाले सभी आ चुके हैं", // new 2026-10-09
   "exp.meta": "{k} · होस्ट: {h}", "chip.due": "{t} बजे आना है", "chip.arrived": "{t} बजे पहुँचे",
   "in.title": "{n} लोग अंदर", "in.title1": "1 व्यक्ति अंदर",
   "in.sub": "गेट से निकलते समय निकास दर्ज करें। विज़िटिंग समय ख़त्म होने के बाद भी अंदर रहने वालों पर निशान लगेगा।",
