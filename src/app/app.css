@@ -447,3 +447,8 @@ html[data-text="larger"] { font-size: 125%; }
 .ma-filters__go { gap: var(--ma-space-4); }
 .ma-filters__clear { align-self: center; white-space: nowrap; }
 .ma-date-echo { margin: 6px 0 0; color: var(--ma-color-text-secondary); font-size: var(--ma-typography-label-font-size); }
+
+/* New "ma" logo (owner, 2026-10-09): a wide mark, so it is sized by width inside the round badge. */
+.ma-rail__logo svg { width: 26px; height: auto; }
+.ma-signin .ma-rail__logo svg { width: 32px; height: auto; }
+.ma-signin .ma-signin__brand .ma-rail__logo svg { width: 38px; height: auto; }
